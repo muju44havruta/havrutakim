@@ -629,22 +629,22 @@
   }
 
   function subjectOptionsHtml(selected) {
-    var html = '<option value="">과목 선택</option>';
+    var html = "<option value=\"\">과목 선택</option>";
     for (var i = 0; i < SUBJECTS.length; i++) {
       var s = SUBJECTS[i];
-      html += '<option value="' + s + '"' + (s === selected ? " selected" : "") + ">" + s + "</option>";
+      html += "<option value=\"" + s + "\"" + (s === selected ? " selected" : "") + ">" + s + "</option>";
     }
-    html += '<option value="__custom__"' + (selected === "__custom__" ? " selected" : "") + ">직접 입력</option>';
+    html += "<option value=\"__custom__\"" + (selected === "__custom__" ? " selected" : "") + ">직접 입력</option>";
     return html;
   }
 
   function activityBlockHtml(index) {
     return (
-      '<div class="activity" data-act="' + index + '">' +
-        '<div class="activity-label">활동 ' + (index + 1) + "</div>" +
-        '<textarea class="name" data-f="name" rows="1" placeholder="활동명 (예: 광합성 실험 탐구)"></textarea>' +
-        '<textarea data-f="content" rows="2" placeholder="수행내용 (예: 빛의 세기에 따른 산소 발생량을 측정하는 실험을 설계)"></textarea>' +
-        '<textarea data-f="learned" rows="2" placeholder="배운점 / 성장 (예: 정량적 데이터 분석 능력과 협업 태도)"></textarea>' +
+      "<div class=\"activity\" data-act=\"" + index + "\">" +
+        "<div class=\"activity-label\">활동 " + (index + 1) + "</div>" +
+        "<textarea class=\"name\" data-f=\"name\" rows=\"1\" placeholder=\"활동명 (예: 광합성 실험 탐구)\"></textarea>" +
+        "<textarea data-f=\"content\" rows=\"2\" placeholder=\"수행내용 (예: 빛의 세기에 따른 산소 발생량을 측정하는 실험을 설계)\"></textarea>" +
+        "<textarea data-f=\"learned\" rows=\"2\" placeholder=\"배운점 / 성장 (예: 정량적 데이터 분석 능력과 협업 태도)\"></textarea>" +
       "</div>"
     );
   }
@@ -658,34 +658,34 @@
     card.setAttribute("data-id", entry.id);
 
     card.innerHTML =
-      '<div class="entry-head">' +
-        '<div class="entry-index num">1</div>' +
-        '<div class="field"><label>학생 이름</label><input type="text" data-f="name" placeholder="예: 홍길동" /></div>' +
-        '<div class="field"><label>학년/반/번호</label><input type="text" data-f="info" placeholder="예: 2학년 3반 15번" /></div>' +
-        '<div class="field subject">' +
+      "<div class=\"entry-head\">" +
+        "<div class=\"entry-index num\">1</div>" +
+        "<div class=\"field\"><label>학생 이름</label><input type=\"text\" data-f=\"name\" placeholder=\"예: 홍길동\" /></div>" +
+        "<div class=\"field\"><label>학년/반/번호</label><input type=\"text\" data-f=\"info\" placeholder=\"예: 2학년 3반 15번\" /></div>" +
+        "<div class=\"field subject\">" +
           "<label>과목</label>" +
-          '<select data-f="subject">' + subjectOptionsHtml(entry.subject) + "</select>" +
-          '<input type="text" class="subject-custom" data-f="subjectCustom" placeholder="과목명 직접 입력" hidden />' +
+          "<select data-f=\"subject\">" + subjectOptionsHtml(entry.subject) + "</select>" +
+          "<input type=\"text\" class=\"subject-custom\" data-f=\"subjectCustom\" placeholder=\"과목명 직접 입력\" hidden />" +
         "</div>" +
-        '<button class="ghost" data-action="delete" title="이 학생 삭제" aria-label="이 학생 삭제">✕</button>' +
+        "<button class=\"ghost\" data-action=\"delete\" title=\"이 학생 삭제\" aria-label=\"이 학생 삭제\">✕</button>" +
       "</div>" +
-      '<div class="entry-body">' +
+      "<div class=\"entry-body\">" +
         activityBlockHtml(0) + activityBlockHtml(1) + activityBlockHtml(2) +
       "</div>" +
-      '<div class="entry-extra">' +
-        '<label style="display:block;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:4px;">마무리 강조문구 (선택)</label>' +
-        '<textarea data-f="extra" rows="1" placeholder="예: 과학적 탐구에 대한 높은 흥미와 성실한 태도가 돋보임"></textarea>' +
+      "<div class=\"entry-extra\">" +
+        "<label style=\"display:block;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:4px;\">마무리 강조문구 (선택)</label>" +
+        "<textarea data-f=\"extra\" rows=\"1\" placeholder=\"예: 과학적 탐구에 대한 높은 흥미와 성실한 태도가 돋보임\"></textarea>" +
       "</div>" +
-      '<div class="entry-result">' +
-        '<div class="result-row">' +
-          '<span class="result-title">세특 초안 (자동 생성)</span>' +
-          '<div class="result-actions">' +
-            '<span class="char-count"><span class="num">0</span>자</span>' +
-            '<span class="badge muted">-</span>' +
-            '<button class="small" data-action="copy">복사</button>' +
+      "<div class=\"entry-result\">" +
+        "<div class=\"result-row\">" +
+          "<span class=\"result-title\">세특 초안 (자동 생성)</span>" +
+          "<div class=\"result-actions\">" +
+            "<span class=\"char-count\"><span class=\"num\">0</span>자</span>" +
+            "<span class=\"badge muted\">-</span>" +
+            "<button class=\"small\" data-action=\"copy\">복사</button>" +
           "</div>" +
         "</div>" +
-        '<div class="draft"></div>' +
+        "<div class=\"draft\"></div>" +
       "</div>";
 
     entriesEl.appendChild(card);
