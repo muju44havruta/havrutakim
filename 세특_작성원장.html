@@ -1,0 +1,855 @@
+<title>세특 작성 원장</title>
+<style>
+  :root {
+    --paper: #EEF0F1;
+    --paper-line: #C7CDD1;
+    --card: #FFFFFF;
+    --card-line: #D7DCDF;
+    --ink: #20262B;
+    --ink-soft: #5B646B;
+    --ink-faint: #8A9297;
+    --accent: #2C4A6E;
+    --accent-ink: #17324E;
+    --accent-tint: #DCE6EE;
+    --status-ok: #3F7B54;
+    --status-ok-tint: #E1EFE4;
+    --status-warn: #B4402A;
+    --status-warn-tint: #F6E2DD;
+    --status-short: #A9862F;
+    --status-short-tint: #F1E9D4;
+    --shadow: 0 1px 2px rgba(32, 38, 43, 0.06), 0 6px 16px rgba(32, 38, 43, 0.05);
+    color-scheme: light;
+  }
+
+  :root[data-theme="dark"] {
+    --paper: #15181B;
+    --paper-line: #2B3136;
+    --card: #1C2023;
+    --card-line: #33393E;
+    --ink: #E7EAEC;
+    --ink-soft: #A6AEB3;
+    --ink-faint: #767F84;
+    --accent: #7EA4C9;
+    --accent-ink: #CFE0EE;
+    --accent-tint: #253442;
+    --status-ok: #6FBE8A;
+    --status-ok-tint: #1E2E24;
+    --status-warn: #E08A76;
+    --status-warn-tint: #34211D;
+    --status-short: #D9BB6E;
+    --status-short-tint: #332B18;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 20px rgba(0, 0, 0, 0.35);
+    color-scheme: dark;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #15181B;
+      --paper-line: #2B3136;
+      --card: #1C2023;
+      --card-line: #33393E;
+      --ink: #E7EAEC;
+      --ink-soft: #A6AEB3;
+      --ink-faint: #767F84;
+      --accent: #7EA4C9;
+      --accent-ink: #CFE0EE;
+      --accent-tint: #253442;
+      --status-ok: #6FBE8A;
+      --status-ok-tint: #1E2E24;
+      --status-warn: #E08A76;
+      --status-warn-tint: #34211D;
+      --status-short: #D9BB6E;
+      --status-short-tint: #332B18;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 20px rgba(0, 0, 0, 0.35);
+      color-scheme: dark;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body { overflow-x: hidden; }
+
+  .serif {
+    font-family: "Nanum Myeongjo", "KoPubWorld Batang", "Batang", "Apple SD Gothic Neo", Georgia, serif;
+  }
+
+  .num {
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  a { color: inherit; }
+
+  .page {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 40px 24px 96px;
+  }
+
+  /* ---------- Masthead ---------- */
+  .masthead {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    padding-bottom: 18px;
+    border-bottom: 2px solid var(--ink);
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+  }
+
+  .masthead-title {
+    font-size: clamp(26px, 4vw, 34px);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+    margin: 0;
+  }
+
+  .masthead-sub {
+    margin: 6px 0 0;
+    color: var(--ink-soft);
+    font-size: 13.5px;
+    line-height: 1.6;
+    max-width: 46ch;
+  }
+
+  .masthead-meta {
+    font-size: 11.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    text-align: right;
+    line-height: 1.7;
+  }
+
+  /* ---------- Info strip ---------- */
+  .info-strip {
+    margin: 22px 0 28px;
+    border: 1px solid var(--card-line);
+    background: var(--card);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+  }
+
+  .info-strip summary {
+    cursor: pointer;
+    list-style: none;
+    padding: 13px 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--accent-ink);
+  }
+
+  .info-strip summary::-webkit-details-marker { display: none; }
+
+  .info-strip summary::before {
+    content: "＋";
+    display: inline-flex;
+    width: 18px;
+    justify-content: center;
+    color: var(--accent);
+    transition: transform 0.15s ease;
+    font-weight: 700;
+  }
+
+  .info-strip[open] summary::before { transform: rotate(45deg); }
+
+  .info-strip .info-body {
+    padding: 2px 18px 16px 46px;
+    color: var(--ink-soft);
+    font-size: 13px;
+    line-height: 1.75;
+  }
+
+  .info-body ol { margin: 0; padding-left: 18px; }
+  .info-body li { margin-bottom: 5px; }
+  .info-body .legend {
+    display: flex;
+    gap: 16px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+    font-size: 12.5px;
+  }
+  .legend-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    margin-right: 6px;
+    vertical-align: -1px;
+  }
+
+  /* ---------- Toolbar ---------- */
+  .toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    background: var(--paper);
+    padding: 12px 0;
+    margin-bottom: 18px;
+    border-bottom: 1px solid var(--paper-line);
+  }
+
+  .toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+
+  .toolbar input[type="number"] {
+    width: 76px;
+  }
+
+  .spacer { flex: 1; }
+
+  input, select, textarea {
+    font: inherit;
+    color: var(--ink);
+    background: var(--card);
+    border: 1px solid var(--card-line);
+    border-radius: 6px;
+    padding: 7px 9px;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+
+  button {
+    font: inherit;
+    cursor: pointer;
+    border-radius: 7px;
+    border: 1px solid var(--card-line);
+    background: var(--card);
+    color: var(--ink);
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: background 0.12s ease, border-color 0.12s ease, transform 0.05s ease;
+  }
+
+  button:hover { border-color: var(--ink-faint); }
+  button:active { transform: translateY(1px); }
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  button.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  button.primary:hover { background: var(--accent-ink); border-color: var(--accent-ink); }
+
+  button.ghost {
+    background: transparent;
+    border-color: transparent;
+    color: var(--ink-soft);
+    padding: 6px 8px;
+  }
+  button.ghost:hover { color: var(--status-warn); }
+
+  button.small { padding: 5px 10px; font-size: 12px; }
+
+  /* ---------- Entry card ---------- */
+  #entries { display: flex; flex-direction: column; gap: 22px; }
+
+  .entry {
+    background: var(--card);
+    border: 1px solid var(--card-line);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .entry-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--card-line);
+    background: linear-gradient(var(--card), var(--card));
+  }
+
+  .entry-index {
+    font-size: 12px;
+    color: var(--ink-faint);
+    width: 22px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .entry-head .field { flex: 1 1 160px; min-width: 0; }
+  .entry-head .field.subject { flex: 1 1 140px; }
+  .entry-head .field input,
+  .entry-head .field select { width: 100%; }
+
+  .field label {
+    display: block;
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 4px;
+  }
+
+  .subject-custom { margin-top: 6px; }
+  .subject-custom[hidden] { display: none; }
+
+  .entry-body {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--card-line);
+  }
+
+  .activity {
+    background: var(--card);
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .activity-label {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--accent-ink);
+    letter-spacing: 0.02em;
+  }
+
+  .activity textarea {
+    width: 100%;
+    resize: vertical;
+    min-height: 36px;
+    line-height: 1.5;
+    font-size: 13px;
+  }
+
+  .activity textarea.name { min-height: 32px; }
+
+  .entry-extra {
+    padding: 14px 18px;
+    border-top: 1px solid var(--card-line);
+  }
+  .entry-extra textarea { width: 100%; min-height: 34px; line-height: 1.5; font-size: 13px; }
+
+  .entry-result {
+    padding: 16px 18px 18px;
+    border-top: 1px solid var(--card-line);
+    background: var(--paper);
+  }
+
+  .result-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .result-title {
+    font-size: 11.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  .result-actions { display: flex; align-items: center; gap: 10px; }
+
+  .char-count { font-size: 12.5px; color: var(--ink-soft); }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 9px;
+    border-radius: 100px;
+    font-size: 11.5px;
+    font-weight: 700;
+  }
+  .badge.ok { background: var(--status-ok-tint); color: var(--status-ok); }
+  .badge.warn { background: var(--status-warn-tint); color: var(--status-warn); }
+  .badge.short { background: var(--status-short-tint); color: var(--status-short); }
+  .badge.muted { background: transparent; color: var(--ink-faint); border: 1px dashed var(--card-line); }
+
+  .draft {
+    font-family: "Nanum Myeongjo", "Batang", "Apple SD Gothic Neo", serif;
+    font-size: 14.5px;
+    line-height: 1.85;
+    color: var(--ink);
+    white-space: pre-wrap;
+    min-height: 28px;
+  }
+  .draft:empty::before {
+    content: "왼쪽 활동 정보를 입력하면 이 문단이 자동으로 완성됩니다.";
+    color: var(--ink-faint);
+    font-family: inherit;
+  }
+
+  /* ---------- Empty state ---------- */
+  .empty {
+    text-align: center;
+    padding: 56px 20px;
+    color: var(--ink-faint);
+    border: 1px dashed var(--card-line);
+    border-radius: 12px;
+    font-size: 13.5px;
+  }
+
+  /* ---------- Footer bar ---------- */
+  .addbar {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  footer.note {
+    margin-top: 40px;
+    padding-top: 16px;
+    border-top: 1px solid var(--paper-line);
+    color: var(--ink-faint);
+    font-size: 11.5px;
+    line-height: 1.7;
+  }
+
+  .theme-toggle {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    background: var(--card);
+    box-shadow: var(--shadow);
+    z-index: 6;
+  }
+
+  @media (max-width: 720px) {
+    .entry-body { grid-template-columns: 1fr; }
+    .entry-head { flex-wrap: wrap; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+
+<div class="page">
+
+  <div class="masthead">
+    <div>
+      <h1 class="masthead-title serif">세특 작성 원장</h1>
+      <p class="masthead-sub">활동명·수행내용·배운점을 입력하면 과목별 세부능력 및 특기사항 초안 문단이 자동으로 조립됩니다.</p>
+    </div>
+    <div class="masthead-meta">교과 세부능력 및 특기사항<br>초안 작성 도구</div>
+  </div>
+
+  <details class="info-strip" id="infoStrip">
+    <summary>사용법 및 색상 안내</summary>
+    <div class="info-body">
+      <ol>
+        <li>PDF 결과물이 있다면 핵심 내용을 확인한 뒤, <strong>활동명 · 수행내용 · 배운점(성장)</strong>으로 요약해 입력하세요. 이 페이지는 PDF 파일을 직접 읽지는 못합니다 — 자료를 사람이 먼저 구조화해서 옮겨 적어야 합니다.</li>
+        <li>직접 입력하는 자료도 동일한 방식으로 나누어 입력하면 됩니다.</li>
+        <li>학생 한 명·한 과목당 카드 하나, 활동은 최대 3개까지 입력할 수 있습니다.</li>
+        <li>아래 "세특 초안"은 입력한 내용을 바탕으로 자동으로 조립된 문단입니다. 문구는 반드시 사실관계를 검토한 뒤 학교생활기록부에 반영하세요.</li>
+        <li>입력 내용은 이 브라우저에만 자동 저장됩니다(서버 전송 없음). CSV로 내려받아 백업하는 것을 권장합니다.</li>
+      </ol>
+      <div class="legend">
+        <span><span class="legend-dot" style="background:var(--status-ok)"></span>적정 글자수</span>
+        <span><span class="legend-dot" style="background:var(--status-short)"></span>너무 짧음</span>
+        <span><span class="legend-dot" style="background:var(--status-warn)"></span>목표 글자수 초과</span>
+      </div>
+    </div>
+  </details>
+
+  <div class="toolbar">
+    <div class="toolbar-group">
+      <label for="targetLen">목표 글자수(공백 포함)</label>
+      <input type="number" id="targetLen" class="num" min="50" step="10" value="800" />
+    </div>
+    <div class="spacer"></div>
+    <button class="small" id="exportCsv">CSV로 내려받기</button>
+    <button class="small" id="clearAll">전체 초기화</button>
+    <button class="primary" id="addEntry">+ 학생 추가</button>
+  </div>
+
+  <div id="entries"></div>
+
+  <div class="addbar">
+    <button class="primary" id="addEntryBottom">+ 학생 추가</button>
+  </div>
+
+  <footer class="note">
+    자동 생성된 문장은 초안입니다. 사실 관계와 문장을 반드시 교사가 검토·수정한 뒤 사용하세요. 데이터는 이 기기의 브라우저 저장소에만 남으며, 다른 곳으로 전송되지 않습니다.
+  </footer>
+</div>
+
+<button class="theme-toggle" id="themeToggle" title="테마 전환" aria-label="테마 전환">◐</button>
+
+<script>
+(function () {
+  "use strict";
+
+  var STORAGE_KEY = "setteuk-ledger-v1";
+  var TEMPLATES = ["활동에 참여하여", "활동에서", "활동을 통해"];
+  var SUBJECTS = ["국어", "수학", "영어", "사회", "역사", "도덕", "과학", "물리학", "화학",
+    "생명과학", "지구과학", "기술·가정", "정보", "체육", "음악", "미술", "한국사", "진로와 직업"];
+
+  var entriesEl = document.getElementById("entries");
+  var targetLenEl = document.getElementById("targetLen");
+  var saveTimer = null;
+
+  var state = { targetLen: 800, entries: [] };
+
+  function uid() {
+    return "e" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  }
+
+  function blankEntry() {
+    return {
+      id: uid(),
+      name: "", info: "", subject: "", subjectCustom: "",
+      acts: [
+        { name: "", content: "", learned: "" },
+        { name: "", content: "", learned: "" },
+        { name: "", content: "", learned: "" }
+      ],
+      extra: ""
+    };
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c];
+    });
+  }
+
+  function sentenceFor(act, phrase) {
+    var name = act.name.trim();
+    if (!name) return "";
+    var content = act.content.trim();
+    var s = "'" + name + "' " + phrase + (content ? " " + content + "을(를) 수행함." : " 수행함.");
+    var learned = act.learned.trim();
+    if (learned) s += " " + learned + "을(를) 보임.";
+    return s;
+  }
+
+  function buildDraft(entry) {
+    var parts = [];
+    for (var i = 0; i < entry.acts.length; i++) {
+      var s = sentenceFor(entry.acts[i], TEMPLATES[i]);
+      if (s) parts.push(s);
+    }
+    if (entry.extra.trim()) parts.push(entry.extra.trim());
+    return parts.join(" ");
+  }
+
+  function statusFor(len, target) {
+    if (len === 0) return { label: "-", cls: "muted" };
+    if (len > target) return { label: "초과 (+" + (len - target) + "자)", cls: "warn" };
+    if (len < target * 0.5) return { label: "너무 짧음", cls: "short" };
+    return { label: "적정", cls: "ok" };
+  }
+
+  function scheduleSave() {
+    if (saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(function () {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) { /* storage unavailable: silently skip persistence */ }
+    }, 250);
+  }
+
+  function updateComputed(entry, card) {
+    var draft = buildDraft(entry);
+    var len = draft.length;
+    var status = statusFor(len, state.targetLen);
+
+    card.querySelector(".draft").textContent = draft;
+    card.querySelector(".char-count").innerHTML =
+      '<span class="num">' + len + "</span>자";
+    var badge = card.querySelector(".badge");
+    badge.textContent = status.label;
+    badge.className = "badge " + status.cls;
+  }
+
+  function refreshAllStatus() {
+    var cards = entriesEl.children;
+    for (var i = 0; i < cards.length; i++) {
+      var id = cards[i].getAttribute("data-id");
+      var entry = state.entries.filter(function (e) { return e.id === id; })[0];
+      if (entry) updateComputed(entry, cards[i]);
+    }
+  }
+
+  function reindex() {
+    var cards = entriesEl.children;
+    for (var i = 0; i < cards.length; i++) {
+      cards[i].querySelector(".entry-index").textContent = i + 1;
+    }
+    toggleEmptyState();
+  }
+
+  function toggleEmptyState() {
+    var existing = document.getElementById("emptyState");
+    if (state.entries.length === 0) {
+      if (!existing) {
+        var div = document.createElement("div");
+        div.className = "empty";
+        div.id = "emptyState";
+        div.textContent = "아직 등록된 학생이 없습니다. “+ 학생 추가”를 눌러 시작하세요.";
+        entriesEl.parentNode.insertBefore(div, entriesEl.nextSibling);
+      }
+    } else if (existing) {
+      existing.remove();
+    }
+  }
+
+  function subjectOptionsHtml(selected) {
+    var html = '<option value="">과목 선택</option>';
+    for (var i = 0; i < SUBJECTS.length; i++) {
+      var s = SUBJECTS[i];
+      html += '<option value="' + s + '"' + (s === selected ? " selected" : "") + ">" + s + "</option>";
+    }
+    html += '<option value="__custom__"' + (selected === "__custom__" ? " selected" : "") + ">직접 입력</option>';
+    return html;
+  }
+
+  function activityBlockHtml(index) {
+    return (
+      '<div class="activity" data-act="' + index + '">' +
+        '<div class="activity-label">활동 ' + (index + 1) + "</div>" +
+        '<textarea class="name" data-f="name" rows="1" placeholder="활동명 (예: 광합성 실험 탐구)"></textarea>' +
+        '<textarea data-f="content" rows="2" placeholder="수행내용 (예: 빛의 세기에 따른 산소 발생량을 측정하는 실험을 설계)"></textarea>' +
+        '<textarea data-f="learned" rows="2" placeholder="배운점 / 성장 (예: 정량적 데이터 분석 능력과 협업 태도)"></textarea>' +
+      "</div>"
+    );
+  }
+
+  function addEntry(entry) {
+    entry = entry || blankEntry();
+    state.entries.push(entry);
+
+    var card = document.createElement("div");
+    card.className = "entry";
+    card.setAttribute("data-id", entry.id);
+
+    card.innerHTML =
+      '<div class="entry-head">' +
+        '<div class="entry-index num">1</div>' +
+        '<div class="field"><label>학생 이름</label><input type="text" data-f="name" placeholder="예: 홍길동" /></div>' +
+        '<div class="field"><label>학년/반/번호</label><input type="text" data-f="info" placeholder="예: 2학년 3반 15번" /></div>' +
+        '<div class="field subject">' +
+          "<label>과목</label>" +
+          '<select data-f="subject">' + subjectOptionsHtml(entry.subject) + "</select>" +
+          '<input type="text" class="subject-custom" data-f="subjectCustom" placeholder="과목명 직접 입력" hidden />' +
+        "</div>" +
+        '<button class="ghost" data-action="delete" title="이 학생 삭제" aria-label="이 학생 삭제">✕</button>' +
+      "</div>" +
+      '<div class="entry-body">' +
+        activityBlockHtml(0) + activityBlockHtml(1) + activityBlockHtml(2) +
+      "</div>" +
+      '<div class="entry-extra">' +
+        '<label style="display:block;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:4px;">마무리 강조문구 (선택)</label>' +
+        '<textarea data-f="extra" rows="1" placeholder="예: 과학적 탐구에 대한 높은 흥미와 성실한 태도가 돋보임"></textarea>' +
+      "</div>" +
+      '<div class="entry-result">' +
+        '<div class="result-row">' +
+          '<span class="result-title">세특 초안 (자동 생성)</span>' +
+          '<div class="result-actions">' +
+            '<span class="char-count"><span class="num">0</span>자</span>' +
+            '<span class="badge muted">-</span>' +
+            '<button class="small" data-action="copy">복사</button>' +
+          "</div>" +
+        "</div>" +
+        '<div class="draft"></div>' +
+      "</div>";
+
+    entriesEl.appendChild(card);
+    bindEntry(entry, card);
+    updateComputed(entry, card);
+    reindex();
+    return card;
+  }
+
+  function bindEntry(entry, card) {
+    // simple text/select fields
+    card.querySelectorAll(".entry-head [data-f], .entry-extra [data-f]").forEach(function (el) {
+      var field = el.getAttribute("data-f");
+      el.value = entry[field] || "";
+      el.addEventListener("input", function () {
+        entry[field] = el.value;
+        if (field === "subject") {
+          var customInput = card.querySelector('.subject-custom');
+          if (el.value === "__custom__") {
+            customInput.hidden = false;
+            customInput.focus();
+          } else {
+            customInput.hidden = true;
+          }
+        }
+        updateComputed(entry, card);
+        scheduleSave();
+      });
+    });
+
+    // activity fields
+    card.querySelectorAll(".activity").forEach(function (block) {
+      var idx = parseInt(block.getAttribute("data-act"), 10);
+      block.querySelectorAll("[data-f]").forEach(function (el) {
+        var field = el.getAttribute("data-f");
+        el.value = entry.acts[idx][field] || "";
+        el.addEventListener("input", function () {
+          entry.acts[idx][field] = el.value;
+          updateComputed(entry, card);
+          scheduleSave();
+        });
+      });
+    });
+
+    if (entry.subject === "__custom__") {
+      card.querySelector(".subject-custom").hidden = false;
+    }
+
+    card.querySelector('[data-action="delete"]').addEventListener("click", function () {
+      var idx = state.entries.indexOf(entry);
+      if (idx > -1) state.entries.splice(idx, 1);
+      card.remove();
+      reindex();
+      scheduleSave();
+    });
+
+    card.querySelector('[data-action="copy"]').addEventListener("click", function (evt) {
+      var text = card.querySelector(".draft").textContent;
+      var btn = evt.currentTarget;
+      var restore = function () { btn.textContent = "복사"; };
+      var done = function () { btn.textContent = "복사됨"; setTimeout(restore, 1200); };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(function () { fallbackCopy(text); done(); });
+      } else {
+        fallbackCopy(text);
+        done();
+      }
+    });
+  }
+
+  function fallbackCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand("copy"); } catch (e) { /* clipboard unavailable */ }
+    document.body.removeChild(ta);
+  }
+
+  function csvField(v) {
+    v = v == null ? "" : String(v);
+    if (/[",\n]/.test(v)) v = '"' + v.replace(/"/g, '""') + '"';
+    return v;
+  }
+
+  function exportCsv() {
+    var headers = ["순번", "이름", "학년/반/번호", "과목",
+      "활동1_활동명", "활동1_수행내용", "활동1_배운점",
+      "활동2_활동명", "활동2_수행내용", "활동2_배운점",
+      "활동3_활동명", "활동3_수행내용", "활동3_배운점",
+      "마무리강조문구", "세특초안", "글자수", "상태"];
+    var rows = [headers];
+
+    state.entries.forEach(function (entry, i) {
+      var subject = entry.subject === "__custom__" ? entry.subjectCustom : entry.subject;
+      var draft = buildDraft(entry);
+      var status = statusFor(draft.length, state.targetLen).label;
+      var row = [i + 1, entry.name, entry.info, subject];
+      entry.acts.forEach(function (a) { row.push(a.name, a.content, a.learned); });
+      row.push(entry.extra, draft, draft.length, status);
+      rows.push(row);
+    });
+
+    var csv = "﻿" + rows.map(function (r) { return r.map(csvField).join(","); }).join("\r\n");
+    var blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "세특_기록_" + new Date().toISOString().slice(0, 10) + ".csv";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+
+  function loadState() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return false;
+      var parsed = JSON.parse(raw);
+      if (!parsed || !Array.isArray(parsed.entries)) return false;
+      state.targetLen = parsed.targetLen || 800;
+      targetLenEl.value = state.targetLen;
+      parsed.entries.forEach(function (e) { addEntry(e); });
+      return parsed.entries.length > 0;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  document.getElementById("addEntry").addEventListener("click", function () { addEntry(); });
+  document.getElementById("addEntryBottom").addEventListener("click", function () { addEntry(); });
+  document.getElementById("exportCsv").addEventListener("click", exportCsv);
+  document.getElementById("clearAll").addEventListener("click", function () {
+    if (state.entries.length === 0) return;
+    if (!confirm("모든 학생 기록을 삭제할까요? 이 작업은 되돌릴 수 없습니다.")) return;
+    state.entries = [];
+    entriesEl.innerHTML = "";
+    reindex();
+    try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignore */ }
+  });
+
+  targetLenEl.addEventListener("input", function () {
+    var v = parseInt(targetLenEl.value, 10);
+    state.targetLen = isNaN(v) || v <= 0 ? 800 : v;
+    refreshAllStatus();
+    scheduleSave();
+  });
+
+  var themeToggle = document.getElementById("themeToggle");
+  themeToggle.addEventListener("click", function () {
+    var root = document.documentElement;
+    var current = root.getAttribute("data-theme");
+    var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    var effectiveDark = current ? current === "dark" : prefersDark;
+    root.setAttribute("data-theme", effectiveDark ? "light" : "dark");
+  });
+
+  var hadSaved = loadState();
+  if (!hadSaved) {
+    addEntry(); // start with one blank card so the page isn't empty on first visit
+  }
+  toggleEmptyState();
+})();
+</script>
