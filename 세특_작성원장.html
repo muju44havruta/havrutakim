@@ -447,6 +447,27 @@
     z-index: 6;
   }
 
+  .toast {
+    position: fixed;
+    left: 18px;
+    bottom: 18px;
+    max-width: 320px;
+    background: var(--card);
+    border: 1px solid var(--card-line);
+    box-shadow: var(--shadow);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--ink);
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    pointer-events: none;
+    z-index: 7;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+
   @media (max-width: 720px) {
     .entry-body { grid-template-columns: 1fr; }
     .entry-head { flex-wrap: wrap; }
@@ -475,7 +496,8 @@
         <li>직접 입력하는 자료도 동일한 방식으로 나누어 입력하면 됩니다.</li>
         <li>학생 한 명·한 과목당 카드 하나, 활동은 최대 3개까지 입력할 수 있습니다.</li>
         <li>아래 "세특 초안"은 입력한 내용을 바탕으로 자동으로 조립된 문단입니다. 문구는 반드시 사실관계를 검토한 뒤 학교생활기록부에 반영하세요.</li>
-        <li>입력 내용은 이 브라우저에만 자동 저장됩니다(서버 전송 없음). CSV로 내려받아 백업하는 것을 권장합니다.</li>
+        <li>이 페이지는 여러 선생님이 같은 링크로 함께 사용할 수 있습니다. 다만 입력한 내용은 <strong>각자의 기기(브라우저)에만</strong> 자동 저장되며, 다른 선생님에게 보이거나 서버로 전송되지 않습니다 — 로그인 계정과는 연결되지 않는 저장 방식입니다.</li>
+        <li>여러 선생님의 결과를 한 곳에 모으려면, 위쪽 "작성 교사"란에 이름을 적고 각자 "CSV로 내려받기"를 눌러 파일을 담당자에게 전달해주세요.</li>
       </ol>
       <div class="legend">
         <span><span class="legend-dot" style="background:var(--status-ok)"></span>적정 글자수</span>
@@ -486,6 +508,10 @@
   </details>
 
   <div class="toolbar">
+    <div class="toolbar-group">
+      <label for="teacherName">작성 교사</label>
+      <input type="text" id="teacherName" placeholder="예: 홍길동" style="width:110px" />
+    </div>
     <div class="toolbar-group">
       <label for="targetLen">목표 글자수(공백 포함)</label>
       <input type="number" id="targetLen" class="num" min="50" step="10" value="800" />
@@ -503,10 +529,11 @@
   </div>
 
   <footer class="note">
-    자동 생성된 문장은 초안입니다. 사실 관계와 문장을 반드시 교사가 검토·수정한 뒤 사용하세요. 데이터는 이 기기의 브라우저 저장소에만 남으며, 다른 곳으로 전송되지 않습니다.
+    자동 생성된 문장은 초안입니다. 사실 관계와 문장을 반드시 교사가 검토·수정한 뒤 사용하세요. 데이터는 이 기기의 브라우저 저장소에만 남으며, 다른 곳으로 전송되지 않습니다. 같은 링크를 쓰는 다른 선생님의 입력 내용은 서로 보이지 않습니다.
   </footer>
 </div>
 
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
 <button class="theme-toggle" id="themeToggle" title="테마 전환" aria-label="테마 전환">◐</button>
 
 <script>
@@ -520,9 +547,19 @@
 
   var entriesEl = document.getElementById("entries");
   var targetLenEl = document.getElementById("targetLen");
+  var teacherNameEl = document.getElementById("teacherName");
+  var toastEl = document.getElementById("toast");
   var saveTimer = null;
+  var toastTimer = null;
 
-  var state = { targetLen: 800, entries: [] };
+  var state = { targetLen: 800, teacherName: "", entries: [] };
+
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.classList.remove("show"); }, 3400);
+  }
 
   function uid() {
     return "e" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
@@ -773,8 +810,8 @@
     return v;
   }
 
-  function exportCsv() {
-    var headers = ["순번", "이름", "학년/반/번호", "과목",
+  function buildCsv() {
+    var headers = ["작성교사", "순번", "이름", "학년/반/번호", "과목",
       "활동1_활동명", "활동1_수행내용", "활동1_배운점",
       "활동2_활동명", "활동2_수행내용", "활동2_배운점",
       "활동3_활동명", "활동3_수행내용", "활동3_배운점",
@@ -785,22 +822,65 @@
       var subject = entry.subject === "__custom__" ? entry.subjectCustom : entry.subject;
       var draft = buildDraft(entry);
       var status = statusFor(draft.length, state.targetLen).label;
-      var row = [i + 1, entry.name, entry.info, subject];
+      var row = [state.teacherName, i + 1, entry.name, entry.info, subject];
       entry.acts.forEach(function (a) { row.push(a.name, a.content, a.learned); });
       row.push(entry.extra, draft, draft.length, status);
       rows.push(row);
     });
 
-    var csv = "﻿" + rows.map(function (r) { return r.map(csvField).join(","); }).join("\r\n");
-    var blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    return "﻿" + rows.map(function (r) { return r.map(csvField).join(","); }).join("\r\n");
+  }
+
+  function csvFilename(ext) {
+    var safeTeacher = (state.teacherName || "").trim().replace(/[\\/:*?"<>|]/g, "").slice(0, 20);
+    return "세특_기록" + (safeTeacher ? "_" + safeTeacher : "") + "_" +
+      new Date().toISOString().slice(0, 10) + "." + ext;
+  }
+
+  function fallbackDownload(filename, text) {
+    var blob = new Blob([text], { type: "text/csv;charset=utf-8" });
     var url = URL.createObjectURL(blob);
     var a = document.createElement("a");
     a.href = url;
-    a.download = "세특_기록_" + new Date().toISOString().slice(0, 10) + ".csv";
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     a.remove();
     setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+
+  function exportCsv() {
+    var csv = buildCsv();
+    var filename = csvFilename("csv");
+
+    if (!(window.claude && window.claude.downloads)) {
+      fallbackDownload(filename, csv);
+      return;
+    }
+
+    window.claude.downloads.save({ filename: filename, data: csv }).catch(function (err) {
+      var code = err && err.code;
+      if (code === "extension_not_enabled") {
+        // csv isn't available in this view; retry as .txt with the same content
+        var altName = csvFilename("txt");
+        window.claude.downloads.save({ filename: altName, data: csv })
+          .then(function () {
+            toast("csv 형식을 지원하지 않아 .txt로 저장했습니다. 엑셀의 '텍스트/CSV 가져오기'로 열 수 있습니다.");
+          })
+          .catch(function () {
+            fallbackDownload(filename, csv);
+          });
+      } else if (code === "declined") {
+        // viewer said no — nothing further to do
+      } else if (code === "rate_limited") {
+        toast("다운로드 요청이 진행 중입니다. 잠시 후 다시 시도해주세요.");
+      } else if (code === "too_large") {
+        toast("데이터가 너무 커서 내려받을 수 없습니다. 학생 수를 나누어 다시 시도해주세요.");
+      } else {
+        // unavailable / not_granted / bad_request / etc — fall back to a normal browser download
+        fallbackDownload(filename, csv);
+      }
+    });
   }
 
   function loadState() {
@@ -811,6 +891,8 @@
       if (!parsed || !Array.isArray(parsed.entries)) return false;
       state.targetLen = parsed.targetLen || 800;
       targetLenEl.value = state.targetLen;
+      state.teacherName = parsed.teacherName || "";
+      teacherNameEl.value = state.teacherName;
       parsed.entries.forEach(function (e) { addEntry(e); });
       return parsed.entries.length > 0;
     } catch (e) {
@@ -834,6 +916,11 @@
     var v = parseInt(targetLenEl.value, 10);
     state.targetLen = isNaN(v) || v <= 0 ? 800 : v;
     refreshAllStatus();
+    scheduleSave();
+  });
+
+  teacherNameEl.addEventListener("input", function () {
+    state.teacherName = teacherNameEl.value;
     scheduleSave();
   });
 
