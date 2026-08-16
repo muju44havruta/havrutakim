@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>뱃살 빼기 체크리스트</title>
+<style>
+  :root{
+    --green:#1f7a45;
+    --green-dark:#155a33;
+    --navy:#16305c;
+    --navy-dark:#0e2140;
+    --orange:#e08424;
+    --bg:#f3f5f4;
+    --card:#ffffff;
+    --border:#e3e7e4;
+    --text:#1c2620;
+    --muted:#6b756f;
+    --done:#eaf6ef;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    padding-bottom:40px;
+  }
+  header{
+    background:linear-gradient(135deg,var(--green) 0%,var(--green-dark) 100%);
+    color:#fff;
+    padding:20px 16px 24px;
+  }
+  header .eyebrow{
+    font-size:12px;
+    opacity:.85;
+    letter-spacing:.3px;
+  }
+  header h1{
+    margin:4px 0 2px;
+    font-size:22px;
+  }
+  header .sub{
+    font-size:13px;
+    opacity:.9;
+  }
+  .wrap{
+    max-width:640px;
+    margin:0 auto;
+    padding:0 14px;
+  }
+  .info-cards{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+    margin-top:-14px;
+  }
+  .info-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:10px 8px;
+    text-align:center;
+    box-shadow:0 2px 6px rgba(0,0,0,.06);
+  }
+  .info-card .k{
+    font-size:11px;
+    color:var(--muted);
+    margin-bottom:2px;
+  }
+  .info-card .v{
+    font-size:12.5px;
+    font-weight:700;
+    color:var(--navy);
+  }
+  .day-tabs{
+    display:flex;
+    gap:6px;
+    margin:18px 0 4px;
+    overflow-x:auto;
+    padding-bottom:2px;
+  }
+  .day-tab{
+    flex:1;
+    min-width:40px;
+    text-align:center;
+    padding:8px 0;
+    border-radius:8px;
+    background:var(--card);
+    border:1px solid var(--border);
+    font-size:13px;
+    font-weight:600;
+    color:var(--muted);
+    cursor:pointer;
+    user-select:none;
+  }
+  .day-tab.active{
+    background:var(--navy);
+    color:#fff;
+    border-color:var(--navy);
+  }
+  .day-tab.today::after{
+    content:"•";
+    color:var(--orange);
+    margin-left:2px;
+  }
+  .date-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin:10px 0 4px;
+    font-size:13px;
+    color:var(--muted);
+  }
+  .date-row .nav-btn{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:4px 10px;
+    cursor:pointer;
+    font-size:14px;
+  }
+  .date-row input[type=date]{
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:4px 6px;
+    font-size:13px;
+    font-family:inherit;
+  }
+  .progress-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:14px 16px;
+    margin:10px 0 16px;
+    box-shadow:0 2px 6px rgba(0,0,0,.05);
+  }
+  .progress-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:6px;
+  }
+  .progress-top .pct{
+    font-size:22px;
+    font-weight:800;
+    color:var(--green-dark);
+  }
+  .progress-top .label{
+    font-size:12.5px;
+    color:var(--muted);
+  }
+  .progress-bar-bg{
+    height:9px;
+    background:#e7ebe8;
+    border-radius:6px;
+    overflow:hidden;
+  }
+  .progress-bar-fill{
+    height:100%;
+    background:linear-gradient(90deg,var(--green) 0%,var(--orange) 100%);
+    border-radius:6px;
+    transition:width .3s ease;
+  }
+  .section{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:12px;
+    margin-bottom:12px;
+    overflow:hidden;
+    box-shadow:0 1px 4px rgba(0,0,0,.04);
+  }
+  .section-head{
+    padding:10px 14px;
+    font-size:13.5px;
+    font-weight:700;
+    color:#fff;
+  }
+  .section-head.diet{background:var(--green);}
+  .section-head.routine{background:var(--navy);}
+  .section-head.rules{background:var(--orange);}
+  .section-head.water{background:#2e8fb0;}
+  .section-body{
+    padding:6px 4px;
+  }
+  .subhead{
+    font-size:11.5px;
+    font-weight:700;
+    color:var(--muted);
+    padding:8px 12px 2px;
+    text-transform:uppercase;
+    letter-spacing:.4px;
+  }
+  .item{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    padding:9px 12px;
+    border-bottom:1px solid #f0f2f0;
+    cursor:pointer;
+  }
+  .item:last-child{border-bottom:none;}
+  .item.checked{background:var(--done);}
+  .item input[type=checkbox]{
+    margin-top:2px;
+    width:18px;
+    height:18px;
+    accent-color:var(--green);
+    flex-shrink:0;
+  }
+  .item .txt{
+    flex:1;
+    font-size:14px;
+    line-height:1.4;
+  }
+  .item .time{
+    display:inline-block;
+    font-size:11px;
+    font-weight:700;
+    color:var(--navy);
+    background:#eef1f7;
+    border-radius:5px;
+    padding:1px 6px;
+    margin-right:6px;
+  }
+  .item .note{
+    display:block;
+    font-size:12px;
+    color:var(--muted);
+    margin-top:1px;
+  }
+  .item.checked .txt{
+    text-decoration:line-through;
+    color:var(--muted);
+  }
+  .cups{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    padding:10px 12px;
+  }
+  .cup{
+    width:44px;
+    height:44px;
+    border-radius:8px;
+    border:2px solid #cfe6ee;
+    background:#f3fbfd;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:18px;
+    cursor:pointer;
+    user-select:none;
+    color:#2e8fb0;
+  }
+  .cup.on{
+    background:#2e8fb0;
+    border-color:#2e8fb0;
+    color:#fff;
+  }
+  .water-caption{
+    padding:0 12px 10px;
+    font-size:12px;
+    color:var(--muted);
+  }
+  .body-log{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:14px;
+    margin-bottom:14px;
+    box-shadow:0 1px 4px rgba(0,0,0,.04);
+  }
+  .body-log h3{
+    margin:0 0 8px;
+    font-size:14px;
+    color:var(--navy);
+  }
+  .body-log .row{
+    display:flex;
+    gap:8px;
+    margin-bottom:8px;
+  }
+  .body-log input[type=number]{
+    flex:1;
+    min-width:0;
+    padding:8px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    font-size:14px;
+    font-family:inherit;
+  }
+  .body-log button{
+    background:var(--navy);
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    padding:8px 14px;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+  }
+  .body-log .hist{
+    font-size:12.5px;
+    color:var(--muted);
+  }
+  .body-log .hist table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:4px;
+  }
+  .body-log .hist td, .body-log .hist th{
+    padding:4px 2px;
+    border-bottom:1px solid #f0f2f0;
+    text-align:left;
+  }
+  .week-summary{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:14px;
+    margin-bottom:14px;
+    box-shadow:0 1px 4px rgba(0,0,0,.04);
+  }
+  .week-summary h3{
+    margin:0 0 10px;
+    font-size:14px;
+    color:var(--navy);
+  }
+  .week-bars{
+    display:flex;
+    gap:6px;
+    align-items:flex-end;
+    height:80px;
+  }
+  .week-bar-col{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-end;
+    height:100%;
+  }
+  .week-bar-col .bar{
+    width:70%;
+    background:#e7ebe8;
+    border-radius:4px 4px 0 0;
+    position:relative;
+    min-height:2px;
+  }
+  .week-bar-col .bar.hasdata{
+    background:linear-gradient(180deg,var(--orange) 0%,var(--green) 100%);
+  }
+  .week-bar-col .pct{
+    font-size:10px;
+    color:var(--muted);
+    margin-bottom:2px;
+  }
+  .week-bar-col .lbl{
+    font-size:11px;
+    margin-top:4px;
+    color:var(--muted);
+  }
+  .week-bar-col.current .lbl{
+    color:var(--navy);
+    font-weight:700;
+  }
+  .footer-actions{
+    display:flex;
+    justify-content:center;
+    margin:18px 0 6px;
+  }
+  .reset-btn{
+    background:none;
+    border:1px solid var(--border);
+    color:var(--muted);
+    border-radius:8px;
+    padding:8px 16px;
+    font-size:12.5px;
+    cursor:pointer;
+  }
+  .foot-note{
+    text-align:center;
+    font-size:11px;
+    color:#9aa39d;
+    margin-top:10px;
+    line-height:1.6;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">50대 남성 · 뱃살 빼기 프로젝트</div>
+    <h1>✅ 오늘의 체크리스트</h1>
+    <div class="sub">식단 · 생활 루틴을 하루 단위로 체크하세요</div>
+    <div class="info-cards">
+      <div class="info-card"><div class="k">🥩 단백질</div><div class="v">84~112g</div></div>
+      <div class="info-card"><div class="k">🔥 칼로리 적자</div><div class="v">300~500kcal</div></div>
+      <div class="info-card"><div class="k">💧 수분</div><div class="v">1.5~2L</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="day-tabs" id="dayTabs"></div>
+
+  <div class="date-row">
+    <button class="nav-btn" id="prevDay">‹ 이전 날</button>
+    <input type="date" id="datePicker" />
+    <button class="nav-btn" id="nextDay">다음 날 ›</button>
+  </div>
+
+  <div class="progress-card">
+    <div class="progress-top">
+      <span class="pct" id="pctText">0%</span>
+      <span class="label" id="progressLabel">오늘 체크 0 / 0</span>
+    </div>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+
+  <div class="section">
+    <div class="section-head diet">🍽 식단 체크</div>
+    <div class="section-body" id="dietBody"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-head routine">⏰ 생활 루틴 체크</div>
+    <div class="section-body" id="routineBody"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-head water">💧 수분 섭취 (목표 1.5~2L)</div>
+    <div class="cups" id="cupsBody"></div>
+    <div class="water-caption">한 칸 ≈ 250ml · 6~8칸이면 목표 달성</div>
+  </div>
+
+  <div class="section">
+    <div class="section-head rules">📋 공통 원칙</div>
+    <div class="section-body" id="rulesBody"></div>
+  </div>
+
+  <div class="body-log">
+    <h3>📏 체중 · 허리둘레 기록 <span style="font-weight:400;color:var(--muted);font-size:12px;">(토요일 21:00 권장)</span></h3>
+    <div class="row">
+      <input type="number" step="0.1" id="weightInput" placeholder="체중 (kg)" />
+      <input type="number" step="0.1" id="waistInput" placeholder="허리둘레 (cm)" />
+      <button id="saveBodyLog">저장</button>
+    </div>
+    <div class="hist" id="bodyHist"></div>
+  </div>
+
+  <div class="week-summary">
+    <h3>📅 최근 7일 달성률</h3>
+    <div class="week-bars" id="weekBars"></div>
+  </div>
+
+  <div class="footer-actions">
+    <button class="reset-btn" id="resetDay">이 날짜 체크 초기화</button>
+  </div>
+
+  <div class="foot-note">
+    기록은 이 기기의 브라우저에만 저장됩니다 (localStorage). 다른 기기·브라우저와 동기화되지 않습니다.<br/>
+    참고 — 근력운동 시 단백질 권장량(체중 1kg당 1.2~1.6g, Morton et al. 2018), 안전한 체중감량 속도(주 0.5~1kg, CDC), WHO 신체활동 가이드라인(2020) 기준 반영
+  </div>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const WEEK = ['일','월','화','수','목','금','토']; // matches Date.getDay() index
+  const WEEK_ORDER = ['월','화','수','목','금','토','일'];
+
+  const DIET = {
+    월: { 아침:['삶은 계란 2개','방울토마토','두유 1팩'],
+          점심:['급식 — 밥 1/2공기, 단백질 반찬 위주, 채소 충분히, 국은 건더기 위주 (곱빼기·리필 자제)'],
+          저녁:['닭가슴살 구이','나물무침','현미밥 1/2공기'] },
+    화: { 아침:['그릭요거트','견과류 한 줌','블루베리'],
+          점심:['급식 — 밥 1/2공기, 단백질 반찬 위주, 채소 충분히, 국은 건더기 위주 (곱빼기·리필 자제)'],
+          저녁:['고등어구이','두부조림','쌈채소'] },
+    수: { 아침:['오트밀 + 우유','바나나 1/2개'],
+          점심:['급식 — 밥 1/2공기, 단백질 반찬 위주, 채소 충분히, 국은 건더기 위주 (곱빼기·리필 자제)'],
+          저녁:['소고기 샤브샤브','버섯·채소 듬뿍'] },
+    목: { 아침:['두부 부침','방울토마토','두유 1팩'],
+          점심:['급식 — 밥 1/2공기, 단백질 반찬 위주, 채소 충분히, 국은 건더기 위주 (곱빼기·리필 자제)'],
+          저녁:['닭가슴살 볶음','브로콜리','현미밥 1/2공기'] },
+    금: { 아침:['삶은 계란 2개','사과 1/2개'],
+          점심:['급식 — 밥 1/2공기, 단백질 반찬 위주, 채소 충분히, 국은 건더기 위주 (곱빼기·리필 자제)'],
+          저녁:['연어구이','샐러드','고구마 1/2개','(회식·음주 가능일 — 안주는 단백질 위주, 물 충분히)'] },
+    토: { 아침:['(여유있게) 계란찜','제철 과일'],
+          점심:['잡곡밥 + 국','나물 + 단백질 반찬','균형 잡힌 집밥'],
+          저녁:['외식 시 채소·단백질 먼저','튀김·탄산 자제'] },
+    일: { 아침:['가볍게 또는 토스트 + 두유'],
+          점심:['집밥 자유식','과식만 주의'],
+          저녁:['죽 or 나물비빔밥','다음 주 준비, 가볍게'] },
+  };
+
+  const WEEKDAY_ROUTINE = (exerciseLabel, exerciseNote) => [
+    {time:'06:00', label:'기상'},
+    {time:'06:00~06:30', label:'가벼운 아침·준비'},
+    {time:'07:00', label:'출근'},
+    {time:'12:00', label:'점심(급식)'},
+    {time:'17:00', label:'퇴근'},
+    {time:'18:00', label:'가족과 저녁식사'},
+    {time:'18:40~19:20', label:exerciseLabel, note:exerciseNote},
+    {time:'19:30', label:'샤워·휴식'},
+    {time:'20:00~22:00', label:'가족 시간·자유시간'},
+    {time:'22:30', label:'취침', note:'목표 수면 약 7.5시간'},
+  ];
+
+  const NIGHT_ROUTINE = [
+    {time:'05:50', label:'기상'},
+    {time:'05:50~06:10', label:'홈트 20분', note:'스쾃·푸시업·플랭크·런지'},
+    {time:'06:10~06:40', label:'씻기·가벼운 아침'},
+    {time:'07:00', label:'출근'},
+    {time:'12:00', label:'점심(급식)'},
+    {time:'21:00', label:'퇴근'},
+    {time:'21:30', label:'귀가·가벼운 요기', note:'과식·야식 대신 소량만'},
+    {time:'21:30~21:45', label:'스트레칭 10분'},
+    {time:'22:30', label:'취침', note:'목표 수면 약 7시간'},
+  ];
+
+  const ROUTINE = {
+    월: NIGHT_ROUTINE,
+    수: NIGHT_ROUTINE,
+    화: WEEKDAY_ROUTINE('운동 40분 (조깅)'),
+    목: WEEKDAY_ROUTINE('운동 40분 (근력운동)'),
+    금: WEEKDAY_ROUTINE('운동 40분 (빠르게 걷기)'),
+    토: [
+      {time:'07:00~08:00', label:'기상', note:'평소보다 여유있게'},
+      {time:'08:00', label:'아침식사'},
+      {time:'09:00~10:00', label:'유산소+스트레칭 60분', note:'자전거 또는 등산'},
+      {time:'10:30~18:00', label:'가족과 외출', note:'활동량 늘리기, 걷기 위주'},
+      {time:'18:00', label:'저녁식사', note:'외식 시 채소·단백질 먼저'},
+      {time:'21:00', label:'체중·허리둘레 측정', note:'주간 점검 및 기록'},
+      {time:'22:30', label:'취침', note:'목표 수면 약 8시간'},
+    ],
+    일: [
+      {time:'07:30~08:30', label:'기상'},
+      {time:'08:30', label:'스트레칭 20분'},
+      {time:'09:00~17:00', label:'휴식·가벼운 활동', note:'가족과 시간, 낮잠 20분 이내'},
+      {time:'18:00', label:'가벼운 저녁'},
+      {time:'20:00', label:'다음 주 준비', note:'식단·일정 점검'},
+      {time:'22:00', label:'취침', note:'목표 수면 약 8시간'},
+    ],
+  };
+
+  const RULES = [
+    '정제 탄수화물 줄이기 (흰쌀밥·빵·면 대신 잡곡·현미)',
+    '채소 매끼 2줌 이상',
+    '먹는 순서: 채소 → 단백질 → 탄수화물',
+    '야식·과식·술 줄이기 (취침 3시간 전 금식 권장)',
+  ];
+
+  const CUP_COUNT = 8;
+  const STORAGE_PREFIX = 'bellyfat_checklist_v1_';
+  const BODYLOG_KEY = 'bellyfat_bodylog_v1';
+
+  function pad(n){ return n<10 ? '0'+n : ''+n; }
+  function toDateStr(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+  function fromDateStr(s){ const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); }
+  function weekdayLabel(d){ return WEEK[d.getDay()]; }
+
+  let currentDate = new Date();
+  currentDate.setHours(0,0,0,0);
+
+  function buildItems(dayLabel){
+    const items = [];
+    const diet = DIET[dayLabel];
+    ['아침','점심','저녁'].forEach(meal=>{
+      diet[meal].forEach((txt,i)=>{
+        items.push({id:'diet-'+meal+'-'+i, section:'diet', meal, txt});
+      });
+    });
+    ROUTINE[dayLabel].forEach((r,i)=>{
+      items.push({id:'routine-'+i, section:'routine', time:r.time, txt:r.label, note:r.note});
+    });
+    for(let i=0;i<CUP_COUNT;i++){
+      items.push({id:'water-'+i, section:'water'});
+    }
+    RULES.forEach((txt,i)=>{
+      items.push({id:'rule-'+i, section:'rules', txt});
+    });
+    return items;
+  }
+
+  function loadState(dateStr){
+    try{
+      const raw = localStorage.getItem(STORAGE_PREFIX+dateStr);
+      if(!raw) return {checked:[]};
+      const parsed = JSON.parse(raw);
+      return {checked: parsed.checked || []};
+    }catch(e){ return {checked:[]}; }
+  }
+
+  function saveState(dateStr, checkedSet, total){
+    try{
+      localStorage.setItem(STORAGE_PREFIX+dateStr, JSON.stringify({checked:Array.from(checkedSet), total}));
+    }catch(e){}
+  }
+
+  let checkedSet = new Set();
+  let items = [];
+
+  function render(){
+    const dateStr = toDateStr(currentDate);
+    const dayLabel = weekdayLabel(currentDate);
+    items = buildItems(dayLabel);
+    const state = loadState(dateStr);
+    checkedSet = new Set(state.checked);
+
+    document.getElementById('datePicker').value = dateStr;
+    renderDayTabs(dayLabel);
+    renderDiet(dayLabel);
+    renderRoutine(dayLabel);
+    renderCups();
+    renderRules();
+    updateProgress();
+    renderBodyLog();
+    renderWeekSummary();
+  }
+
+  function renderDayTabs(activeDay){
+    const el = document.getElementById('dayTabs');
+    el.innerHTML = '';
+    const todayLabel = weekdayLabel(new Date());
+    WEEK_ORDER.forEach(day=>{
+      const tab = document.createElement('div');
+      tab.className = 'day-tab' + (day===activeDay ? ' active':'') + (day===todayLabel ? ' today':'');
+      tab.textContent = day;
+      tab.addEventListener('click', ()=>{
+        const diff = WEEK_ORDER.indexOf(day) - WEEK_ORDER.indexOf(activeDay);
+        const nd = new Date(currentDate);
+        nd.setDate(nd.getDate()+diff);
+        currentDate = nd;
+        render();
+      });
+      el.appendChild(tab);
+    });
+  }
+
+  function makeItemRow(item, extraLabelHtml){
+    const row = document.createElement('div');
+    row.className = 'item' + (checkedSet.has(item.id) ? ' checked' : '');
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = checkedSet.has(item.id);
+    const txt = document.createElement('div');
+    txt.className = 'txt';
+    txt.innerHTML = extraLabelHtml;
+    row.appendChild(cb);
+    row.appendChild(txt);
+    function toggle(){
+      if(checkedSet.has(item.id)) checkedSet.delete(item.id);
+      else checkedSet.add(item.id);
+      saveState(toDateStr(currentDate), checkedSet, items.length);
+      row.classList.toggle('checked');
+      cb.checked = checkedSet.has(item.id);
+      updateProgress();
+      renderWeekSummary();
+    }
+    row.addEventListener('click', (e)=>{ if(e.target!==cb) toggle(); });
+    cb.addEventListener('click', (e)=>{ e.stopPropagation(); toggle(); });
+    return row;
+  }
+
+  function renderDiet(dayLabel){
+    const body = document.getElementById('dietBody');
+    body.innerHTML = '';
+    ['아침','점심','저녁'].forEach(meal=>{
+      const sh = document.createElement('div');
+      sh.className = 'subhead';
+      sh.textContent = meal;
+      body.appendChild(sh);
+      items.filter(it=>it.section==='diet' && it.meal===meal).forEach(it=>{
+        body.appendChild(makeItemRow(it, it.txt));
+      });
+    });
+  }
+
+  function renderRoutine(dayLabel){
+    const body = document.getElementById('routineBody');
+    body.innerHTML = '';
+    items.filter(it=>it.section==='routine').forEach(it=>{
+      let html = '<span class="time">'+it.time+'</span>'+it.txt;
+      if(it.note) html += '<span class="note">'+it.note+'</span>';
+      body.appendChild(makeItemRow(it, html));
+    });
+  }
+
+  function renderCups(){
+    const body = document.getElementById('cupsBody');
+    body.innerHTML = '';
+    items.filter(it=>it.section==='water').forEach((it,idx)=>{
+      const cup = document.createElement('div');
+      cup.className = 'cup' + (checkedSet.has(it.id) ? ' on' : '');
+      cup.textContent = '💧';
+      cup.addEventListener('click', ()=>{
+        if(checkedSet.has(it.id)) checkedSet.delete(it.id);
+        else checkedSet.add(it.id);
+        saveState(toDateStr(currentDate), checkedSet, items.length);
+        cup.classList.toggle('on');
+        updateProgress();
+        renderWeekSummary();
+      });
+      body.appendChild(cup);
+    });
+  }
+
+  function renderRules(){
+    const body = document.getElementById('rulesBody');
+    body.innerHTML = '';
+    items.filter(it=>it.section==='rules').forEach(it=>{
+      body.appendChild(makeItemRow(it, it.txt));
+    });
+  }
+
+  function updateProgress(){
+    const total = items.length;
+    const done = checkedSet.size;
+    const pct = total ? Math.round(done/total*100) : 0;
+    document.getElementById('pctText').textContent = pct+'%';
+    document.getElementById('progressLabel').textContent = '오늘 체크 '+done+' / '+total;
+    document.getElementById('progressFill').style.width = pct+'%';
+  }
+
+  document.getElementById('prevDay').addEventListener('click', ()=>{
+    currentDate.setDate(currentDate.getDate()-1);
+    render();
+  });
+  document.getElementById('nextDay').addEventListener('click', ()=>{
+    currentDate.setDate(currentDate.getDate()+1);
+    render();
+  });
+  document.getElementById('datePicker').addEventListener('change', (e)=>{
+    if(e.target.value){
+      currentDate = fromDateStr(e.target.value);
+      render();
+    }
+  });
+  document.getElementById('resetDay').addEventListener('click', ()=>{
+    if(confirm('이 날짜의 체크 기록을 모두 초기화할까요?')){
+      localStorage.removeItem(STORAGE_PREFIX+toDateStr(currentDate));
+      render();
+    }
+  });
+
+  // Body log (weight / waist)
+  function loadBodyLog(){
+    try{
+      const raw = localStorage.getItem(BODYLOG_KEY);
+      return raw ? JSON.parse(raw) : [];
+    }catch(e){ return []; }
+  }
+  function saveBodyLog(list){
+    try{ localStorage.setItem(BODYLOG_KEY, JSON.stringify(list)); }catch(e){}
+  }
+  document.getElementById('saveBodyLog').addEventListener('click', ()=>{
+    const w = parseFloat(document.getElementById('weightInput').value);
+    const wa = parseFloat(document.getElementById('waistInput').value);
+    if(!w && !wa){ alert('체중 또는 허리둘레를 입력해주세요.'); return; }
+    const list = loadBodyLog();
+    const dateStr = toDateStr(currentDate);
+    const existingIdx = list.findIndex(r=>r.date===dateStr);
+    const entry = {date:dateStr, weight: w||null, waist: wa||null};
+    if(existingIdx>=0) list[existingIdx] = entry;
+    else list.push(entry);
+    list.sort((a,b)=> a.date < b.date ? 1 : -1);
+    saveBodyLog(list);
+    document.getElementById('weightInput').value='';
+    document.getElementById('waistInput').value='';
+    renderBodyLog();
+  });
+
+  function renderBodyLog(){
+    const list = loadBodyLog().slice(0,6);
+    const el = document.getElementById('bodyHist');
+    if(!list.length){
+      el.innerHTML = '아직 기록이 없습니다.';
+      return;
+    }
+    let html = '<table><tr><th>날짜</th><th>체중(kg)</th><th>허리(cm)</th></tr>';
+    list.forEach(r=>{
+      html += '<tr><td>'+r.date+'</td><td>'+(r.weight??'-')+'</td><td>'+(r.waist??'-')+'</td></tr>';
+    });
+    html += '</table>';
+    el.innerHTML = html;
+  }
+
+  function renderWeekSummary(){
+    const el = document.getElementById('weekBars');
+    el.innerHTML = '';
+    const todayStr = toDateStr(new Date());
+    for(let i=6;i>=0;i--){
+      const d = new Date();
+      d.setDate(d.getDate()-i);
+      const ds = toDateStr(d);
+      const raw = localStorage.getItem(STORAGE_PREFIX+ds);
+      let pct = null;
+      if(raw){
+        try{
+          const parsed = JSON.parse(raw);
+          const total = parsed.total || 0;
+          const checked = (parsed.checked||[]).length;
+          pct = total ? Math.round(checked/total*100) : 0;
+        }catch(e){}
+      }
+      const col = document.createElement('div');
+      col.className = 'week-bar-col' + (ds===todayStr ? ' current' : '');
+      const pctLabel = document.createElement('div');
+      pctLabel.className = 'pct';
+      pctLabel.textContent = pct===null ? '' : pct+'%';
+      const bar = document.createElement('div');
+      bar.className = 'bar' + (pct ? ' hasdata' : '');
+      bar.style.height = (pct ? Math.max(pct,4) : 2) + '%';
+      const lbl = document.createElement('div');
+      lbl.className = 'lbl';
+      lbl.textContent = weekdayLabel(d);
+      col.appendChild(pctLabel);
+      col.appendChild(bar);
+      col.appendChild(lbl);
+      el.appendChild(col);
+    }
+  }
+
+  render();
+})();
+</script>
+
+</body>
+</html>
