@@ -120,7 +120,7 @@
     color: var(--ink-soft);
     font-size: 13.5px;
     line-height: 1.6;
-    max-width: 46ch;
+    max-width: 50ch;
   }
 
   .masthead-meta {
@@ -134,7 +134,7 @@
 
   /* ---------- Info strip ---------- */
   .info-strip {
-    margin: 22px 0 28px;
+    margin: 22px 0 20px;
     border: 1px solid var(--card-line);
     background: var(--card);
     border-radius: 10px;
@@ -192,6 +192,25 @@
     vertical-align: -1px;
   }
 
+  /* ---------- Backup banner ---------- */
+  .backup-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    background: var(--status-short-tint);
+    border: 1px solid var(--status-short);
+    color: var(--ink);
+    border-radius: 10px;
+    padding: 11px 16px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .backup-banner[hidden] { display: none; }
+  .backup-banner b { color: var(--status-short); }
+  .backup-actions { display: flex; gap: 8px; margin-left: auto; }
+
   /* ---------- Toolbar ---------- */
   .toolbar {
     position: sticky;
@@ -236,6 +255,11 @@
     box-shadow: 0 0 0 3px var(--accent-tint);
   }
 
+  input:disabled, select:disabled, button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
   button {
     font: inherit;
     cursor: pointer;
@@ -266,9 +290,41 @@
     color: var(--ink-soft);
     padding: 6px 8px;
   }
-  button.ghost:hover { color: var(--status-warn); }
+  button.ghost:hover { color: var(--status-warn); border-color: transparent; }
 
   button.small { padding: 5px 10px; font-size: 12px; }
+
+  /* ---------- Quick memo bar ---------- */
+  .quickmemo {
+    background: var(--card);
+    border: 1px solid var(--card-line);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 14px 18px 16px;
+    margin-bottom: 24px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+  }
+  .quickmemo-title {
+    flex: 1 1 100%;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    margin-bottom: 2px;
+  }
+  .quickmemo select#qmStudent { flex: 1 1 190px; }
+  .quickmemo input#qmDate { flex: 0 0 148px; }
+  .quickmemo input#qmText { flex: 3 1 260px; }
+  .quickmemo .hint {
+    flex: 1 1 100%;
+    font-size: 11.5px;
+    color: var(--ink-faint);
+    margin-top: 2px;
+  }
 
   /* ---------- Entry card ---------- */
   #entries { display: flex; flex-direction: column; gap: 22px; }
@@ -314,6 +370,69 @@
 
   .subject-custom { margin-top: 6px; }
   .subject-custom[hidden] { display: none; }
+
+  /* ---------- Notes (observation log) ---------- */
+  .entry-notes { border-bottom: 1px solid var(--card-line); }
+
+  .notes-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 10px 18px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+  .notes-toggle:hover { background: var(--paper); }
+
+  .notes-count-badge {
+    background: var(--accent-tint);
+    color: var(--accent-ink);
+    border-radius: 100px;
+    padding: 1px 9px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .notes-toggle .chev {
+    margin-left: auto;
+    transition: transform 0.15s ease;
+    color: var(--ink-faint);
+    font-size: 11px;
+  }
+  .notes-toggle.open .chev { transform: rotate(180deg); }
+
+  .notes-list { padding: 0 18px 14px; display: flex; flex-direction: column; gap: 6px; }
+  .notes-list[hidden] { display: none; }
+
+  .notes-list-head { display: flex; justify-content: flex-end; margin-bottom: 2px; }
+
+  .note-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: var(--paper);
+    border-radius: 7px;
+    padding: 7px 10px;
+    font-size: 12.5px;
+  }
+  .note-date { color: var(--ink-faint); flex-shrink: 0; padding-top: 1px; }
+  .note-text { flex: 1; line-height: 1.5; white-space: pre-wrap; }
+  .note-del {
+    padding: 0 2px;
+    background: transparent;
+    border: none;
+    color: var(--ink-faint);
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .note-del:hover { color: var(--status-warn); }
+
+  .notes-empty { font-size: 12.5px; color: var(--ink-faint); padding: 4px 2px; }
 
   .entry-body {
     display: grid;
@@ -471,6 +590,7 @@
   @media (max-width: 720px) {
     .entry-body { grid-template-columns: 1fr; }
     .entry-head { flex-wrap: wrap; }
+    .quickmemo input#qmText { flex: 1 1 100%; }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -483,21 +603,22 @@
   <div class="masthead">
     <div>
       <h1 class="masthead-title serif">세특 작성 원장</h1>
-      <p class="masthead-sub">활동명·수행내용·배운점을 입력하면 과목별 세부능력 및 특기사항 초안 문단이 자동으로 조립됩니다.</p>
+      <p class="masthead-sub">수업 중 관찰한 내용을 수시로 메모해두면, 나중에 학생별로 모아 세부능력 및 특기사항 초안을 자동으로 조립합니다.</p>
     </div>
-    <div class="masthead-meta">교과 세부능력 및 특기사항<br>초안 작성 도구</div>
+    <div class="masthead-meta">교과 세부능력 및 특기사항<br>관찰 기록 · 초안 작성 도구</div>
   </div>
 
   <details class="info-strip" id="infoStrip">
     <summary>사용법 및 색상 안내</summary>
     <div class="info-body">
       <ol>
-        <li>PDF 결과물이 있다면 핵심 내용을 확인한 뒤, <strong>활동명 · 수행내용 · 배운점(성장)</strong>으로 요약해 입력하세요. 이 페이지는 PDF 파일을 직접 읽지는 못합니다 — 자료를 사람이 먼저 구조화해서 옮겨 적어야 합니다.</li>
-        <li>직접 입력하는 자료도 동일한 방식으로 나누어 입력하면 됩니다.</li>
-        <li>학생 한 명·한 과목당 카드 하나, 활동은 최대 3개까지 입력할 수 있습니다.</li>
-        <li>아래 "세특 초안"은 입력한 내용을 바탕으로 자동으로 조립된 문단입니다. 문구는 반드시 사실관계를 검토한 뒤 학교생활기록부에 반영하세요.</li>
-        <li>이 페이지는 여러 선생님이 같은 링크로 함께 사용할 수 있습니다. 다만 입력한 내용은 <strong>각자의 기기(브라우저)에만</strong> 자동 저장되며, 다른 선생님에게 보이거나 서버로 전송되지 않습니다 — 로그인 계정과는 연결되지 않는 저장 방식입니다.</li>
-        <li>여러 선생님의 결과를 한 곳에 모으려면, 위쪽 "작성 교사"란에 이름을 적고 각자 "CSV로 내려받기"를 눌러 파일을 담당자에게 전달해주세요.</li>
+        <li>먼저 <strong>‘+ 학생 추가’</strong>로 학생 명부를 등록합니다. 이름·학년/반/번호·과목은 한 번만 입력하면 계속 유지됩니다.</li>
+        <li>수업이나 활동 중 관찰한 내용은 위쪽 <strong>‘빠른 관찰 메모’</strong>에서 학생을 고르고 짧게 적어 바로 저장하세요. 날짜는 자동으로 오늘 날짜가 채워지며 필요하면 바꿀 수 있습니다.</li>
+        <li>메모는 학생 카드의 <strong>‘관찰 메모’</strong>를 펼치면 날짜순으로 모아볼 수 있습니다. 세특을 작성할 때 이 메모들을 참고해 활동명·수행내용·배운점 칸에 정리해 옮기세요. (메모 내용을 자동으로 문장화하지는 않습니다.)</li>
+        <li>PDF 결과물이 있다면 핵심 내용을 확인한 뒤 직접 요약해 입력하세요. 이 페이지는 PDF 파일을 직접 읽지는 못합니다.</li>
+        <li>아래 "세특 초안"은 활동 입력 내용을 바탕으로 자동으로 조립된 문단입니다. 문구는 반드시 사실관계를 검토한 뒤 학교생활기록부에 반영하세요.</li>
+        <li>이 파일은 다운로드하여 각자의 컴퓨터에서 개별적으로 사용합니다. 입력한 내용은 <strong>그 컴퓨터(브라우저)에만</strong> 저장되며, 다른 선생님에게 공유되거나 서버로 전송되지 않습니다.</li>
+        <li>브라우저 저장 공간은 방문 기록 삭제 등으로 사라질 수 있으므로, <strong>메모 CSV</strong>와 <strong>세특초안 CSV</strong>로 정기적으로 백업하세요. 오래 백업하지 않으면 화면 위쪽에 알림 배너가 뜹니다 (이 컴퓨터에서 파일을 열었을 때만 표시되며, 별도의 알림 기능은 아닙니다).</li>
       </ol>
       <div class="legend">
         <span><span class="legend-dot" style="background:var(--status-ok)"></span>적정 글자수</span>
@@ -506,6 +627,15 @@
       </div>
     </div>
   </details>
+
+  <div class="backup-banner" id="backupBanner" hidden>
+    <span>⚠️ 마지막 백업으로부터 <b id="backupDaysText">오래</b> 지났습니다. 지금 CSV로 백업해 두세요.</span>
+    <div class="backup-actions">
+      <button class="small primary" id="backupNotesBtn">메모 백업</button>
+      <button class="small" id="backupDraftBtn">세특초안 백업</button>
+      <button class="ghost small" id="backupDismiss">닫기</button>
+    </div>
+  </div>
 
   <div class="toolbar">
     <div class="toolbar-group">
@@ -517,9 +647,19 @@
       <input type="number" id="targetLen" class="num" min="50" step="10" value="800" />
     </div>
     <div class="spacer"></div>
-    <button class="small" id="exportCsv">CSV로 내려받기</button>
+    <button class="small" id="exportNotesCsv">메모 CSV</button>
+    <button class="small" id="exportDraftCsv">세특초안 CSV</button>
     <button class="small" id="clearAll">전체 초기화</button>
     <button class="primary" id="addEntry">+ 학생 추가</button>
+  </div>
+
+  <div class="quickmemo">
+    <div class="quickmemo-title">📝 빠른 관찰 메모</div>
+    <select id="qmStudent"></select>
+    <input type="date" id="qmDate" />
+    <input type="text" id="qmText" placeholder="관찰 내용을 입력하고 Enter (예: 모둠 토론에서 리더십을 발휘함)" />
+    <button class="primary" id="qmSave">메모 저장</button>
+    <div class="hint">여기서 저장한 메모는 아래 해당 학생 카드의 ‘관찰 메모’에 쌓입니다.</div>
   </div>
 
   <div id="entries"></div>
@@ -529,7 +669,7 @@
   </div>
 
   <footer class="note">
-    자동 생성된 문장은 초안입니다. 사실 관계와 문장을 반드시 교사가 검토·수정한 뒤 사용하세요. 데이터는 이 기기의 브라우저 저장소에만 남으며, 다른 곳으로 전송되지 않습니다. 같은 링크를 쓰는 다른 선생님의 입력 내용은 서로 보이지 않습니다.
+    자동 생성된 문장은 초안입니다. 사실 관계와 문장을 반드시 교사가 검토·수정한 뒤 사용하세요. 데이터는 이 기기의 브라우저 저장소에만 남으며, 다른 곳으로 전송되지 않습니다. 정기적으로 CSV 백업을 권장합니다.
   </footer>
 </div>
 
@@ -540,19 +680,26 @@
 (function () {
   "use strict";
 
-  var STORAGE_KEY = "setteuk-ledger-v1";
+  var STORAGE_KEY = "setteuk-ledger-v2";
+  var OLD_STORAGE_KEY = "setteuk-ledger-v1";
   var TEMPLATES = ["활동에 참여하여", "활동에서", "활동을 통해"];
   var SUBJECTS = ["국어", "수학", "영어", "사회", "역사", "도덕", "과학", "물리학", "화학",
     "생명과학", "지구과학", "기술·가정", "정보", "체육", "음악", "미술", "한국사", "진로와 직업"];
+  var BACKUP_REMINDER_DAYS = 7;
 
   var entriesEl = document.getElementById("entries");
   var targetLenEl = document.getElementById("targetLen");
   var teacherNameEl = document.getElementById("teacherName");
   var toastEl = document.getElementById("toast");
+  var backupBanner = document.getElementById("backupBanner");
+  var backupDaysText = document.getElementById("backupDaysText");
+  var qmStudentEl = document.getElementById("qmStudent");
+  var qmDateEl = document.getElementById("qmDate");
+  var qmTextEl = document.getElementById("qmText");
   var saveTimer = null;
   var toastTimer = null;
 
-  var state = { targetLen: 800, teacherName: "", entries: [] };
+  var state = { targetLen: 800, teacherName: "", lastBackupAt: null, entries: [] };
 
   function toast(msg) {
     toastEl.textContent = msg;
@@ -565,10 +712,24 @@
     return "e" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
   }
 
+  function todayStr() {
+    var d = new Date();
+    var m = String(d.getMonth() + 1).padStart(2, "0");
+    var day = String(d.getDate()).padStart(2, "0");
+    return d.getFullYear() + "-" + m + "-" + day;
+  }
+
+  function formatDateShort(iso) {
+    if (!iso) return "";
+    var parts = iso.split("-");
+    return parts.length === 3 ? parts[1] + "/" + parts[2] : iso;
+  }
+
   function blankEntry() {
     return {
       id: uid(),
       name: "", info: "", subject: "", subjectCustom: "",
+      notes: [],
       acts: [
         { name: "", content: "", learned: "" },
         { name: "", content: "", learned: "" },
@@ -582,6 +743,25 @@
     return String(s).replace(/[&<>"']/g, function (c) {
       return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c];
     });
+  }
+
+  function copyToClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text).catch(function () { fallbackCopy(text); });
+    }
+    fallbackCopy(text);
+    return Promise.resolve();
+  }
+
+  function fallbackCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand("copy"); } catch (e) { /* clipboard unavailable */ }
+    document.body.removeChild(ta);
   }
 
   function sentenceFor(act, phrase) {
@@ -611,6 +791,13 @@
     return { label: "적정", cls: "ok" };
   }
 
+  function sortedNotes(entry) {
+    return (entry.notes || []).slice().sort(function (a, b) {
+      if (a.date !== b.date) return a.date < b.date ? 1 : -1;
+      return b.createdAt - a.createdAt;
+    });
+  }
+
   function scheduleSave() {
     if (saveTimer) clearTimeout(saveTimer);
     saveTimer = setTimeout(function () {
@@ -631,6 +818,28 @@
     var badge = card.querySelector(".badge");
     badge.textContent = status.label;
     badge.className = "badge " + status.cls;
+  }
+
+  function updateNotesCount(entry, card) {
+    card.querySelector(".notes-count-badge").textContent = (entry.notes || []).length + "건";
+  }
+
+  function renderNotesList(entry, card) {
+    var list = card.querySelector(".notes-list");
+    var notes = sortedNotes(entry);
+    var html = '<div class="notes-list-head"><button class="ghost small" data-action="copy-notes">메모 전체 복사</button></div>';
+    if (notes.length === 0) {
+      html += '<div class="notes-empty">아직 기록된 메모가 없습니다. 위쪽 ‘빠른 관찰 메모’에서 추가해보세요.</div>';
+    } else {
+      html += notes.map(function (n) {
+        return '<div class="note-item" data-note-id="' + n.id + '">' +
+          '<span class="note-date num">' + escapeHtml(formatDateShort(n.date)) + '</span>' +
+          '<span class="note-text">' + escapeHtml(n.text) + '</span>' +
+          '<button class="note-del" data-action="delete-note" title="메모 삭제" aria-label="메모 삭제">✕</button>' +
+        '</div>';
+      }).join("");
+    }
+    list.innerHTML = html;
   }
 
   function refreshAllStatus() {
@@ -688,6 +897,7 @@
 
   function addEntry(entry) {
     entry = entry || blankEntry();
+    if (!entry.notes) entry.notes = [];
     state.entries.push(entry);
 
     var card = document.createElement("div");
@@ -705,6 +915,14 @@
           "<input type=\"text\" class=\"subject-custom\" data-f=\"subjectCustom\" placeholder=\"과목명 직접 입력\" hidden />" +
         "</div>" +
         "<button class=\"ghost\" data-action=\"delete\" title=\"이 학생 삭제\" aria-label=\"이 학생 삭제\">✕</button>" +
+      "</div>" +
+      "<div class=\"entry-notes\">" +
+        "<button class=\"notes-toggle\" data-action=\"toggle-notes\">" +
+          "<span>관찰 메모</span>" +
+          "<span class=\"notes-count-badge\">0건</span>" +
+          "<span class=\"chev\">▾</span>" +
+        "</button>" +
+        "<div class=\"notes-list\" hidden></div>" +
       "</div>" +
       "<div class=\"entry-body\">" +
         activityBlockHtml(0) + activityBlockHtml(1) + activityBlockHtml(2) +
@@ -728,7 +946,11 @@
     entriesEl.appendChild(card);
     bindEntry(entry, card);
     updateComputed(entry, card);
+    renderNotesList(entry, card);
+    updateNotesCount(entry, card);
     reindex();
+    refreshQuickMemoOptions();
+    checkBackupReminder();
     return card;
   }
 
@@ -749,6 +971,9 @@
           }
         }
         updateComputed(entry, card);
+        if (field === "name" || field === "subject" || field === "subjectCustom") {
+          refreshQuickMemoOptions();
+        }
         scheduleSave();
       });
     });
@@ -776,32 +1001,120 @@
       if (idx > -1) state.entries.splice(idx, 1);
       card.remove();
       reindex();
+      refreshQuickMemoOptions();
+      checkBackupReminder();
       scheduleSave();
     });
 
     card.querySelector('[data-action="copy"]').addEventListener("click", function (evt) {
       var text = card.querySelector(".draft").textContent;
       var btn = evt.currentTarget;
-      var restore = function () { btn.textContent = "복사"; };
-      var done = function () { btn.textContent = "복사됨"; setTimeout(restore, 1200); };
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(done).catch(function () { fallbackCopy(text); done(); });
-      } else {
-        fallbackCopy(text);
-        done();
+      copyToClipboard(text).then(function () {
+        btn.textContent = "복사됨";
+        setTimeout(function () { btn.textContent = "복사"; }, 1200);
+      });
+    });
+
+    card.querySelector('[data-action="toggle-notes"]').addEventListener("click", function (evt) {
+      var btn = evt.currentTarget;
+      var list = card.querySelector(".notes-list");
+      var willOpen = list.hidden;
+      list.hidden = !willOpen;
+      btn.classList.toggle("open", willOpen);
+    });
+
+    card.querySelector(".notes-list").addEventListener("click", function (evt) {
+      var delBtn = evt.target.closest('[data-action="delete-note"]');
+      if (delBtn) {
+        var item = delBtn.closest(".note-item");
+        var noteId = item.getAttribute("data-note-id");
+        entry.notes = (entry.notes || []).filter(function (n) { return n.id !== noteId; });
+        renderNotesList(entry, card);
+        updateNotesCount(entry, card);
+        scheduleSave();
+        return;
+      }
+      var copyBtn = evt.target.closest('[data-action="copy-notes"]');
+      if (copyBtn) {
+        var text = sortedNotes(entry).map(function (n) { return n.date + " - " + n.text; }).join("\n");
+        if (!text) { toast("복사할 메모가 없습니다."); return; }
+        copyToClipboard(text).then(function () { toast("메모를 복사했습니다."); });
       }
     });
   }
 
-  function fallbackCopy(text) {
-    var ta = document.createElement("textarea");
-    ta.value = text;
-    ta.style.position = "fixed";
-    ta.style.opacity = "0";
-    document.body.appendChild(ta);
-    ta.select();
-    try { document.execCommand("copy"); } catch (e) { /* clipboard unavailable */ }
-    document.body.removeChild(ta);
+  function addNoteToStudent(entryId, date, text) {
+    var entry = state.entries.filter(function (e) { return e.id === entryId; })[0];
+    if (!entry) return false;
+    if (!entry.notes) entry.notes = [];
+    entry.notes.push({ id: uid(), date: date, text: text, createdAt: Date.now() });
+    var card = entriesEl.querySelector('[data-id="' + entryId + '"]');
+    if (card) {
+      renderNotesList(entry, card);
+      updateNotesCount(entry, card);
+    }
+    scheduleSave();
+    return true;
+  }
+
+  function studentLabel(e) {
+    var subj = e.subject === "__custom__" ? e.subjectCustom : e.subject;
+    var name = (e.name || "").trim() || "(이름 없음)";
+    return subj ? name + " · " + subj : name;
+  }
+
+  function refreshQuickMemoOptions() {
+    var current = qmStudentEl.value;
+    if (state.entries.length === 0) {
+      qmStudentEl.innerHTML = '<option value="">먼저 학생을 등록하세요</option>';
+      qmStudentEl.disabled = true;
+      qmTextEl.disabled = true;
+      document.getElementById("qmSave").disabled = true;
+      return;
+    }
+    qmStudentEl.disabled = false;
+    qmTextEl.disabled = false;
+    document.getElementById("qmSave").disabled = false;
+    qmStudentEl.innerHTML = state.entries.map(function (e) {
+      return '<option value="' + e.id + '">' + escapeHtml(studentLabel(e)) + '</option>';
+    }).join("");
+    if (current && state.entries.some(function (e) { return e.id === current; })) {
+      qmStudentEl.value = current;
+    }
+  }
+
+  function saveQuickMemo() {
+    var sid = qmStudentEl.value;
+    var text = qmTextEl.value.trim();
+    if (!sid) { toast("먼저 학생을 등록해주세요."); return; }
+    if (!text) { toast("메모 내용을 입력해주세요."); qmTextEl.focus(); return; }
+    var date = qmDateEl.value || todayStr();
+    addNoteToStudent(sid, date, text);
+    qmTextEl.value = "";
+    qmTextEl.focus();
+    toast("메모를 저장했습니다.");
+  }
+
+  function daysSince(iso) {
+    if (!iso) return Infinity;
+    return Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+  }
+
+  function checkBackupReminder() {
+    if (state.entries.length === 0) { backupBanner.hidden = true; return; }
+    var days = daysSince(state.lastBackupAt);
+    if (days >= BACKUP_REMINDER_DAYS) {
+      backupDaysText.textContent = state.lastBackupAt ? days + "일" : "오래";
+      backupBanner.hidden = false;
+    } else {
+      backupBanner.hidden = true;
+    }
+  }
+
+  function markBackedUp() {
+    state.lastBackupAt = new Date().toISOString();
+    scheduleSave();
+    checkBackupReminder();
   }
 
   function csvField(v) {
@@ -810,7 +1123,7 @@
     return v;
   }
 
-  function buildCsv() {
+  function buildDraftCsv() {
     var headers = ["작성교사", "순번", "이름", "학년/반/번호", "과목",
       "활동1_활동명", "활동1_수행내용", "활동1_배운점",
       "활동2_활동명", "활동2_수행내용", "활동2_배운점",
@@ -831,9 +1144,23 @@
     return "﻿" + rows.map(function (r) { return r.map(csvField).join(","); }).join("\r\n");
   }
 
-  function csvFilename(ext) {
+  function buildNotesCsv() {
+    var headers = ["작성교사", "학생이름", "학년/반/번호", "과목", "날짜", "메모내용"];
+    var rows = [headers];
+
+    state.entries.forEach(function (entry) {
+      var subject = entry.subject === "__custom__" ? entry.subjectCustom : entry.subject;
+      sortedNotes(entry).slice().reverse().forEach(function (n) {
+        rows.push([state.teacherName, entry.name, entry.info, subject, n.date, n.text]);
+      });
+    });
+
+    return "﻿" + rows.map(function (r) { return r.map(csvField).join(","); }).join("\r\n");
+  }
+
+  function csvFilename(label, ext) {
     var safeTeacher = (state.teacherName || "").trim().replace(/[\\/:*?"<>|]/g, "").slice(0, 20);
-    return "세특_기록" + (safeTeacher ? "_" + safeTeacher : "") + "_" +
+    return "세특_" + label + (safeTeacher ? "_" + safeTeacher : "") + "_" +
       new Date().toISOString().slice(0, 10) + "." + ext;
   }
 
@@ -849,51 +1176,90 @@
     setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
   }
 
-  function exportCsv() {
-    var csv = buildCsv();
-    var filename = csvFilename("csv");
-
+  function performExport(csv, filename) {
     if (!(window.claude && window.claude.downloads)) {
       fallbackDownload(filename, csv);
+      markBackedUp();
       return;
     }
 
-    window.claude.downloads.save({ filename: filename, data: csv }).catch(function (err) {
+    window.claude.downloads.save({ filename: filename, data: csv }).then(function () {
+      markBackedUp();
+    }).catch(function (err) {
       var code = err && err.code;
       if (code === "extension_not_enabled") {
-        // csv isn't available in this view; retry as .txt with the same content
-        var altName = csvFilename("txt");
+        var altName = filename.replace(/\.csv$/, ".txt");
         window.claude.downloads.save({ filename: altName, data: csv })
           .then(function () {
             toast("csv 형식을 지원하지 않아 .txt로 저장했습니다. 엑셀의 '텍스트/CSV 가져오기'로 열 수 있습니다.");
+            markBackedUp();
           })
           .catch(function () {
             fallbackDownload(filename, csv);
+            markBackedUp();
           });
       } else if (code === "declined") {
-        // viewer said no — nothing further to do
+        // viewer said no — don't mark as backed up
       } else if (code === "rate_limited") {
         toast("다운로드 요청이 진행 중입니다. 잠시 후 다시 시도해주세요.");
       } else if (code === "too_large") {
         toast("데이터가 너무 커서 내려받을 수 없습니다. 학생 수를 나누어 다시 시도해주세요.");
       } else {
-        // unavailable / not_granted / bad_request / etc — fall back to a normal browser download
         fallbackDownload(filename, csv);
+        markBackedUp();
       }
     });
+  }
+
+  function exportNotesCsv() {
+    performExport(buildNotesCsv(), csvFilename("메모", "csv"));
+  }
+
+  function exportDraftCsv() {
+    performExport(buildDraftCsv(), csvFilename("초안", "csv"));
   }
 
   function loadState() {
     try {
       var raw = localStorage.getItem(STORAGE_KEY);
+      var migrated = false;
+
+      if (!raw) {
+        var oldRaw = localStorage.getItem(OLD_STORAGE_KEY);
+        if (oldRaw) {
+          var oldParsed = JSON.parse(oldRaw);
+          if (oldParsed && Array.isArray(oldParsed.entries)) {
+            oldParsed.entries.forEach(function (e) { if (!e.notes) e.notes = []; });
+            raw = JSON.stringify({
+              targetLen: oldParsed.targetLen,
+              teacherName: oldParsed.teacherName,
+              lastBackupAt: null,
+              entries: oldParsed.entries
+            });
+            migrated = true;
+          }
+        }
+      }
+
       if (!raw) return false;
       var parsed = JSON.parse(raw);
       if (!parsed || !Array.isArray(parsed.entries)) return false;
+
       state.targetLen = parsed.targetLen || 800;
       targetLenEl.value = state.targetLen;
       state.teacherName = parsed.teacherName || "";
       teacherNameEl.value = state.teacherName;
-      parsed.entries.forEach(function (e) { addEntry(e); });
+      state.lastBackupAt = parsed.lastBackupAt || null;
+
+      parsed.entries.forEach(function (e) {
+        if (!e.notes) e.notes = [];
+        addEntry(e);
+      });
+
+      if (migrated) {
+        scheduleSave();
+        toast("이전 버전의 데이터를 불러왔습니다. 관찰 메모 기능이 새로 추가되었습니다.");
+      }
       return parsed.entries.length > 0;
     } catch (e) {
       return false;
@@ -902,13 +1268,20 @@
 
   document.getElementById("addEntry").addEventListener("click", function () { addEntry(); });
   document.getElementById("addEntryBottom").addEventListener("click", function () { addEntry(); });
-  document.getElementById("exportCsv").addEventListener("click", exportCsv);
+  document.getElementById("exportNotesCsv").addEventListener("click", exportNotesCsv);
+  document.getElementById("exportDraftCsv").addEventListener("click", exportDraftCsv);
+  document.getElementById("backupNotesBtn").addEventListener("click", exportNotesCsv);
+  document.getElementById("backupDraftBtn").addEventListener("click", exportDraftCsv);
+  document.getElementById("backupDismiss").addEventListener("click", function () { backupBanner.hidden = true; });
+
   document.getElementById("clearAll").addEventListener("click", function () {
     if (state.entries.length === 0) return;
-    if (!confirm("모든 학생 기록을 삭제할까요? 이 작업은 되돌릴 수 없습니다.")) return;
+    if (!confirm("모든 학생 기록과 관찰 메모를 삭제할까요? 이 작업은 되돌릴 수 없습니다.")) return;
     state.entries = [];
     entriesEl.innerHTML = "";
     reindex();
+    refreshQuickMemoOptions();
+    checkBackupReminder();
     try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignore */ }
   });
 
@@ -924,6 +1297,12 @@
     scheduleSave();
   });
 
+  qmStudentEl.addEventListener("change", function () { qmTextEl.focus(); });
+  document.getElementById("qmSave").addEventListener("click", saveQuickMemo);
+  qmTextEl.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") { e.preventDefault(); saveQuickMemo(); }
+  });
+
   var themeToggle = document.getElementById("themeToggle");
   themeToggle.addEventListener("click", function () {
     var root = document.documentElement;
@@ -933,10 +1312,14 @@
     root.setAttribute("data-theme", effectiveDark ? "light" : "dark");
   });
 
+  qmDateEl.value = todayStr();
+
   var hadSaved = loadState();
   if (!hadSaved) {
     addEntry(); // start with one blank card so the page isn't empty on first visit
   }
   toggleEmptyState();
+  refreshQuickMemoOptions();
+  checkBackupReminder();
 })();
 </script>
