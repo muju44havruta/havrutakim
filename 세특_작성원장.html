@@ -619,6 +619,7 @@
         <li>아래 "세특 초안"은 활동 입력 내용을 바탕으로 자동으로 조립된 문단입니다. 문구는 반드시 사실관계를 검토한 뒤 학교생활기록부에 반영하세요.</li>
         <li>이 파일은 다운로드하여 각자의 컴퓨터에서 개별적으로 사용합니다. 입력한 내용은 <strong>그 컴퓨터(브라우저)에만</strong> 저장되며, 다른 선생님에게 공유되거나 서버로 전송되지 않습니다.</li>
         <li>브라우저 저장 공간은 방문 기록 삭제 등으로 사라질 수 있으므로, <strong>메모 CSV</strong>와 <strong>세특초안 CSV</strong>로 정기적으로 백업하세요. 오래 백업하지 않으면 화면 위쪽에 알림 배너가 뜹니다 (이 컴퓨터에서 파일을 열었을 때만 표시되며, 별도의 알림 기능은 아닙니다).</li>
+        <li>휴대폰 등 공유 기능을 지원하는 브라우저에서는 위 버튼이 <strong>‘공유’</strong>로 표시됩니다. 탭하면 공유 시트가 열려 메일 앱 등을 선택해 파일을 바로 첨부해 보낼 수 있습니다 (지원하지 않는 기기에서는 기존처럼 파일로 다운로드됩니다).</li>
       </ol>
       <div class="legend">
         <span><span class="legend-dot" style="background:var(--status-ok)"></span>적정 글자수</span>
@@ -1176,7 +1177,17 @@
     setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
   }
 
-  function performExport(csv, filename) {
+  function shareSupportsFiles() {
+    if (!(navigator.share && navigator.canShare)) return false;
+    try {
+      var testFile = new File(["a"], "t.csv", { type: "text/csv" });
+      return navigator.canShare({ files: [testFile] });
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function performDownload(csv, filename) {
     if (!(window.claude && window.claude.downloads)) {
       fallbackDownload(filename, csv);
       markBackedUp();
@@ -1211,12 +1222,39 @@
     });
   }
 
+  function performExport(csv, filename, shareMeta) {
+    if (shareSupportsFiles()) {
+      var file = null;
+      try { file = new File([csv], filename, { type: "text/csv" }); } catch (e) { file = null; }
+      if (file) {
+        var payload = { files: [file] };
+        if (shareMeta && shareMeta.title) payload.title = shareMeta.title;
+        if (shareMeta && shareMeta.text) payload.text = shareMeta.text;
+        navigator.share(payload).then(function () {
+          markBackedUp();
+          toast("공유 시트에서 메일 앱 등을 선택해 보내세요.");
+        }).catch(function (err) {
+          if (err && err.name === "AbortError") return; // 사용자가 공유 시트를 취소함
+          performDownload(csv, filename);
+        });
+        return;
+      }
+    }
+    performDownload(csv, filename);
+  }
+
   function exportNotesCsv() {
-    performExport(buildNotesCsv(), csvFilename("메모", "csv"));
+    performExport(buildNotesCsv(), csvFilename("메모", "csv"), {
+      title: "세특 관찰 메모 백업",
+      text: (state.teacherName ? state.teacherName + " 선생님의 " : "") + "관찰 메모 CSV 파일입니다."
+    });
   }
 
   function exportDraftCsv() {
-    performExport(buildDraftCsv(), csvFilename("초안", "csv"));
+    performExport(buildDraftCsv(), csvFilename("초안", "csv"), {
+      title: "세특 초안 백업",
+      text: (state.teacherName ? state.teacherName + " 선생님의 " : "") + "세특 초안 CSV 파일입니다."
+    });
   }
 
   function loadState() {
@@ -1311,6 +1349,16 @@
     var effectiveDark = current ? current === "dark" : prefersDark;
     root.setAttribute("data-theme", effectiveDark ? "light" : "dark");
   });
+
+  if (shareSupportsFiles()) {
+    var shareHint = "탭하면 공유 시트가 열려 메일 앱 등으로 바로 첨부해 보낼 수 있습니다.";
+    document.getElementById("exportNotesCsv").textContent = "메모 공유";
+    document.getElementById("exportDraftCsv").textContent = "세특초안 공유";
+    document.getElementById("backupNotesBtn").textContent = "메모 공유";
+    document.getElementById("backupDraftBtn").textContent = "세특초안 공유";
+    document.getElementById("exportNotesCsv").title = shareHint;
+    document.getElementById("exportDraftCsv").title = shareHint;
+  }
 
   qmDateEl.value = todayStr();
 
