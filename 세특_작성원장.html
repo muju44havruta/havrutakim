@@ -638,7 +638,7 @@
         <li>아래 "세특 초안"은 활동 입력 내용을 바탕으로 자동으로 조립된 문단입니다. 문구는 반드시 사실관계를 검토한 뒤 학교생활기록부에 반영하세요.</li>
         <li>이 파일은 다운로드하여 각자의 컴퓨터에서 개별적으로 사용합니다. 입력한 내용은 <strong>그 컴퓨터(브라우저)에만</strong> 저장되며, 다른 선생님에게 공유되거나 서버로 전송되지 않습니다.</li>
         <li>브라우저 저장 공간은 방문 기록 삭제 등으로 사라질 수 있으므로, <strong>메모 CSV</strong>와 <strong>세특초안 CSV</strong>로 정기적으로 백업하세요. 오래 백업하지 않으면 화면 위쪽에 알림 배너가 뜹니다 (이 컴퓨터에서 파일을 열었을 때만 표시되며, 별도의 알림 기능은 아닙니다).</li>
-        <li>휴대폰 등 공유 기능을 지원하는 브라우저에서는 위 버튼이 <strong>‘공유’</strong>로 표시됩니다. 탭하면 공유 시트가 열리며, 반드시 <strong>메일 앱(Gmail, 네이버메일 등)</strong>을 선택하세요 — 파일이 정상적으로 첨부됩니다. <strong>카카오톡 등 메신저 앱은 파일 첨부가 누락되고 문구만 전달될 수 있으니 피하세요.</strong> (공유가 지원되지 않는 기기에서는 기존처럼 파일로 다운로드됩니다.)</li>
+        <li><strong>CSV</strong> 버튼은 항상 파일을 기기에 저장(다운로드)합니다. 휴대폰 등 공유 기능을 지원하는 브라우저에서는 그 옆에 <strong>‘공유’</strong> 버튼이 추가로 나타나며, 탭하면 공유 시트가 열립니다. 이때 반드시 <strong>메일 앱(Gmail, 네이버메일 등)</strong>을 선택하세요 — 파일이 정상적으로 첨부됩니다. <strong>카카오톡 등 메신저 앱은 파일 첨부가 누락되고 문구만 전달될 수 있으니 피하세요.</strong></li>
         <li>카카오톡으로 꼭 보내야 한다면: 공유 대신 CSV 파일을 기기에 <strong>먼저 다운로드</strong>한 뒤, 카카오톡 채팅방에서 <strong>“+” → “파일”</strong>을 눌러 다운로드한 CSV를 직접 첨부하세요. 이 방법이 가장 확실합니다.</li>
       </ol>
       <div class="legend">
@@ -669,7 +669,9 @@
     </div>
     <div class="spacer"></div>
     <button class="small" id="exportNotesCsv">메모 CSV</button>
+    <button class="small" id="shareNotesCsv" hidden>메모 공유</button>
     <button class="small" id="exportDraftCsv">세특초안 CSV</button>
+    <button class="small" id="shareDraftCsv" hidden>세특초안 공유</button>
     <button class="small" id="clearAll">전체 초기화</button>
     <button class="primary" id="addEntry">+ 학생 추가</button>
   </div>
@@ -1244,36 +1246,42 @@
     });
   }
 
-  function performExport(csv, filename, shareMeta) {
-    if (shareSupportsFiles()) {
-      var file = null;
-      try { file = new File([csv], filename, { type: "text/csv" }); } catch (e) { file = null; }
-      if (file) {
-        var payload = { files: [file] };
-        if (shareMeta && shareMeta.title) payload.title = shareMeta.title;
-        if (shareMeta && shareMeta.text) payload.text = shareMeta.text;
-        navigator.share(payload).then(function () {
-          markBackedUp();
-          toast("공유 시트가 열리면 '메일' 앱을 선택하세요. 카카오톡 등 메신저는 파일이 누락될 수 있습니다.", 5500);
-        }).catch(function (err) {
-          if (err && err.name === "AbortError") return; // 사용자가 공유 시트를 취소함
-          performDownload(csv, filename);
-        });
-        return;
-      }
+  function shareExport(csv, filename, shareMeta) {
+    var file = null;
+    try { file = new File([csv], filename, { type: "text/csv" }); } catch (e) { file = null; }
+    if (!(file && shareSupportsFiles())) {
+      performDownload(csv, filename);
+      return;
     }
-    performDownload(csv, filename);
+    var payload = { files: [file] };
+    if (shareMeta && shareMeta.title) payload.title = shareMeta.title;
+    if (shareMeta && shareMeta.text) payload.text = shareMeta.text;
+    navigator.share(payload).then(function () {
+      markBackedUp();
+      toast("공유 시트가 열리면 '메일' 앱을 선택하세요. 카카오톡 등 메신저는 파일이 누락될 수 있습니다.", 5500);
+    }).catch(function (err) {
+      if (err && err.name === "AbortError") return; // 사용자가 공유 시트를 취소함
+      performDownload(csv, filename);
+    });
   }
 
   function exportNotesCsv() {
-    performExport(buildNotesCsv(), csvFilename("메모", "csv"), {
+    performDownload(buildNotesCsv(), csvFilename("메모", "csv"));
+  }
+
+  function exportDraftCsv() {
+    performDownload(buildDraftCsv(), csvFilename("초안", "csv"));
+  }
+
+  function shareNotesCsv() {
+    shareExport(buildNotesCsv(), csvFilename("메모", "csv"), {
       title: "세특 관찰 메모 백업",
       text: (state.teacherName ? state.teacherName + " 선생님의 " : "") + "관찰 메모 CSV 파일입니다."
     });
   }
 
-  function exportDraftCsv() {
-    performExport(buildDraftCsv(), csvFilename("초안", "csv"), {
+  function shareDraftCsv() {
+    shareExport(buildDraftCsv(), csvFilename("초안", "csv"), {
       title: "세특 초안 백업",
       text: (state.teacherName ? state.teacherName + " 선생님의 " : "") + "세특 초안 CSV 파일입니다."
     });
@@ -1330,6 +1338,8 @@
   document.getElementById("addEntryBottom").addEventListener("click", function () { addEntry(); });
   document.getElementById("exportNotesCsv").addEventListener("click", exportNotesCsv);
   document.getElementById("exportDraftCsv").addEventListener("click", exportDraftCsv);
+  document.getElementById("shareNotesCsv").addEventListener("click", shareNotesCsv);
+  document.getElementById("shareDraftCsv").addEventListener("click", shareDraftCsv);
   document.getElementById("backupNotesBtn").addEventListener("click", exportNotesCsv);
   document.getElementById("backupDraftBtn").addEventListener("click", exportDraftCsv);
   document.getElementById("backupDismiss").addEventListener("click", function () { backupBanner.hidden = true; });
@@ -1374,12 +1384,12 @@
 
   if (shareSupportsFiles()) {
     var shareHint = "탭하면 공유 시트가 열립니다. 반드시 '메일' 앱을 선택하세요 (카카오톡 등 메신저는 파일 첨부가 누락될 수 있습니다).";
-    document.getElementById("exportNotesCsv").textContent = "메모 공유";
-    document.getElementById("exportDraftCsv").textContent = "세특초안 공유";
-    document.getElementById("backupNotesBtn").textContent = "메모 공유";
-    document.getElementById("backupDraftBtn").textContent = "세특초안 공유";
-    document.getElementById("exportNotesCsv").title = shareHint;
-    document.getElementById("exportDraftCsv").title = shareHint;
+    var shareNotesBtn = document.getElementById("shareNotesCsv");
+    var shareDraftBtn = document.getElementById("shareDraftCsv");
+    shareNotesBtn.hidden = false;
+    shareDraftBtn.hidden = false;
+    shareNotesBtn.title = shareHint;
+    shareDraftBtn.title = shareHint;
     document.getElementById("shareHintBar").hidden = false;
   }
 
