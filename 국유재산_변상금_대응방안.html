@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>변상금 대응 분석</title>
+<style>
+:root{--bg:#eef2f6;--paper:#fff;--ink:#1f2d3d;--sub:#5a6b7d;--line:#d5dee8;--accent:#18406b;--th:#eef3f9;--ok:#1d6b45;--okbg:#e9f6ef;--warn:#8a5a10;--warnbg:#fff6e5;--bad:#9b2c2c;--badbg:#fdeeee;--info:#edf5ff;--link:#175b99}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#11161d;--paper:#19212b;--ink:#e3e9f0;--sub:#9fb0c2;--line:#2e3a48;--accent:#8fb8e8;--th:#222d3a;--ok:#7fd3a4;--okbg:#17302a;--warn:#f0c47a;--warnbg:#342a17;--bad:#f2a0a0;--badbg:#3a1f22;--info:#1c2a3b;--link:#8ec1f5}}
+:root[data-theme="dark"]{--bg:#11161d;--paper:#19212b;--ink:#e3e9f0;--sub:#9fb0c2;--line:#2e3a48;--accent:#8fb8e8;--th:#222d3a;--ok:#7fd3a4;--okbg:#17302a;--warn:#f0c47a;--warnbg:#342a17;--bad:#f2a0a0;--badbg:#3a1f22;--info:#1c2a3b;--link:#8ec1f5}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Noto Sans KR','Malgun Gothic','Apple SD Gothic Neo',sans-serif;line-height:1.75;word-break:keep-all}
+main{max-width:960px;margin:24px auto;padding:0 16px}
+.sheet{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:34px 40px;margin:18px 0}
+h1{font-size:28px;line-height:1.4;color:var(--accent);margin:6px 0 14px}
+h2{font-size:21px;color:var(--accent);border-bottom:2px solid var(--line);padding-bottom:6px;margin-top:0}
+h3{font-size:17px;margin:22px 0 8px}
+.tag{font-size:12px;font-weight:700;letter-spacing:1px;color:var(--sub)}
+.small{font-size:13px;color:var(--sub)}
+table{width:100%;border-collapse:collapse;font-size:14px;margin:14px 0}
+th,td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top}
+th{background:var(--th)}
+td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.box{padding:14px 18px;border-left:4px solid var(--accent);background:var(--info);margin:16px 0;border-radius:0 6px 6px 0}
+.ok{border-left-color:var(--ok);background:var(--okbg)}
+.warn{border-left-color:var(--warn);background:var(--warnbg)}
+.bad{border-left-color:var(--bad);background:var(--badbg)}
+.verdict{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
+.verdict div{border:1px solid var(--line);border-radius:8px;padding:14px}
+.verdict b{display:block;font-size:13px;color:var(--sub);margin-bottom:4px}
+.verdict strong{font-size:17px}
+.pill{display:inline-block;font-size:12px;font-weight:700;padding:1px 8px;border-radius:10px;margin-right:4px}
+.p-hi{background:var(--okbg);color:var(--ok)}.p-mid{background:var(--warnbg);color:var(--warn)}.p-lo{background:var(--badbg);color:var(--bad)}
+a{color:var(--link);overflow-wrap:anywhere}
+sup a{text-decoration:none;font-weight:700}
+ol.fn{font-size:13px;color:var(--sub);padding-left:22px}
+ol.fn li{margin:6px 0}
+ul,ol{padding-left:22px}li{margin:6px 0}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:13px;color:var(--sub)}
+button{border:0;background:var(--accent);color:var(--paper);border-radius:6px;padding:9px 16px;cursor:pointer;font:inherit}
+.table-wrap{overflow-x:auto}
+@media(max-width:640px){.sheet{padding:22px 16px}h1{font-size:23px}.verdict{grid-template-columns:1fr}table{font-size:12.5px}th,td{padding:7px}.toolbar{flex-direction:column;align-items:flex-start}}
+@page{size:A4;margin:15mm}
+@media print{:root{--bg:#fff;--paper:#fff;--ink:#000;--sub:#444;--link:#000}body{font-size:10.5pt}main{margin:0;padding:0;max-width:none}.sheet{border:0;padding:0;margin:0 0 8mm}.toolbar{display:none}tr,.box{break-inside:avoid}}
+</style>
+</head>
+<body><main>
+
+<div class="toolbar"><span>작성 기준일 2026. 9. 30. · 고지서 사진(마·바 항목)과 기존 대응 문서를 바탕으로 한 분석</span><button onclick="window.print()">인쇄 / PDF 저장</button></div>
+
+<!-- 0. 결론 -->
+<section class="sheet">
+<div class="tag">한눈에 보는 결론</div>
+<h1>국유재산 변상금 552,870원<br>꼭 내야 하나 · 줄일 수 있나 · 다툴 수 있나</h1>
+
+<div class="verdict">
+  <div><b>① 꼭 납부해야 하나?</b><strong>원칙적으로 “예”</strong><br><span class="small">변상금은 재량 없이 부과하는 <b>기속행위</b>이고<sup><a href="#fn3">3</a></sup>, 법이 정한 면제 사유에 해당하지 않습니다<sup><a href="#fn1">1</a></sup>. 불복해도 징수가 자동으로 멈추지 않습니다.</span></div>
+  <div><b>② 감액 여지는?</b><strong>있음 (핵심은 ‘요율·면적’)</strong><br><span class="small">270㎡ 전체에 <b>묘지 요율 5%</b>를 적용했습니다. 실제 경작 부분이 있으면 <b>경작용 1%</b>가 적용 대상이라<sup><a href="#fn4">4</a></sup> 금액이 크게 줄 수 있습니다.</span></div>
+  <div><b>③ 다툼의 여지는?</b><strong>부분적으로 있음</strong><br><span class="small">부과 대상자(부친 생전 기간)·점유 시작일·사전통지 문제를 다툴 수 있습니다. 다만 절차 하자만으로는 <b>재부과</b>될 수 있습니다.</span></div>
+</div>
+
+<div class="box ok"><strong>권장 전략 (한 줄 요약)</strong><br>
+“전액 면제”가 아니라 <b>“용도·면적·기간을 사실대로 나눠 재산정”</b>하는 것을 목표로 합니다. ① 캠코에 <b>현장 실측과 재산정</b>을 서면 요청하고, ② 답변이 불충분하면 <b>무료인 온라인 행정심판</b>을 청구합니다. ③ 금액(약 55만 원)에 비해 비용이 커서 <b>행정소송은 권하지 않습니다</b>. ④ 연체료는 한 달 약 3천 원 수준이라 재산정 결과를 기다리는 동안 크게 늘지는 않습니다. 다만 압류 위험을 피하려면 <b>먼저 내고 다투는 방법</b>도 유효합니다.</div>
+
+<div class="box warn"><strong>기한 주의</strong><br>납부기한(2026. 9. 25.)은 이미 지났습니다. 이 날짜는 <b>불복기간과는 별개</b>입니다. 행정심판은 <b>처분이 있음을 안 날부터 90일</b>, 처분이 있었던 날부터 180일 안에 청구해야 합니다<sup><a href="#fn11">11</a></sup>. 고지서를 9월 초에 받았다면 <b>2026년 12월 초가 사실상 마감</b>이므로 수령일을 반드시 확인하세요.</div>
+</section>
+
+<!-- 1. 고지서 분석 -->
+<section class="sheet">
+<div class="tag">고지서 숫자 분석</div>
+<h2>1. 고지서가 말해 주는 것</h2>
+
+<div class="table-wrap"><table>
+<tr><th>회계연도</th><th>변상금</th><th>점유기간(일수)</th><th>읽을 점</th></tr>
+<tr><td>2021</td><td class="num">24,420</td><td>10/07~12/31 (86)</td><td><b>시작일 10월 7일</b>의 근거가 핵심 쟁점</td></tr>
+<tr><td>2022</td><td class="num">117,280</td><td>전체 (365)</td><td rowspan="2">부친 생존 기간(부친 사망 2023년 2월)</td></tr>
+<tr><td>2023</td><td class="num">110,480</td><td>전체 (365)</td></tr>
+<tr><td>2024</td><td class="num">109,830</td><td>전체 (366)</td><td rowspan="3">부친 사망 이후 기간</td></tr>
+<tr><td>2025</td><td class="num">112,900</td><td>전체 (365)</td></tr>
+<tr><td>2026</td><td class="num">77,960</td><td>01/01~09/02 (245)</td></tr>
+<tr><th>합계</th><th class="num">552,870</th><th colspan="2">적용 대부요율 5% · 산출근거 「국유재산법」 제72조</th></tr>
+</table></div>
+
+<h3>역산으로 확인되는 산정 구조</h3>
+<ul>
+<li><b>변상금 = 해당 연도 대부료 × 120%</b>입니다<sup><a href="#fn1">1</a></sup><sup><a href="#fn2">2</a></sup>. 연간 대부료 96,790원 ÷ 5%로 계산하면 270㎡의 재산가액은 <b>약 193만 5,800원</b>(㎡당 약 7,170원)입니다.</li>
+<li>2025년 변상금 112,900원 ÷ 1.2 ≈ 94,083원입니다. 요율 5%로 계산하면 연도별 재산가액(공시지가 기준)이 조금씩 달라졌을 뿐, <b>계산식 자체는 규정대로</b>입니다.</li>
+<li>따라서 <b>산수 착오보다</b> <u>① 5%라는 요율</u>, <u>② 270㎡라는 면적</u>, <u>③ 2021. 10. 7.이라는 시작일</u>, <u>④ 누구에게 부과했는가</u>를 다투는 것이 실익이 있습니다.</li>
+</ul>
+
+<div class="box"><strong>“5%”가 의미하는 것</strong><br>
+국유재산법 시행령 제29조는 연간 사용료(대부료)를 <b>재산가액 × 1천분의 50(5%) 이상</b>으로 정합니다. 다만 <b>경작용은 1천분의 10(1%) 이상</b>으로 따로 정하고 있습니다<sup><a href="#fn4">4</a></sup>. 고지서의 사용 용도는 <b>“묘지”</b>이므로 일반 요율 5%가 적용된 것입니다. 공부상 지목이 <b>“전(밭)”</b>이고 부친이 약 50년간 경작해 온 땅이라는 점이 감액 논리의 출발점입니다.</div>
+</section>
+
+<!-- 2. 쟁점별 -->
+<section class="sheet">
+<div class="tag">쟁점별 가능성 평가</div>
+<h2>2. 감액·다툼의 쟁점과 가능성</h2>
+
+<div class="table-wrap"><table>
+<tr><th style="width:22%">쟁점</th><th>논리와 근거</th><th style="width:13%">가능성</th></tr>
+<tr><td><b>A. 요율(용도) 구분</b></td>
+<td>270㎡ 전부가 묘역인지 확인합니다. 분묘·상석 외 부분을 경작하고 있다면 그 부분은 <b>경작용 1%</b> 적용을 요구합니다<sup><a href="#fn4">4</a></sup>. 캠코가 실제 용도를 따지지 않고 5%를 일괄 적용했다가 중앙행정심판위원회에서 <b>과다 부과로 취소된 사례(2026. 1.)</b>가 있습니다<sup><a href="#fn8">8</a></sup>.</td>
+<td><span class="pill p-hi">높음</span><br>감액 효과 가장 큼</td></tr>
+<tr><td><b>B. 점유 면적</b></td>
+<td>장사법은 개인묘지 면적을 <b>30㎡ 이하</b>로, 분묘 1기와 부속시설 면적을 <b>10㎡(합장 15㎡) 이하</b>로 제한합니다<sup><a href="#fn9">9</a></sup>. 270㎡ 전체가 “묘지로 점유”되었다는 판단은 이례적이므로 <b>경계 도면·실측 자료</b>를 요구합니다. 참고로 이 조항은 묘지 설치 기준이며, 변상금 면적을 직접 제한하지는 않습니다. 실제로 사용하는 면적을 판단하는 근거로 활용합니다.</td>
+<td><span class="pill p-hi">높음</span><br>실측 결과에 따라 달라짐</td></tr>
+<tr><td><b>C. 점유 시작일</b></td>
+<td>2021. 10. 7.이 측량일인지, 가묘 조성일인지, 전산 등록일인지 확인합니다. <b>측량은 점유가 아닙니다.</b> 실제 묘역을 조성한 날이 더 늦다면 그 이전 기간은 경작 요율(1%)로 계산하거나 부과 대상에서 빼야 합니다. 국유지 점유 시작 시점을 구체적으로 입증하지 못한 부과가 문제된 사례가 있습니다<sup><a href="#fn8">8</a></sup>.</td>
+<td><span class="pill p-mid">중간</span><br>증거(사진·영수증)에 좌우</td></tr>
+<tr><td><b>D. 부과 대상자</b></td>
+<td>변상금은 <b>실제로 점유한 사람</b>에게 부과합니다(국유재산법 제2조 제9호·제72조)<sup><a href="#fn1">1</a></sup>. 2021. 10.~2023. 2.에 부친이 점유했다면 둘째 아들에게 <b>본인 점유 책임</b>을 물을 근거가 약합니다. 캠코가 <b>상속</b>을 근거로 든다면, 채무는 공동상속인이 각자 <b>법정상속분에 따라</b> 승계합니다(민법 제1006조·제1009조)<sup><a href="#fn10">10</a></sup>. 이 경우 한 사람에게 전액을 부과하는 것은 다툴 여지가 있습니다.</td>
+<td><span class="pill p-mid">중간</span><br>부친 생전분(약 15~17만 원)</td></tr>
+<tr><td><b>E. 사전통지·산출근거</b></td>
+<td>시행규칙 제49조와 행정절차법 제21·22조에 따른 사전통지와 의견제출 기회를 확인합니다. <b>산출근거를 밝히지 않은 변상금 고지</b>는 위법하다는 판례 경향이 있습니다<sup><a href="#fn6">6</a></sup>. 고지서에 “상세 산출내역 붙임”이 있으므로 그 붙임을 실제로 받았는지 확인하세요.</td>
+<td><span class="pill p-lo">낮음~중간</span><br>취소돼도 재부과 가능</td></tr>
+<tr><td><b>F. 송달(부모님 댁)</b></td>
+<td>주소·거소가 아닌 곳으로 송달했다면 효력을 다툴 수 있습니다(행정절차법 제14·15조). 다만 같은 세대의 가족이 받았다면 유효할 가능성이 큽니다. 이 쟁점은 오히려 <b>불복기간 기산점</b>을 늦추는 의미가 있습니다.</td>
+<td><span class="pill p-lo">낮음</span></td></tr>
+<tr><td><b>G. 50년 경작·시효취득</b></td>
+<td>국유지인 줄 알고 점유했다면 <b>악의의 무단점유</b>로 보아 <b>자주점유 추정이 깨집니다</b>(대법원 1997. 8. 21. 선고 95다28625 전원합의체)<sup><a href="#fn5">5</a></sup>. 따라서 시효취득 주장은 사실상 어렵습니다. 행정재산은 애초에 시효취득 대상도 아닙니다.</td>
+<td><span class="pill p-lo">매우 낮음</span></td></tr>
+<tr><td><b>H. 소멸시효</b></td>
+<td>변상금 채권의 소멸시효는 <b>5년</b>입니다(국유재산법 제73조의3)<sup><a href="#fn1">1</a></sup>. 부과 기간이 2021. 10. 7.부터이므로 고지일이 2026. 10. 7. 이전이면 모두 5년 안에 있습니다. 시효가 완성된 부분은 없어 보입니다.</td>
+<td><span class="pill p-lo">해당 없음</span></td></tr>
+<tr><td><b>I. 분묘기지권</b></td>
+<td>2001. 1. 13. 장사법 시행 <b>이후</b> 허락 없이 설치한 분묘에는 분묘기지권이 인정되지 않습니다. 그 이전의 오래된 조상 묘가 같은 자리에 있다면 시효취득형 분묘기지권을 검토할 수 있습니다. 다만 이 경우에도 소유자가 청구한 날부터는 <b>지료를 내야 합니다</b>(대법원 2021. 4. 29. 선고 2017다228007 전원합의체)<sup><a href="#fn7">7</a></sup>.</td>
+<td><span class="pill p-lo">낮음</span><br>2021년 이후 묘역은 해당 없음</td></tr>
+</table></div>
+
+<div class="box bad"><strong>“취소되면 끝”이 아닙니다</strong><br>대법원은 국가가 <b>변상금 부과·징수권</b>과 <b>민사상 부당이득반환청구권</b>을 각각 행사할 수 있다고 봅니다(대법원 2014. 7. 16. 선고 2011다76402 전원합의체)<sup><a href="#fn3">3</a></sup>. 절차 하자로 변상금이 취소되더라도 국가는 다시 부과하거나 사용료 상당액(100%)을 민사로 청구할 수 있습니다. 따라서 <b>현실적인 목표는 “감액·재산정”</b>입니다.</div>
+</section>
+
+<!-- 3. 시나리오 -->
+<section class="sheet">
+<div class="tag">감액 시뮬레이션</div>
+<h2>3. 주장이 받아들여지면 얼마가 되나 (추정)</h2>
+<p class="small">고지서 금액을 비율로 나눠 계산한 <b>어림값</b>입니다. 실제 금액은 캠코가 연도별 공시지가로 다시 계산합니다.</p>
+<div class="table-wrap"><table>
+<tr><th>시나리오</th><th>계산 방법</th><th>예상 변상금</th><th>감액</th></tr>
+<tr><td>현재 고지</td><td>270㎡ 전체 × 5% × 120%</td><td class="num">552,870원</td><td class="num">–</td></tr>
+<tr><td>S1. 묘역 30㎡만 5%, 나머지 240㎡는 경작 1%</td><td>552,870×30/270 + 552,870×240/270÷5</td><td class="num">약 160,000원</td><td class="num">약 −39만 원</td></tr>
+<tr><td>S2. 270㎡ 전체를 경작용 1%로</td><td>552,870 ÷ 5</td><td class="num">약 110,600원</td><td class="num">약 −44만 원</td></tr>
+<tr><td>S3. 부친 생전분(2021. 10.~2023. 2.)을 빼고 나머지는 그대로</td><td>552,870 − (24,420+117,280+약 12,100)</td><td class="num">약 399,000원</td><td class="num">약 −15만 원</td></tr>
+<tr><td>S4. S1 + S3 결합</td><td>S3 기간에 S1 비율 적용</td><td class="num">약 115,000원</td><td class="num">약 −44만 원</td></tr>
+</table></div>
+<p class="small">※ 경작 부분도 대부계약 없이 경작했다면 <b>경작 요율(1%)에 따른 변상금</b>은 부과됩니다. “경작 부분 면제”가 아니라 “낮은 요율 적용”입니다.</p>
+</section>
+
+<!-- 4. 납부 전략 -->
+<section class="sheet">
+<div class="tag">돈을 낼지 말지</div>
+<h2>4. 납부 전략 — 먼저 내고 다툴까, 결과를 보고 낼까</h2>
+<div class="table-wrap"><table>
+<tr><th></th><th>A안: 먼저 내고 다툼</th><th>B안: 재산정 결과를 보고 냄</th></tr>
+<tr><td>장점</td><td>연체료와 압류 위험이 없습니다. 취소·감액되면 <b>과오납금으로 돌려받습니다</b>(국유재산법 제75조, 이자 가산)<sup><a href="#fn1">1</a></sup>.</td><td>감액되면 줄어든 금액만 냅니다. 돌려받는 절차가 필요 없습니다.</td></tr>
+<tr><td>단점</td><td>당장 55만 원이 나갑니다.</td><td>연체료가 붙습니다. 오래 미루면 <b>국세 체납처분의 예에 따른 압류</b>가 가능합니다(제73조)<sup><a href="#fn1">1</a></sup>.</td></tr>
+<tr><td>비용 감각</td><td colspan="2">연체료율은 연 7~10%입니다(시행령 제72조)<sup><a href="#fn2">2</a></sup>. 552,870원 × 7% ÷ 12 ≈ <b>한 달 약 3,200원</b>으로 몇 달 기다려도 부담은 작습니다.</td></tr>
+</table></div>
+<div class="box"><strong>권장:</strong> 재산정 요청서를 내면서 <b>“검토 기간 중 징수 유보”를 서면으로 요청</b>합니다. 캠코가 받아들이지 않으면 <b>A안(납부 후 불복)</b>으로 전환하세요. 한꺼번에 내기 어렵다면 무단점유 경위·용도·경제 사정을 고려해 <b>5년 범위에서 징수 유예나 분할납부</b>를 신청할 수 있습니다(제72조 제2항, 세부 요건은 시행령 제71조 확인)<sup><a href="#fn1">1</a></sup><sup><a href="#fn2">2</a></sup>.</div>
+</section>
+
+<!-- 5. 실행 순서 -->
+<section class="sheet">
+<div class="tag">실행 순서</div>
+<h2>5. 단계별 대응 방안</h2>
+<ol>
+<li><b>[이번 주] 사실관계 고정</b> — 등기 수령일(=불복기간 기산점), 측량일과 측량 성과도, 가묘 조성일, 부친 안장일, 현재 묘역과 경작지의 경계를 사진(날짜 포함)으로 기록합니다. 네이버·카카오 <b>과거 항공사진(2021 이전/이후)</b>도 캡처해 둡니다.</li>
+<li><b>[이번 주] 캠코 담당자 통화 → 서면 접수</b> — 기존 문서의 「재검토 및 자료 제공 요청서」에 아래 두 가지를 <b>명시적으로 추가</b>해 접수합니다.
+  <ul><li>“묘역 부분과 경작 부분을 실측해 <b>용도별로 요율을 구분(묘지 5% / 경작 1%)</b>해 재산정해 달라.”</li>
+  <li>“2021. 10. 7.을 점유 시작일로 본 근거, 그리고 부친 생전 기간을 신청인에게 부과한 법적 근거(직접 점유인지, 상속인지)를 밝혀 달라.”</li></ul></li>
+<li><b>[동시에] 정보공개 청구</b> — 실태조사서, 현장사진, 면적 산정 도면, 상세 산출내역, 사전통지 발송 기록을 청구합니다(<a href="https://www.open.go.kr/" target="_blank" rel="noopener">정보공개포털</a>).</li>
+<li><b>[회신 후] 판단</b> — 재산정이 받아들여지면 조정된 금액을 냅니다. 거부되거나 불충분하면 <b>불복기간 안에</b> <a href="https://www.simpan.go.kr/" target="_blank" rel="noopener">온라인행정심판</a>으로 청구합니다(비용 없음, 변호사 없이 가능). 청구취지는 “변상금 부과처분 중 ○○원을 초과하는 부분을 취소한다”처럼 <b>일부취소</b>로 구체화합니다.</li>
+<li><b>[앞으로] 대부계약</b> — 묘지를 계속 쓸 계획이라면 대부계약이 변상금(120%)보다 쌉니다(연 106,460원, 부가세 포함). 계약 전 <b>대부 면적·용도를 “묘지 ○㎡ + 경작 ○㎡”로 나눠 달라</b>고 요청하세요. 대부계약서에 과거 점유를 인정하거나 이의를 포기하는 문구가 있는지도 확인하세요. 장기적으로는 <b>매수 가능 여부</b>(일반재산 매각)도 문의해 볼 만합니다.</li>
+<li><b>[막히면] 무료 상담</b> — <a href="https://www.klac.or.kr/" target="_blank" rel="noopener">대한법률구조공단(☎132)</a>, <a href="https://www.epeople.go.kr/" target="_blank" rel="noopener">국민신문고</a>(국민권익위 고충민원)를 이용할 수 있습니다. 권익위는 국유지 변상금 과다 부과 민원을 여러 차례 시정 권고했습니다<sup><a href="#fn8">8</a></sup>.</li>
+</ol>
+
+<h3>행정심판 청구이유에 쓸 핵심 문장 (초안)</h3>
+<div class="box">
+“피청구인은 이 사건 토지 270㎡ 전부를 ‘묘지’로 보고 국유재산법 시행령 제29조의 일반 요율 1천분의 50을 일괄 적용하였다. 그러나 이 토지의 지목은 ‘전’이고, 실제 분묘와 부속시설이 차지하는 면적은 약 ○㎡에 불과하며, 나머지 부분은 경작에 사용되어 왔다. 경작 부분에는 같은 조의 경작용 요율 1천분의 10이 적용되어야 한다. 또한 청구인의 부친(2023. 2. 사망)이 점유·경작한 기간까지 청구인 단독의 점유로 보아 부과한 것은 부과 대상자를 잘못 특정한 것이다. 따라서 이 사건 처분 중 적법하게 재산정한 금액을 초과하는 부분은 취소되어야 한다.”
+</div>
+<p class="small">※ ○ 부분은 실측·사진 자료로 확인한 사실만 채워 넣으세요. 확인되지 않은 추정은 쓰지 않는 것이 신뢰도에 유리합니다.</p>
+</section>
+
+<!-- 6. 기존 문서 평가 -->
+<section class="sheet">
+<div class="tag">공유해 주신 문서 검토</div>
+<h2>6. 기존 대응 문서에 대한 평가와 보완점</h2>
+<table>
+<tr><th>잘된 점</th><th>보완할 점</th></tr>
+<tr><td>
+<ul><li>추정과 확인된 사실을 구분하고 “전액 면제 단정 금지”라는 신중한 태도</li>
+<li>납부기한과 불복기간을 구분하고, 민원 접수가 불복기간을 멈추지 않는다는 점을 짚음</li>
+<li>재검토 요청서, 정보공개 청구서, 사실확인표를 갖춤</li></ul></td>
+<td><ul><li><b>가장 큰 감액 수단인 “경작용 1% 요율”이 빠져 있음</b> → 요청서 가·다 항에 추가 필요</li>
+<li>변상금이 <b>기속행위</b>라 “사정을 봐서 면제”해 달라는 요청은 통하지 않는다는 점이 명시되지 않음 → 사실·계산 오류 중심으로 주장</li>
+<li>공동상속인 <b>상속분 안분</b> 논리가 빠짐</li>
+<li>2011다76402 판결에 따라 취소 후에도 민사 청구가 가능하다는 현실적 한계가 빠짐</li>
+<li>연체료 규모(월 약 3천 원)와 납부 후 불복이라는 선택지가 구체적이지 않음</li></ul></td></tr>
+</table>
+</section>
+
+<!-- 각주 -->
+<section class="sheet">
+<div class="tag">출처</div>
+<h2>각주 및 참고자료</h2>
+<ol class="fn">
+<li id="fn1">「국유재산법」 제2조 제9호(변상금 정의), 제72조(변상금의 징수: 대부료·사용료의 100분의 120, 제1항 단서의 면제 사유, 제2항 징수 유예·분할납부), 제73조(연체료·체납처분), 제73조의3(소멸시효 5년), 제75조(과오납금 반환). 국가법령정보센터 원문: <a href="https://www.law.go.kr/법령/국유재산법" target="_blank" rel="noopener">https://www.law.go.kr/법령/국유재산법</a></li>
+<li id="fn2">「국유재산법 시행령」 제29조(사용료율), 제71조(변상금의 징수), 제72조(연체료: 연체기간에 따라 연 7%~10%). <a href="https://www.law.go.kr/법령/국유재산법시행령" target="_blank" rel="noopener">https://www.law.go.kr/법령/국유재산법시행령</a> / 연체료율 해설: 법제처 찾기쉬운생활법령 「국유재산의 보호 및 무단이용에 대한 제재」 <a href="https://easylaw.go.kr/CSP/CnpClsMain.laf?popMenu=ov&csmSeq=513&ccfNo=6&cciNo=2&cnpClsNo=1" target="_blank" rel="noopener">링크</a></li>
+<li id="fn3">변상금 징수는 재량이 없는 기속행위: 대법원 2000. 1. 28. 선고 97누4098 판결 <a href="https://casenote.kr/대법원/97누4098" target="_blank" rel="noopener">casenote</a>. 변상금 부과·징수권과 민사상 부당이득반환청구권은 별개로 행사 가능: 대법원 2014. 7. 16. 선고 2011다76402 전원합의체 판결. 평석: 「국유재산법상 변상금의 법관계」, KCI <a href="https://www.kci.go.kr/kciportal/ci/sereArticleSearch/ciSereArtiView.kci?sereArticleSearchBean.artiId=ART002117692" target="_blank" rel="noopener">링크</a></li>
+<li id="fn4">경작용 사용료율 1천분의 10(일반 1천분의 50 이상): 국유재산법 시행령 제29조. 조문 연혁: <a href="https://bigcase.ai/law/%EA%B5%AD%EC%9C%A0%EC%9E%AC%EC%82%B0%EB%B2%95%20%EC%8B%9C%ED%96%89%EB%A0%B9/%EC%A0%9C29%EC%A1%B0?refDate=20230710" target="_blank" rel="noopener">bigcase.ai 제29조(2023. 7. 10. 기준)</a>, 생활법령 해설 <a href="https://www.easylaw.go.kr/CSP/CnpClsMain.laf?csmSeq=513&ccfNo=2&cciNo=1&cnpClsNo=2" target="_blank" rel="noopener">링크</a>. <b>2021~2026년 각 연도에 시행된 조문을 따로 대조해야 합니다.</b></li>
+<li id="fn5">악의의 무단점유와 자주점유 추정의 번복: 대법원 1997. 8. 21. 선고 95다28625 전원합의체 판결 <a href="https://casenote.kr/대법원/95다28625" target="_blank" rel="noopener">casenote</a></li>
+<li id="fn6">변상금 부과처분과 사전통지·산출근거 명시 관련 판례·재결: 국가법령정보센터 판례 「국유재산변상금부과처분취소」 <a href="https://www.law.go.kr/LSW//precInfoP.do?precSeq=104115" target="_blank" rel="noopener">링크</a>, 심판례 「국유재산 변상금 부과처분 등 취소청구」 <a href="https://law.go.kr/LSW/deccInfoP.do?deccSeq=243831" target="_blank" rel="noopener">링크</a>. 「행정절차법」 제14·15·21·22조 <a href="https://www.law.go.kr/법령/행정절차법" target="_blank" rel="noopener">링크</a>. 「국유재산법 시행규칙」 제49조 <a href="https://www.law.go.kr/법령/국유재산법시행규칙" target="_blank" rel="noopener">링크</a></li>
+<li id="fn7">분묘기지권자의 지료 지급 의무: 대법원 2021. 4. 29. 선고 2017다228007 전원합의체 판결, 판결문 PDF(대법원) <a href="https://www.scourt.go.kr/sjudge/1619685055953_173055.pdf" target="_blank" rel="noopener">링크</a>. 장사법 시행 전 분묘의 시효취득 인정: 대법원 2017. 1. 19. 선고 2013다17292 전원합의체 판결</li>
+<li id="fn8">캠코가 5% 요율을 일괄 적용한 변상금을 중앙행정심판위원회가 과다 부과로 판단한 사례: 머니투데이, 「국유지 사용했다 1.2억 변상금 ‘폭탄’ 맞은…」(2026. 1. 29.) <a href="https://www.mt.co.kr/policy/2026/01/29/2026012909441436864" target="_blank" rel="noopener">링크</a>. 국민권익위원회 「국유지 변상금 추가부과 처분 취소 요구」 <a href="https://www.acrc.go.kr/board.es?act=view&bid=1011&list_no=36178&mid=a10504010000&nPage=83" target="_blank" rel="noopener">링크</a>. 법률신문 칼럼 「변상금 제대로 부과하기」 <a href="https://www.lawtimes.co.kr/news/articleView.html?idxno=226686" target="_blank" rel="noopener">링크</a></li>
+<li id="fn9">「장사 등에 관한 법률」 제18조(분묘 등의 점유면적: 분묘 1기 및 부속시설 10㎡, 합장 15㎡, 개인묘지 30㎡ 이하) <a href="https://www.law.go.kr/법령/장사등에관한법률" target="_blank" rel="noopener">링크</a>. 가묘의 분묘 해당 여부에 관한 법제처 법령해석 <a href="https://www.moleg.go.kr/lawinfo/nwLwAnInfo.mo?mid=a&cs_seq=374742&currentPage=348&sort=date" target="_blank" rel="noopener">링크</a></li>
+<li id="fn10">「민법」 제1006조(공동상속과 재산의 공유), 제1007조(공동상속인의 권리의무 승계), 제1009조(법정상속분), 제1019조(한정승인·포기 기간) <a href="https://www.law.go.kr/법령/민법" target="_blank" rel="noopener">링크</a>. 해설: 찾기쉬운생활법령 「상속인의 상속분」 <a href="https://easylaw.go.kr/CSP/CnpClsMain.laf?popMenu=ov&csmSeq=255&ccfNo=3&cciNo=2&cnpClsNo=1" target="_blank" rel="noopener">링크</a></li>
+<li id="fn11">「행정심판법」 제27조(청구기간), 제30조(집행정지) <a href="https://www.law.go.kr/법령/행정심판법" target="_blank" rel="noopener">링크</a> / 「행정소송법」 제20조(제소기간) <a href="https://www.law.go.kr/법령/행정소송법" target="_blank" rel="noopener">링크</a> / 온라인행정심판 <a href="https://www.simpan.go.kr/" target="_blank" rel="noopener">https://www.simpan.go.kr/</a></li>
+</ol>
+<p class="small">이 문서는 고지서 일부(마·바 항목)와 가족의 설명을 바탕으로 한 <b>검토 자료이며 법률 자문이 아닙니다</b>. 조문 번호와 요율은 작성 시점 기준이고, 2021~2026년 각 연도에 시행된 조문과 캠코의 실제 산출내역으로 다시 확인해야 합니다. 판례 일부는 요지 검색으로 확인했으므로 원문 대조를 권합니다. 개인정보(성명·상세 지번)는 이 문서에 넣지 않았습니다.</p>
+</section>
+
+</main></body></html>
