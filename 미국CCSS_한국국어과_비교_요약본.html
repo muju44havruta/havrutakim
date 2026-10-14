@@ -1,0 +1,112 @@
+<title>CCSS·국어과 한 장 요약</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@800&family=IBM+Plex+Sans+KR:wght@400;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: 한 장 배부용. 제목 → 표 2개 → 시사점 3줄 → 각주. 미국=남색, 한국=주홍 (상세본과 같은 색 약속) */
+:root{
+  --bg:#f7f8fa; --paper:#ffffff; --fg:#1d2330; --muted:#5b6475; --line:#d9dee7;
+  --us:#2b4c8c; --us-soft:#e8eef9; --kr:#b4432b; --kr-soft:#fbece7;
+  --display:"Noto Serif KR","Nanum Myeongjo",serif;
+  --body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#12151b; --paper:#1a1f28; --fg:#e6e9ef; --muted:#9aa3b5; --line:#2e3542;
+  --us:#8fb0ee; --us-soft:#1d2a44; --kr:#ee9a84; --kr-soft:#3a2420; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12151b; --paper:#1a1f28; --fg:#e6e9ef; --muted:#9aa3b5; --line:#2e3542;
+  --us:#8fb0ee; --us-soft:#1d2a44; --kr:#ee9a84; --kr-soft:#3a2420; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.65;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 48px}
+.wrap{max-width:880px;margin:0 auto;display:grid;gap:28px}
+header{display:grid;gap:8px;border-bottom:2px solid var(--fg);padding-bottom:16px}
+.eyebrow{font-size:.75rem;letter-spacing:.12em;color:var(--muted);font-weight:600}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(1.5rem,4vw,2rem);line-height:1.3;margin:0;text-wrap:balance}
+h1 .us{color:var(--us)} h1 .kr{color:var(--kr)}
+header p{margin:0;color:var(--muted);font-size:.9rem;max-width:72ch}
+h2{font-family:var(--display);font-size:1.15rem;margin:0 0 10px;display:flex;gap:10px;align-items:baseline}
+h2 .n{font-family:var(--mono);font-size:.8rem;color:var(--muted);font-weight:500}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:6px;background:var(--paper)}
+table{border-collapse:collapse;width:100%;min-width:600px;font-size:.88rem;line-height:1.55}
+th,td{padding:9px 11px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+thead th{font-size:.78rem;letter-spacing:.04em;background:var(--bg)}
+thead th.u{color:var(--us);border-bottom:2px solid var(--us)} thead th.k{color:var(--kr);border-bottom:2px solid var(--kr)}
+tbody th{font-weight:600;width:17%}
+tbody tr:last-child>*{border-bottom:none}
+td.u{background:var(--us-soft)} td.k{background:var(--kr-soft)}
+code{font-family:var(--mono);font-size:.82em;white-space:nowrap}
+sup a{color:var(--kr);text-decoration:none;font-weight:600;font-size:.75em;padding:0 1px}
+.warn{font-size:.85rem;border-left:3px solid var(--kr);padding:6px 12px;margin-top:10px;max-width:none;color:var(--fg)}
+ol.pts{margin:0;padding-left:1.3em;display:grid;gap:8px}
+ol.pts li{max-width:76ch}
+ol.fn{margin:0;padding-left:1.4em;display:grid;gap:5px;font-size:.8rem;color:var(--muted)}
+ol.fn li:target{color:var(--fg)}
+a{color:var(--us)}
+.more{font-size:.85rem;color:var(--muted)}
+@media print{body{padding-block:0;font-size:12px} .tbl{overflow:visible} table{min-width:0}}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">한 장 요약 · 교사 연수·수업 배부용</div>
+  <h1><span class="us">미국 CCSS 영어과</span> vs <span class="kr">한국 2022 개정 국어과</span></h1>
+  <p>미국 「공통핵심 주 교육기준(CCSS) 영어과 및 교과 문해력」(2010)<sup><a href="#f1">1</a></sup>과 「2022 개정 국어과 교육과정」(교육부 고시 제2022-33호 [별책 5])<sup><a href="#f2">2</a></sup>의 차이를 한 장에 정리했습니다.</p>
+</header>
+
+<section>
+  <h2><span class="n">1</span>문서 체계와 구조</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>구분</th><th class="u">미국 CCSS 영어과</th><th class="k">한국 2022 개정 국어과</th></tr></thead>
+    <tbody>
+      <tr><th>문서의 성격</th><td class="u">주가 채택 여부를 정하는 <strong>성취기준</strong>. “어떻게 가르칠지는 정하지 않는다”(방법보다 결과)<sup><a href="#f1">1</a></sup></td><td class="k">교육부가 고시하는 <strong>국가 교육과정</strong>. 성취기준과 함께 교수·학습·평가 방향까지 제시<sup><a href="#f2">2</a></sup></td></tr>
+      <tr><th>최종 목표</th><td class="u">대학 진학 및 직업 준비(CCR)</td><td class="k">국어 교과 역량 6가지(비판적·창의적 사고, 디지털·미디어, 의사소통, 공동체·대인 관계, 문화 향유, 자기 성찰·계발)</td></tr>
+      <tr><th>영역</th><td class="u">읽기(문학 <code>RL</code>·정보 텍스트 <code>RI</code>·기초 기능 <code>RF</code>), 쓰기, 말하기·듣기, 언어</td><td class="k">듣기·말하기, 읽기, 쓰기, 문법, 문학, 매체</td></tr>
+      <tr><th>기준의 짜임</th><td class="u">공통 기준(Anchor) 32개가 모든 학년에 <strong>같은 번호</strong>로 이어짐. 예: <code>RL.2.9</code> → <code>RL.9-10.9</code></td><td class="k">영역별 핵심 아이디어 + 지식·이해 / 과정·기능 / 가치·태도 범주</td></tr>
+      <tr><th>학년 단위</th><td class="u">K–8 학년별, 9–10·11–12 학년군</td><td class="k">초 2년 단위 학년군, 중1–3, 고1 공통국어1·2, 고2–3 선택과목<sup><a href="#f5">5</a></sup></td></tr>
+      <tr><th>적용 범위</th><td class="u">영어과 + 6–12학년 <strong>역사·사회, 과학, 기술 교과 문해력</strong>(<code>RH</code>·<code>RST</code>·<code>WHST</code>)</td><td class="k">국어 교과. 다른 교과와의 연계는 범교과 학습 주제나 교수·학습 차원</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <h2><span class="n">2</span>내용과 강조점</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>항목</th><th class="u">미국 CCSS 영어과</th><th class="k">한국 2022 개정 국어과</th></tr></thead>
+    <tbody>
+      <tr><th>읽기 텍스트</th><td class="u">학년별 <strong>텍스트 복잡성</strong> 구간(기준 10)과 예시 도서 목록. 학년이 오를수록 정보 텍스트 비중 확대(12학년 70%)<sup><a href="#f3">3</a></sup></td><td class="k">읽기 과정·전략 중심. 텍스트 수준 기준이나 필독 목록 없음(교과서·교사가 선정)</td></tr>
+      <tr><th>쓰기</th><td class="u">논증·정보/설명·서사 <strong>세 유형</strong>. 고교는 논증·설명 비중 확대(12학년 설득 40%, 설명 40%, 경험 20%)<sup><a href="#f3">3</a></sup>. 읽은 텍스트에서 증거 끌어오기(<code>W.9</code>)</td><td class="k">정보 전달·설득·정서 표현 등 <strong>목적별</strong> 글쓰기. 쓰기 과정과 점검·조정, 쓰기 윤리 강조</td></tr>
+      <tr><th>말하기·듣기</th><td class="u">증거 기반 <strong>협력적 토의</strong>, 화자의 추론·증거 평가</td><td class="k">대화·발표·토의·<strong>토론</strong>·협상 등 담화 유형별 학습, 공감적 듣기</td></tr>
+      <tr><th>문학</th><td class="u">읽기 영역의 하위 갈래(<code>RL</code>). 셰익스피어, 18–20세기 초 미국 문학 명시. 창작은 쓰기의 서사적 글</td><td class="k"><strong>독립 영역</strong>. 감상과 창작, 맥락, 한국 문학의 흐름</td></tr>
+      <tr><th>매체</th><td class="u">독립 영역 없이 읽기 7, 쓰기 6·8, 말하기·듣기 5 등에 <strong>통합</strong></td><td class="k">공통 교육과정(초1–중3)에 ‘매체’ 영역 <strong>신설</strong>. 고교에서는 ‘매체 의사소통’ 과목으로 이어짐<sup><a href="#f2">2</a></sup><sup><a href="#f6">6</a></sup></td></tr>
+      <tr><th>언어·문법</th><td class="u">표준 영어 규범(문법·문장부호·철자)과 <strong>어휘 습득</strong>(학술 어휘·교과 전문 어휘)</td><td class="k">국어의 구조·역사·규범을 <strong>탐구</strong>하고 국어에 대한 인식과 태도를 기름</td></tr>
+      <tr><th>평가 연계</th><td class="u">주별 시험. 대학 입시(SAT·ACT)와 별개</td><td class="k">내신·수능과 직접 연결. 2028 수능 국어는 선택과목 없이 공통 출제<sup><a href="#f7">7</a></sup></td></tr>
+    </tbody>
+  </table></div>
+  <p class="warn"><strong>주의:</strong> ‘정보 텍스트 70%’는 영어 수업의 비율이 아닙니다. <strong>모든 교과를 합친</strong> 학생의 전체 읽기 비율이라고 CCSS 원문 각주가 밝힙니다(원문 5쪽).<sup><a href="#f1">1</a></sup></p>
+</section>
+
+<section>
+  <h2><span class="n">3</span>시사점</h2>
+  <ol class="pts">
+    <li><strong>문해력은 모든 교사의 몫:</strong> CCSS는 역사·과학 교사에게도 읽기·쓰기 기준을 줍니다. 국어과 혼자 맡는 한국 구조에서는 교과 융합 독서·논술 수업이 그 빈자리를 채울 수 있습니다.<sup><a href="#f4">4</a></sup></li>
+    <li><strong>증거와 텍스트 수준:</strong> ‘텍스트 증거 인용’과 ‘학년별 텍스트 복잡성’은 한국 독서토론·논술 수업에 바로 옮길 수 있는 원칙입니다.</li>
+    <li><strong>한국의 강점:</strong> 문학 감상·창작, 독립된 매체 영역, 가치·태도 범주, 토의·토론 절차 교육은 CCSS에 없는 한국 교육과정의 강점입니다.</li>
+  </ol>
+</section>
+
+<section>
+  <h2>출처</h2>
+  <ol class="fn">
+    <li id="f1">NGA &amp; CCSSO (2010). <em>Common Core State Standards for English Language Arts &amp; Literacy in History/Social Studies, Science, and Technical Subjects</em>. <a href="https://www.thecorestandards.org/ELA-Literacy/" target="_blank" rel="noopener">thecorestandards.org/ELA-Literacy</a> (첨부 한국어 번역본 기준, 원문 3–8쪽·57–66쪽)</li>
+    <li id="f2">교육부 (2022). 「국어과 교육과정」, 교육부 고시 제2022-33호 [별책 5]. <a href="https://ncic.go.kr" target="_blank" rel="noopener">국가교육과정정보센터 ncic.go.kr</a></li>
+    <li id="f3">National Assessment Governing Board (2008). <em>Reading Framework for the 2009 NAEP</em>; (2007). <em>Writing Framework for the 2011 NAEP</em>. CCSS 원문 5쪽 재인용. <a href="https://www.nagb.gov/naep-subject-areas.html" target="_blank" rel="noopener">nagb.gov</a></li>
+    <li id="f4">「21세기 국어과 교육과정 개정의 방향 탐색: 미국의 ‘공통핵심기준’의 특성과 시사점 분석을 중심으로」. <a href="https://scholar.korea.ac.kr/handle/2021.sw.korea/134301?mode=full" target="_blank" rel="noopener">고려대학교 학술정보</a></li>
+    <li id="f5">내일교육, 「예비 고1 국어 어떻게 달라졌나?」. <a href="https://www.localnaeil.com/News/View/652208" target="_blank" rel="noopener">localnaeil.com</a></li>
+    <li id="f6">기자협회보, 「듣기, 말하기, 읽기, 쓰기 그리고 매체」. <a href="https://www.journalist.or.kr/m/m_article.html?no=51593" target="_blank" rel="noopener">journalist.or.kr</a></li>
+    <li id="f7">교육부 (2023.12.27). 「2028 대학입시제도 개편 확정안」 보도자료. <a href="https://www.moe.go.kr" target="_blank" rel="noopener">moe.go.kr</a></li>
+  </ol>
+  <p class="more">자세한 근거와 영역별 설명은 상세본 <a href="https://claude.ai/artifact/CfQUVBxPRzTnH1rynVSWie" target="_blank" rel="noopener">「CCSS와 한국 국어과 비교」</a>를 보세요.</p>
+</section>
+</div>
