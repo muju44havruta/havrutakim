@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>윤동주 일본 문학기행</title>
+<style>
+@font-face{font-family:'Noto Sans KR';font-weight:400;src:url(PbyxFmXiEBPT4ITbgNA5Cgms3VYcOA-vvnIzzuoyeLQ.ttf)}
+@font-face{font-family:'Noto Sans KR';font-weight:700;src:url(PbyxFmXiEBPT4ITbgNA5Cgms3VYcOA-vvnIzzg01eLQ.ttf)}
+@font-face{font-family:'Noto Sans KR';font-weight:900;src:url(PbyxFmXiEBPT4ITbgNA5Cgms3VYcOA-vvnIzzkM1eLQ.ttf)}
+@font-face{font-family:'Gowun Batang';font-weight:700;src:url(ijwNs5nhRMIjYsdSgcMa3wRZ4J7awg.ttf)}
+@font-face{font-family:'Black Han Sans';src:url(ea8Aad44WunzF9a-dL6toA8r8nqV.ttf)}
+:root{--navy:#0f1f4d;--blue:#1d4fb8;--pink:#d6336c;--red:#c92a2a;--ink:#1b2333;--sub:#4a5468;--line:#e3d6e0}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:2000px;height:1334px;font-family:'Noto Sans KR',sans-serif;color:var(--ink);
+ background:radial-gradient(circle at 0 100%,#ffd6e4 0,transparent 260px),radial-gradient(circle at 100% 100%,#ffd6e4 0,transparent 260px),linear-gradient(#fff 0,#fff5f9 100%);overflow:hidden;position:relative}
+.top{display:grid;grid-template-columns:640px 322px 482px 1fr;gap:8px;height:352px}
+.hero{background:radial-gradient(circle at 15% 20%,#ffc9de55 0,transparent 140px),radial-gradient(circle at 5% 90%,#ffc9de66 0,transparent 120px),linear-gradient(160deg,#0b1640,#1a2d6b 70%,#24357a);color:#fff;padding:28px 34px 0 44px;position:relative}
+.hero .kicker{font-size:25px;font-weight:700;letter-spacing:1px;text-align:center;opacity:.95}
+.hero h1{font-family:'Black Han Sans';font-weight:400;line-height:1.02;margin-top:14px}
+.hero h1 .a{font-size:70px;display:block;padding-left:40px}
+.hero h1 .b{font-size:88px;display:block;text-align:right;padding-right:10px;color:#ffe08a;text-shadow:0 3px 0 #8a5a00}
+.hero .ttl{font-size:33px;font-weight:900;text-align:center;margin-top:10px}
+.hero .lead{font-size:20px;line-height:1.5;text-align:center;margin-top:6px;opacity:.95}
+.photo{background-size:cover;background-position:center;position:relative}
+.photo .cap{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,#000c);color:#fff;font-size:15px;padding:18px 12px 8px}
+.seosi{background:#f7f0e1;border-left:6px solid #b08a4a;padding:20px 28px;font-family:'Gowun Batang';font-size:20.5px;line-height:1.62;color:#3b2f1e;position:relative;
+ background-image:linear-gradient(#e9dcc0 1px,transparent 1px);background-size:100% 32.5px;background-position:0 19px}
+.seosi h3{font-size:24px;margin-bottom:2px}
+.seosi .by{position:absolute;right:26px;bottom:14px;font-size:17px}
+.info{display:grid;grid-template-columns:600px 520px 1fr;height:118px;padding:4px 40px 0 50px;position:relative}
+.info>div{display:flex;gap:16px;align-items:flex-start;padding-top:14px}
+.info>div+div{border-left:2px solid var(--line);padding-left:24px}
+.ico{flex:none;display:grid;place-items:center;width:62px;height:62px;border-radius:50%;background:var(--pink);color:#fff;font-size:19px;font-weight:900;margin-top:6px}
+.lbl{font-size:21px;font-weight:700}
+.big{font-size:31px;font-weight:900;margin-top:2px}
+.mid{font-size:24px;font-weight:700;color:var(--blue);line-height:1.4}
+.hl{color:var(--red)}
+.small{font-size:19px;color:var(--sub);font-weight:700}
+.quote{position:absolute;top:2px;left:1000px;font-family:'Gowun Batang';font-size:22px;color:var(--pink)}
+.main{display:grid;grid-template-columns:930px 1fr;gap:16px;padding:6px 30px 0 30px}
+.sec{border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 2px 10px #0001}
+.sh{display:flex;align-items:center;gap:16px;color:#fff;font-size:28px;font-weight:900;padding:6px 18px;background:linear-gradient(90deg,var(--blue),#5b8def)}
+.sh b{display:inline-grid;place-items:center;width:46px;height:46px;border-radius:50%;background:#0b2a7a;font-size:28px}
+.green .sh{background:linear-gradient(90deg,#11734b,#4cc08a)} .green .sh b{background:#0a4a30}
+.map{position:relative;height:438px;background:url(map.png) center/cover}
+.legend{position:absolute;right:10px;top:10px;width:205px;background:#fff;border-radius:12px;padding:10px 14px;font-size:19px;line-height:1.55;box-shadow:0 1px 6px #0002}
+.legend i{display:inline-block;width:56px;border-top:4px dashed;vertical-align:middle;margin-right:8px}
+.kr{position:absolute;left:52px;top:118px;font-size:25px;font-weight:900;background:#fff;border-radius:10px;padding:4px 16px;box-shadow:0 1px 4px #0002}
+.pre{display:grid;grid-template-columns:1fr 1fr 1fr;gap:26px;padding:30px 18px 44px}
+.step{position:relative}
+.step+.step:before{content:"➜";position:absolute;left:-24px;top:58px;color:#11734b;font-size:24px}
+.date{font-size:22px;font-weight:700;color:var(--pink);display:flex;align-items:center;gap:8px}
+.date em{font-style:normal;display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--pink);color:#fff;font-size:18px}
+.step h4{font-size:23px;font-weight:900;color:var(--red);margin:6px 0}
+.step:nth-child(2) .date em{background:var(--blue)} .step:nth-child(2) h4{color:var(--blue)}
+.step:nth-child(3) .date em{background:#11734b} .step:nth-child(3) h4{color:#11734b}
+ul{list-style:none} li{position:relative;padding-left:15px;font-size:18.5px;line-height:1.5}
+li:before{content:'•';position:absolute;left:0}
+.days{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;padding:8px 12px 8px}
+.day{border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#fff;display:flex;flex-direction:column}
+.dh{color:#fff;font-size:21px;font-weight:900;padding:2px 16px;display:flex;gap:28px}
+.db{display:flex;padding:6px 10px 6px 14px;gap:10px;flex:1}
+.db .txt{flex:1} .db h5{font-size:21px;font-weight:900;color:var(--blue);margin-bottom:3px}
+.db h5 small{display:block;font-size:15.5px;font-weight:700;color:var(--sub)}
+.db li{font-size:17px;line-height:1.4}
+.db .img{width:152px;border-radius:8px;background-size:cover;background-position:center}
+.note{width:152px;border-radius:8px;padding:10px;font-size:15px;line-height:1.45;display:flex;flex-direction:column;justify-content:center;text-align:center}
+.note b{font-size:19px;display:block;margin-bottom:4px}
+.c1{background:#2563c9}.c2{background:#14845a}.c3{background:#e8590c}.c4{background:#7048b8}.c5{background:#d6336c}.c6{background:#1f6fc5}
+.ph{background:#fff3bf;border-bottom:2px solid #f08c00;padding:0 3px;font-weight:700}
+.bottom{display:grid;grid-template-columns:1fr 360px;gap:12px;padding:0 12px 10px}
+.box{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.box .bh{background:var(--pink);color:#fff;font-size:20px;font-weight:900;padding:1px 14px}
+.box .bb{padding:5px 14px;font-size:17px;line-height:1.45} .box .bb li{font-size:17px;line-height:1.45}
+</style></head><body>
+
+<div class="top">
+ <div class="hero">
+  <div class="kicker">교사 대상 문학답사 연수 안내</div>
+  <h1><span class="a">일본에서 만나는</span><span class="b">윤동주 시인</span></h1>
+  <div class="ttl">2027 윤동주 일본 문학기행</div>
+  <div class="lead">시인의 삶과 문학을 현장에서 읽고,<br>교실로 이어질 문학 교육의 길을 함께 걷습니다.</div>
+ </div>
+ <div class="photo" style="background-image:url(portrait.png)"><div class="cap">연희전문학교 졸업 무렵의 윤동주(1941)</div></div>
+ <div class="photo" style="background-image:url(group.png)"><div class="cap">윤동주와 벗들</div></div>
+ <div class="seosi">
+  <h3>서시(序詩)</h3>
+  죽는 날까지 하늘을 우러러<br>한 점 부끄럼이 없기를,<br>잎새에 이는 바람에도<br>나는 괴로워했다.<br>별을 노래하는 마음으로<br>모든 죽어가는 것을 사랑해야지<br>그리고 나한테 주어진 길을<br>걸어가야겠다. …
+  <div class="by">― 윤동주, 1941. 11. 20.</div>
+ </div>
+</div>
+
+<div class="info">
+ <div><span class="ico">기간</span><div><div class="lbl">본답사 기간</div><div class="big">2027. 2. 17.(수) ~ 2. 22.(월)</div><div class="small">5박 6일 (선상 2박 포함)</div></div></div>
+ <div><span class="ico" style="background:var(--blue)">대상</span><div><div class="lbl">참여 대상</div><div class="mid">전북특별자치도교육청 소속<br><span class="hl">초·중·고 교사 희망자 20명 내외</span></div></div></div>
+ <div><span class="ico" style="background:#11734b">교통</span><div><div class="lbl">출발 / 귀국</div><div class="mid">부산항 → 후쿠오카 하카타항 (선박)<br>하네다공항 → 인천공항 (항공)</div></div></div>
+</div>
+
+<div class="main">
+ <div>
+  <div class="sec">
+   <div class="sh"><b>01</b>한국에서 일본으로, 시인의 발자취를 따라</div>
+   <div class="map">
+    <div class="kr">대한민국</div>
+    <div class="legend"><b>이동 구분</b><br><i style="color:#1f3bb3"></i>선박 이동<br><i style="color:#1b7a3e"></i>육상 이동<br><i style="color:#d62828"></i>항공 이동</div>
+   </div>
+  </div>
+  <div class="sec green" style="margin-top:12px">
+   <div class="sh"><b>03</b>답사 전 일정 안내</div>
+   <div class="pre">
+    <div class="step"><div class="date"><em>1</em>2026. 11. 27.(금)</div><h4>연수 참가자 협의회</h4>
+     <ul><li>연수 일정 안내</li><li>탐방 주제 및 활동 공유</li><li>사전 준비 사항 협의</li></ul></div>
+    <div class="step"><div class="date"><em>2</em>2026. 12. 5.(토)</div><h4>서울 윤동주 문학답사</h4>
+     <ul><li>윤동주문학관</li><li>서촌(옛 하숙집 터)</li><li>연세대학교 윤동주기념관</li></ul></div>
+    <div class="step"><div class="date"><em>3</em>2027. 2. 12.(금)</div><h4>본답사 안내 및 준비 사항</h4>
+     <ul><li>안전교육</li><li>개인별 준비 사항 점검</li></ul></div>
+   </div>
+  </div>
+ </div>
+
+ <div class="sec">
+  <div class="sh"><b>02</b>6일간의 문학답사 예정 일정</div>
+  <div class="days">
+   <div class="day"><div class="dh c1"><span>1일차</span><span>2월 17일(수)</span></div><div class="db"><div class="txt">
+    <h5>선박 이동<small>부산항 → 후쿠오카 하카타항</small></h5>
+    <ul><li>부산항 국제여객터미널 출항(22:30)</li><li>후쿠오카 하카타항 도착<br>(다음 날 07:30)</li></ul></div><div class="img" style="background-image:url(ship.png)"></div></div></div>
+
+   <div class="day"><div class="dh c2"><span>2일차</span><span>2월 18일(목)</span></div><div class="db"><div class="txt">
+    <h5>후쿠오카 탐방</h5>
+    <ul><li>후쿠오카 형무소 터<br>(현 후쿠오카 구치소)</li><li>모모치 해변 · 하카타 포트타워</li><li>텐진 지하상가</li><li>신모지항 출항(18:30) → 오사카항(다음 날 08:30)</li></ul></div>
+    <div class="note" style="background:#e6f4ec;color:#0a4a30"><b>1945. 2. 16.</b>시인이 생을 마친<br>후쿠오카 형무소 터에서 추모합니다</div></div></div>
+
+   <div class="day"><div class="dh c3"><span>3일차</span><span>2월 19일(금)</span></div><div class="db"><div class="txt">
+    <h5>오사카항 도착 → 교토</h5>
+    <ul><li>오사카항 도착(08:30)</li><li>오사카성</li><li>도시샤대학(同志社大學) 윤동주 시비</li><li>교토예술대학(옛 하숙집 터)</li><li>송몽규 하숙집 터</li></ul></div><div class="img" style="background-image:url(castle.png)"></div></div></div>
+
+   <div class="day"><div class="dh c4"><span>4일차</span><span>2월 20일(토)</span></div><div class="db"><div class="txt">
+    <h5>교토 → 우지시</h5>
+    <ul><li>금각사(金閣寺)</li><li>가모가와(鴨川) &amp; 가와라마치 거리</li><li>뵤도인(平等院)</li><li>‘기억과 화해의 비’(우지강)</li></ul></div><div class="img" style="background-image:url(kinkaku.png)"></div></div></div>
+
+   <div class="day"><div class="dh c5"><span>5일차</span><span>2월 21일(일)</span></div><div class="db"><div class="txt">
+    <h5>도쿄 탐방<small>교토 → 도쿄 이동(오전)</small></h5>
+    <ul><li>릿쿄대학 추도식(12:30)</li><li>특강(15:00)</li><li>도쿄 시내 탐방</li></ul></div>
+    <div class="note" style="background:#fdeef3;color:#8c1d45"><b>릿쿄대학</b>1942년 시인이 일본 유학을 시작한 곳</div></div></div>
+
+   <div class="day"><div class="dh c6"><span>6일차</span><span>2월 22일(월)</span></div><div class="db"><div class="txt">
+    <h5>귀국</h5>
+    <ul><li>하네다공항 출발 → 인천공항 도착</li><li>항공편·시각: <span class="ph">확정 후 기입</span></li><li>인천공항 해산</li></ul></div>
+    <div class="note" style="background:#e7f0fb;color:#123d73"><b>✈ 귀국</b>하네다 → 인천</div></div></div>
+  </div>
+  <div class="bottom">
+   <div class="box"><div class="bh">📋 연수 개요</div><div class="bb">
+    <ul><li>윤동주 유적지 답사, 역사·문화 탐방, 시인 특강</li><li>답사 내용을 문학 수업과 연계</li><li>연수비: <span class="ph">금액·자부담 여부 기입</span></li></ul></div></div>
+   <div class="box"><div class="bh">📝 신청 방법</div><div class="bb">
+    공문 확인 후 신청서를 제출해 주십시오.<br>신청 기한: <span class="ph">기입</span><br>문의: <span class="ph">기입</span></div></div>
+  </div>
+ </div>
+</div>
+</body></html>
