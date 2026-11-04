@@ -1,0 +1,337 @@
+<title>어머님 칠순 1박2일 후보지</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: 한 줄 기둥(본문 폭 60rem) — 요약표 → 추천 순위 → 6곳 상세 → 체크리스트 → 검증 기록 → 각주 */
+:root{
+  --bg:#f5f6f3; --surface:#ffffff; --ink:#1d2624; --muted:#5b6662; --line:#d9ded9;
+  --pine:#1f5a52; --pine-soft:#e3eeea; --seal:#a8323a; --seal-soft:#f6e6e6; --sky:#3f6684; --sky-soft:#e5edf3;
+  --ok:#2c7a4b; --warn:#9a6a10; --warn-soft:#f7efdc;
+  --f-display:"Gowun Batang","Nanum Myeongjo",serif;
+  --f-body:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --f-num:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141a19; --surface:#1c2422; --ink:#e7ece9; --muted:#a3aeaa; --line:#33403c;
+  --pine:#7cc2b4; --pine-soft:#20342f; --seal:#e7868c; --seal-soft:#3a2224; --sky:#96bcd9; --sky-soft:#1f2c36;
+  --ok:#7fd1a0; --warn:#e3b65c; --warn-soft:#352b17; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141a19; --surface:#1c2422; --ink:#e7ece9; --muted:#a3aeaa; --line:#33403c;
+  --pine:#7cc2b4; --pine-soft:#20342f; --seal:#e7868c; --seal-soft:#3a2224; --sky:#96bcd9; --sky-soft:#1f2c36;
+  --ok:#7fd1a0; --warn:#e3b65c; --warn-soft:#352b17; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.7;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 4rem}
+.wrap{max-width:60rem;margin:0 auto;display:flex;flex-direction:column;gap:3rem}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;line-height:1.3;margin:0}
+h1{font-size:clamp(1.9rem,5vw,2.8rem)} h2{font-size:1.6rem} h3{font-size:1.25rem}
+p{margin:0} a{color:var(--sky)} a:focus-visible{outline:2px solid var(--seal);outline-offset:2px}
+sup a{text-decoration:none;font-family:var(--f-num);font-size:.72em;padding:0 .1em}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;color:var(--muted);font-weight:700}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+
+header{padding-block:3rem 0;display:grid;grid-template-columns:1fr auto;gap:1.5rem;align-items:start}
+header .lead{color:var(--muted);max-width:40rem;margin-top:.8rem}
+.seal{width:5.5rem;height:5.5rem;border:3px solid var(--seal);color:var(--seal);border-radius:.6rem;display:grid;place-items:center;
+  font-family:var(--f-display);font-weight:700;font-size:1.5rem;line-height:1.1;text-align:center;transform:rotate(-4deg)}
+.facts{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:.5rem 1.5rem;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding-block:.8rem}
+.facts div{display:flex;gap:.5rem} .facts dt{color:var(--muted)} .facts dd{margin:0;font-weight:500}
+dl{margin:0}
+
+section{display:flex;flex-direction:column;gap:1.2rem}
+.table-box{overflow-x:auto;border:1px solid var(--line);border-radius:.5rem;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:52rem;font-size:.92rem}
+th,td{padding:.6rem .7rem;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{background:var(--pine-soft);color:var(--ink);font-weight:700;white-space:nowrap}
+td.t{font-family:var(--f-num);font-variant-numeric:tabular-nums;white-space:nowrap}
+td.max{font-weight:700;color:var(--seal)}
+tr:last-child td{border-bottom:0}
+.note{font-size:.85rem;color:var(--muted)}
+
+.chip{display:inline-block;font-size:.75rem;font-weight:700;padding:.1rem .55rem;border-radius:99px;white-space:nowrap}
+.c-sea{background:var(--sky-soft);color:var(--sky)} .c-land{background:var(--pine-soft);color:var(--pine)}
+.c-ok{background:var(--pine-soft);color:var(--ok)} .c-warn{background:var(--warn-soft);color:var(--warn)}
+.c-req{background:var(--seal-soft);color:var(--seal)}
+
+.rank{display:grid;grid-template-columns:repeat(auto-fit,minmax(16rem,1fr));gap:1rem}
+.rank article{background:var(--surface);border:1px solid var(--line);border-radius:.5rem;padding:1.1rem 1.2rem;display:flex;flex-direction:column;gap:.5rem;min-width:0}
+.rank .pos{font-family:var(--f-display);color:var(--seal);font-size:1.1rem;font-weight:700}
+
+.place{border-top:2px solid var(--ink);padding-top:1.4rem;display:flex;flex-direction:column;gap:1rem}
+.place-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:.6rem 1rem}
+.place-head .tag{display:flex;gap:.4rem;flex-wrap:wrap}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(17rem,1fr));gap:1.2rem}
+.cols>div{min-width:0;display:flex;flex-direction:column;gap:.5rem}
+.cols h4{margin:0;font-size:.95rem;color:var(--pine)}
+ul{margin:0;padding-left:1.2rem} li+li{margin-top:.3rem}
+.stay{background:var(--surface);border:1px solid var(--line);border-radius:.5rem;padding:.9rem 1rem;display:flex;flex-direction:column;gap:.3rem}
+.stay b{font-weight:700}
+.caution{background:var(--warn-soft);border-radius:.4rem;padding:.7rem .9rem;font-size:.92rem}
+.days{display:grid;grid-template-columns:auto 1fr;gap:.3rem .8rem;font-size:.95rem}
+.days dt{font-family:var(--f-num);color:var(--seal);white-space:nowrap}
+.days dd{margin:0}
+
+.checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(16rem,1fr));gap:.6rem 1.5rem;list-style:none;padding:0}
+.checks li{margin:0;padding-left:1.6rem;position:relative}
+.checks li::before{content:"";position:absolute;left:0;top:.45em;width:.9rem;height:.9rem;border:2px solid var(--pine);border-radius:.2rem}
+
+.verify{display:flex;flex-direction:column;gap:1rem}
+.verify article{display:grid;grid-template-columns:3.5rem 1fr;gap:1rem;align-items:start}
+.verify .step{font-family:var(--f-display);font-size:1.4rem;color:var(--pine);font-weight:700;border-right:1px solid var(--line)}
+.verify ul{font-size:.94rem}
+
+ol.fn{font-size:.85rem;color:var(--muted);padding-left:1.8rem;columns:2 22rem;column-gap:2rem}
+ol.fn li{break-inside:avoid;margin-bottom:.35rem;overflow-wrap:anywhere}
+@media (max-width:520px){header{grid-template-columns:1fr}.seal{display:none}.verify article{grid-template-columns:1fr}.verify .step{border-right:0}}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div>
+    <p class="eyebrow">처가 가족 4가정 · 칠순 기념 1박 2일</p>
+    <h1>어머님 칠순 1박 2일 후보지 여섯 곳</h1>
+    <p class="lead">한반도 동쪽의 해안과 내륙에서 고른 추천 3곳(강릉·평창·문경)과 요청하신 3곳(제천 청풍호·보은 법주사·남이섬)을 같은 기준으로 비교했습니다. 16명이 한자리에 모일 수 있는지, 노래방이 있는지, 서울·대전·세종·익산 네 곳에서 얼마나 걸리는지를 중심으로 봤습니다.</p>
+  </div>
+  <div class="seal" aria-hidden="true">古稀<br>七旬</div>
+  <dl class="facts">
+    <div><dt>일정</dt><dd class="num">2026.12.19(토) – 12.20(일)</dd></div>
+    <div><dt>인원</dt><dd>16명 · 어른 12, 학생 2, 아이 2</dd></div>
+    <div><dt>출발지</dt><dd>서울 · 대전 · 세종 · 익산</dd></div>
+    <div><dt>조건</dt><dd>노래방 있는 숙소, 16명 한자리 행사</dd></div>
+  </dl>
+</header>
+
+<section aria-labelledby="s-compare">
+  <h2 id="s-compare">한눈에 비교</h2>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>후보지</th><th>구분</th><th>서울</th><th>대전</th><th>세종</th><th>익산</th><th>가장 먼 가족</th><th>노래방·16명 확인 수준</th><th>12월 포인트</th></tr></thead>
+    <tbody>
+      <tr><td><b>강릉 경포·사천</b></td><td><span class="chip c-sea">해안</span></td><td class="t">2:40</td><td class="t">3:20</td><td class="t">3:20</td><td class="t">4:20</td><td class="t max">4:20 (익산)</td><td><span class="chip c-ok">독채 최대 20인+노래방</span></td><td>겨울 바다, 일출, KTX 이용 가능</td></tr>
+      <tr><td><b>평창 봉평·용평</b></td><td><span class="chip c-land">내륙</span></td><td class="t">2:00</td><td class="t">2:50</td><td class="t">2:50</td><td class="t">3:50</td><td class="t max">3:50 (익산)</td><td><span class="chip c-warn">리조트 노래방, 단체실 확인 필요</span></td><td>설경·스키 시즌, 요금 성수기</td></tr>
+      <tr><td><b>문경 문경새재</b></td><td><span class="chip c-land">내륙</span></td><td class="t">2:10</td><td class="t">1:40</td><td class="t">1:40</td><td class="t">2:40</td><td class="t max">2:40 (익산)</td><td><span class="chip c-warn">리조트 노래방·세미나실, 운영 확인</span></td><td>평지 옛길 산책, 온천</td></tr>
+      <tr><td><b>제천 청풍호</b> <span class="chip c-req">요청</span></td><td><span class="chip c-land">내륙</span></td><td class="t">2:10</td><td class="t">1:50</td><td class="t">1:40</td><td class="t">2:50</td><td class="t max">2:50 (익산)</td><td><span class="chip c-ok">리조트 노래방+연회장</span></td><td>호수 케이블카, 어르신 이동 쉬움</td></tr>
+      <tr><td><b>보은 속리산 법주사</b> <span class="chip c-req">요청</span></td><td><span class="chip c-land">내륙</span></td><td class="t">2:30</td><td class="t">1:10</td><td class="t">1:10</td><td class="t">2:00</td><td class="t max">2:30 (서울)</td><td><span class="chip c-warn">노래방 독채는 소규모, 여러 동 필요</span></td><td>세계유산 산사, 한정식 식당</td></tr>
+      <tr><td><b>남이섬·가평</b> <span class="chip c-req">요청</span></td><td><span class="chip c-land">내륙(강변)</span></td><td class="t">1:20</td><td class="t">2:50</td><td class="t">2:40</td><td class="t">3:50</td><td class="t max">3:50 (익산)</td><td><span class="chip c-ok">단체 풀빌라 최대 20인+노래방</span></td><td>섬 산책, 겨울 불빛 정원</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="note">이동시간은 정체 없는 승용차 기준의 추정치(시:분)입니다. 토요일 오전 영동·경부·중부고속도로는 정체가 잦으니 출발 전 지도 앱으로 다시 확인해 주세요. 남이섬은 행정구역상 강원 춘천시에 속하지만, 배는 경기 가평 선착장에서 탑니다.<sup><a href="#f23">23</a></sup></p>
+</section>
+
+<section aria-labelledby="s-rank">
+  <h2 id="s-rank">종합 추천 순위</h2>
+  <div class="rank">
+    <article><span class="pos">1순위 · 제천 청풍호</span><p>네 가족 모두 3시간 안에 도착합니다. 리조트 한 곳에 노래방과 연회장이 함께 있어 칠순 행사, 식사, 노래방을 건물 밖으로 나가지 않고 치를 수 있습니다. 케이블카로 정상 전망대까지 걷지 않고 오를 수 있어 어머님께도 편합니다.</p></article>
+    <article><span class="pos">2순위 · 문경새재</span><p>이동 부담이 가장 고르게 나뉘는 곳입니다(가장 먼 익산도 약 2시간 40분). 새재 1관문 길은 평지라 3대가 함께 걷기 좋고, 리조트 온천으로 피로를 풀 수 있습니다.</p></article>
+    <article><span class="pos">3순위 · 남이섬·가평</span><p>16명이 <b>한 건물</b>에서 노래방까지 쓰는 조건을 가장 확실하게 충족합니다. 다만 익산 가족은 4시간 가까이 걸리니, 익산 가족의 의견을 먼저 들어 보시길 권합니다.</p></article>
+  </div>
+  <p class="note">“한 지붕 아래 16명”을 가장 중요하게 보신다면 강릉 또는 가평의 대형 독채가 낫고, “어르신 편의와 이동 공평성”을 중요하게 보신다면 제천이나 문경이 낫습니다. 대전·세종·익산 가족이 많이 이동하는 것이 부담이면 보은이 가장 가깝습니다.</p>
+</section>
+
+<section aria-labelledby="s-detail">
+  <h2 id="s-detail">여섯 곳 자세히 보기</h2>
+
+  <!-- 1. 강릉 -->
+  <article class="place" id="gangneung">
+    <div class="place-head"><h3>① 강릉 경포·사천 해안</h3><div class="tag"><span class="chip c-sea">해안 · 추천</span></div></div>
+    <p>동해안에서 숙소 선택지가 가장 많고, 서울 가족은 KTX로도 갈 수 있습니다. 대형 독채 풀빌라 가운데 객실 안에 노래방을 갖춘 곳이 여럿 있어 16명이 한 건물에서 행사를 치를 수 있습니다. 허균·허난설헌 기념공원, 오죽헌처럼 문학과 역사 이야기가 있는 장소도 가깝습니다.</p>
+    <div class="cols">
+      <div>
+        <h4>노래방 숙소 후보</h4>
+        <div class="stay"><b>강릉 독채풀빌라 수</b><span>강릉시 해안로 651-18 · 약 110평 · 노래방 무료로 안내<sup><a href="#f1">1</a></sup> · 기준 4인, 최대 20인<sup><a href="#f2">2</a></sup></span></div>
+        <div class="stay"><b>강릉 위스테이 독채 펜션</b><span>노래방 무료, 이용은 입실부터 22:00까지 · 기준 인원 초과 시 1인 30,000원<sup><a href="#f3">3</a></sup> · 최대 인원은 문의 필요</span></div>
+      </div>
+      <div>
+        <h4>1박 2일 예시</h4>
+        <dl class="days">
+          <dt>1일 오후</dt><dd>안목해변 커피거리 → 경포호 산책 → 숙소 체크인</dd>
+          <dt>1일 저녁</dt><dd>주문진·사천 회 포장 또는 숙소 바비큐, 칠순 상 차리기, 노래방</dd>
+          <dt>2일 오전</dt><dd>경포 일출 → 초당 순두부 아침 → 오죽헌 또는 허균·허난설헌 기념공원</dd>
+        </dl>
+      </div>
+    </div>
+    <p class="caution">익산 가족은 편도 4시간이 넘습니다. 12월 영동 지역은 눈이 오면 대관령 구간이 막힐 수 있으니 스노체인이나 KTX를 함께 고려하세요.</p>
+  </article>
+
+  <!-- 2. 평창 -->
+  <article class="place" id="pyeongchang">
+    <div class="place-head"><h3>② 평창 봉평·용평 고원</h3><div class="tag"><span class="chip c-land">내륙 · 추천</span></div></div>
+    <p>12월 중순이면 대관령 일대가 설경으로 바뀌고 스키장이 문을 엽니다. 봉평은 이효석의 「메밀꽃 필 무렵」 무대라 이효석문학관과 효석달빛언덕을 손주들과 함께 둘러보기 좋습니다.</p>
+    <div class="cols">
+      <div>
+        <h4>노래방 숙소 후보</h4>
+        <div class="stay"><b>휘닉스 평창</b><span>노래방은 센터플라자 지하 1층, 24시간 무인으로 운영한다고 안내<sup><a href="#f4">4</a></sup> · 콘도 여러 실을 나눠 쓰는 방식이라 16명이 함께 모일 연회장·세미나실 대관은 따로 문의해야 함</span></div>
+        <div class="stay"><b>평창펜션마을(용평점)</b><span>노래방·바비큐 시설, 단체 패키지 안내 · 최대 인원 초과 시 입실 거부 가능<sup><a href="#f5">5</a></sup></span></div>
+      </div>
+      <div>
+        <h4>1박 2일 예시</h4>
+        <dl class="days">
+          <dt>1일 오후</dt><dd>이효석문학관·효석달빛언덕 → 봉평 메밀국수 → 체크인</dd>
+          <dt>1일 저녁</dt><dd>한우 저녁, 칠순 행사, 노래방</dd>
+          <dt>2일 오전</dt><dd>월정사 전나무숲길(평탄한 길) 또는 대관령 양떼목장 설경</dd>
+        </dl>
+      </div>
+    </div>
+    <p class="caution">평창송어축제는 2026년에 1월 9일부터 2월 9일까지 열렸습니다.<sup><a href="#f6">6</a></sup> 12월 19일에는 열리지 않을 가능성이 높으니 일정에 넣지 않았습니다. 스키 시즌 주말이라 숙박 요금이 비싸고 예약이 일찍 찹니다.</p>
+  </article>
+
+  <!-- 3. 문경 -->
+  <article class="place" id="mungyeong">
+    <div class="place-head"><h3>③ 문경 문경새재</h3><div class="tag"><span class="chip c-land">내륙 · 추천</span></div></div>
+    <p>경북 북서쪽 내륙으로, 네 출발지에서 거리가 가장 고르게 나뉩니다. 문경새재는 조선 선비들이 과거를 보러 넘던 길이고, 1관문 주변은 평지라 유모차와 어르신 모두 걷기 편합니다. 도립공원과 옛길박물관은 입장료가 없습니다.<sup><a href="#f9">9</a></sup></p>
+    <div class="cols">
+      <div>
+        <h4>노래방 숙소 후보</h4>
+        <div class="stay"><b>문경 STX리조트</b><span>부대시설 목록에 노래방·사우나·바비큐 포함<sup><a href="#f7">7</a></sup> · 출처에 따라 노래방이 빠진 목록도 있어 운영 여부 확인 필요 · 2026년 6월 인피니티풀과 노천탕 신설<sup><a href="#f8">8</a></sup> · 문의 054-460-5000</span></div>
+      </div>
+      <div>
+        <h4>1박 2일 예시</h4>
+        <dl class="days">
+          <dt>1일 오후</dt><dd>문경새재 1관문 → 옛길박물관 → 체크인 후 온천</dd>
+          <dt>1일 저녁</dt><dd>문경 약돌한우 또는 약돌돼지 저녁, 칠순 행사, 노래방</dd>
+          <dt>2일 오전</dt><dd>리조트 노천탕 → 문경새재 오픈세트 → 귀가</dd>
+        </dl>
+      </div>
+    </div>
+    <p class="caution">16명이 한 객실에 묵는 구조가 아니므로 콘도 3–4실과 세미나실을 함께 예약하는 방식이 현실적입니다.</p>
+  </article>
+
+  <!-- 4. 제천 -->
+  <article class="place" id="jecheon">
+    <div class="place-head"><h3>④ 충북 제천 청풍호 인근</h3><div class="tag"><span class="chip c-land">내륙</span><span class="chip c-req">요청</span></div></div>
+    <p>호수를 내려다보는 리조트에 노래방과 연회장이 함께 있다는 점이 가장 큰 장점입니다. 청풍호반케이블카는 약 9분 만에 비봉산 정상에 닿아 걷기를 힘들어하시는 어르신도 호수 전경을 보실 수 있습니다.<sup><a href="#f12">12</a></sup></p>
+    <div class="cols">
+      <div>
+        <h4>노래방 숙소 후보</h4>
+        <div class="stay"><b>청풍리조트 레이크호텔</b><span>제천시 청풍면 청풍호로 1798 · 대표 043-640-7000 · 부대시설에 게임존과 노래방 안내<sup><a href="#f10">10</a></sup> · 연회장·레크리에이션 시설 보유<sup><a href="#f11">11</a></sup></span></div>
+        <p class="note">객실은 대부분 기준 2인·최대 4인이라 4가족이 4–5실을 나눠 쓰고, 행사는 연회장이나 노래방에서 하는 방식입니다. 힐하우스 동은 방음이 약하다는 후기가 있으니 레이크호텔 동을 요청하세요.</p>
+      </div>
+      <div>
+        <h4>1박 2일 예시</h4>
+        <dl class="days">
+          <dt>1일 오후</dt><dd>청풍호반케이블카(왕복 대인 18,000원, 소인 14,000원, 2026년 6월 기준<sup><a href="#f12">12</a></sup>) → 청풍문화재단지 → 체크인</dd>
+          <dt>1일 저녁</dt><dd>연회장 칠순 행사와 식사 → 노래방</dd>
+          <dt>2일 오전</dt><dd>의림지 산책 → 제천 약채락 한정식 → 귀가</dd>
+        </dl>
+      </div>
+    </div>
+    <p class="caution">케이블카 겨울 운영시간과 요금은 계절마다 바뀔 수 있습니다. 강풍이 불면 운행을 멈추므로 당일 아침에 확인하세요.</p>
+  </article>
+
+  <!-- 5. 보은 -->
+  <article class="place" id="boeun">
+    <div class="place-head"><h3>⑤ 충북 보은 법주사 인근</h3><div class="tag"><span class="chip c-land">내륙</span><span class="chip c-req">요청</span></div></div>
+    <p>대전·세종에서 약 1시간 10분, 익산에서 약 2시간으로 여섯 곳 가운데 가장 가깝습니다. 법주사는 2018년 ‘산사, 한국의 산지승원’ 7곳 중 하나로 유네스코 세계유산에 올랐고<sup><a href="#f16">16</a></sup>, 국내에 하나뿐인 5층 목조탑 팔상전(국보)이 있습니다.<sup><a href="#f17">17</a></sup> 법주사로 가는 세조길은 경사가 완만해 어르신과 걷기 좋습니다.</p>
+    <div class="cols">
+      <div>
+        <h4>노래방 숙소 후보</h4>
+        <div class="stay"><b>속리산천왕봉가는길에펜션</b><span>독채형 VIP 객실에 노래방, 시간당 30,000원, 밤 12시 이전까지 · 별채 기준 7인·최대 8인<sup><a href="#f13">13</a></sup></span></div>
+        <div class="stay"><b>속리산야생화펜션</b><span>법주사 매표소까지 걸어서 약 5분, 단체용 독채 보유 · 노래방은 확인되지 않음<sup><a href="#f14">14</a></sup></span></div>
+        <div class="stay"><b>레이크힐스 호텔 속리산</b><span>대형 호텔, 대표 043-542-5281 · 예약 사이트에 객실이 비어 있지 않은 경우가 있어 현재 영업 여부 확인 필요<sup><a href="#f15">15</a></sup></span></div>
+      </div>
+      <div>
+        <h4>1박 2일 예시</h4>
+        <dl class="days">
+          <dt>1일 점심</dt><dd>법주사 입구 경희식당 한정식으로 칠순 점심(영업 09:00–20:30 안내)<sup><a href="#f19">19</a></sup></dd>
+          <dt>1일 오후</dt><dd>세조길 → 법주사 팔상전 → 체크인</dd>
+          <dt>1일 저녁</dt><dd>펜션 바비큐, 칠순 행사, 노래방</dd>
+          <dt>2일 오전</dt><dd>정이품송 → 말티재 전망대 → 귀가</dd>
+        </dl>
+      </div>
+    </div>
+    <p class="caution">이 지역은 노래방이 있는 독채가 8인 안팎이라 16명이 한 건물에 묵기 어렵습니다. 같은 펜션의 두 동을 함께 빌리고 행사는 큰 동에서 하는 방식을 문의하세요. 2023년 5월 4일부터 국가지정문화재 관람료 감면 제도가 시행되었지만<sup><a href="#f18">18</a></sup>, 법주사가 그 대상인지는 이번 조사에서 확인하지 못했습니다.</p>
+  </article>
+
+  <!-- 6. 남이섬 -->
+  <article class="place" id="nami">
+    <div class="place-head"><h3>⑥ 남이섬·가평 인근</h3><div class="tag"><span class="chip c-land">내륙 · 강변</span><span class="chip c-req">요청</span></div></div>
+    <p>가평 선착장에서 배로 약 5분이면 섬에 닿습니다. 아이들이 좋아하는 섬 산책과 3대가 함께 찍는 기념사진 장소로 좋습니다. 가평에는 20명 안팎이 묵는 단체 독채가 많아 “16명 한 건물+노래방” 조건을 맞추기 가장 쉽습니다.</p>
+    <div class="cols">
+      <div>
+        <h4>노래방 숙소 후보</h4>
+        <div class="stay"><b>가평 뜰 독채풀빌라 · 단체풀빌라</b><span>기준 4인, 최대 20인, 노래방, 개별 수영장 · 추가 인원 1인 30,000원(성인·아동 같음)<sup><a href="#f21">21</a></sup> · 남이섬까지 거리는 확인 필요</span></div>
+        <div class="stay"><b>미가쉴 가족&독채펜션</b><span>남이섬 선착장까지 걸어서 약 7분 · 독채룸에서 노래방 무제한, 마이크는 위생상 제공하지 않음<sup><a href="#f20">20</a></sup> · 최대 인원 확인 필요</span></div>
+        <div class="stay"><b>유명산하늘아래펜션</b><span>노래방이 있는 단체 독채, 기준 30인<sup><a href="#f22">22</a></sup> · 유명산 쪽이라 남이섬과는 차로 이동</span></div>
+      </div>
+      <div>
+        <h4>1박 2일 예시</h4>
+        <dl class="days">
+          <dt>1일 오후</dt><dd>남이섬(입장료에 왕복 배삯 포함: 성인 19,000원, 중·고생 16,000원, 36개월–초등 13,000원, 2026년 가을 기준)<sup><a href="#f23">23</a></sup></dd>
+          <dt>1일 저녁</dt><dd>가평 닭갈비 또는 숙소 바비큐, 칠순 행사, 노래방</dd>
+          <dt>2일 오전</dt><dd>아침고요수목원 겨울 불빛정원(운영 여부 확인) 또는 가평 잣향기푸른숲 → 귀가</dd>
+        </dl>
+      </div>
+    </div>
+    <p class="caution">겨울 배 운항시간과 요금은 남이섬 공식 홈페이지(<a href="https://namisum.com" target="_blank" rel="noopener">namisum.com</a>)에서 다시 확인하세요. 토요일 오후 서울춘천고속도로와 경춘국도는 정체가 심합니다.</p>
+  </article>
+</section>
+
+<section aria-labelledby="s-check">
+  <h2 id="s-check">예약 전화로 꼭 물어볼 것</h2>
+  <ul class="checks">
+    <li>아이 2명을 포함한 <b>16명 총액</b>(추가 인원 요금 포함)</li>
+    <li>노래방 이용 시간, 요금, 마이크 제공 여부</li>
+    <li>현수막·케이크·칠순 상차림 반입, 출장 음식 허용 여부</li>
+    <li>16명이 함께 앉을 수 있는 거실·연회장·세미나실 크기</li>
+    <li>어르신 동선: 계단, 엘리베이터, 욕실 미끄럼 방지</li>
+    <li>침구 수와 방 개수(4가정이 나눠 쓸 수 있는지)</li>
+    <li>주차 대수(4대 이상)와 겨울 진입로 제설 여부</li>
+    <li>폭설 시 일정 변경과 환불 규정</li>
+  </ul>
+</section>
+
+<section aria-labelledby="s-verify">
+  <h2 id="s-verify">세 차례 자가 검증 기록</h2>
+  <div class="verify">
+    <article><span class="step">1차</span><div><p><b>사실과 출처 대조</b></p><ul>
+      <li>모든 숙소 정보에 출처를 하나 이상 붙였습니다. 출처에 없는 내용(최대 인원, 남이섬까지 거리 등)은 본문에 “확인 필요”로 표시했습니다.</li>
+      <li>평창송어축제가 12월에 열린다는 일반적 인식을 확인한 결과, 2026년 축제는 1월 9일–2월 9일이었습니다. 그래서 일정에서 뺐습니다.</li>
+      <li>법주사 관람료 무료 여부는 제도 시행일(2023.5.4)만 확인되고 법주사 포함 여부는 확인되지 않아, 단정하지 않았습니다.</li>
+      <li>문경 STX리조트 노래방은 출처끼리 목록이 달라서 “운영 여부 확인 필요”로 낮춰 표시했습니다.</li>
+    </ul></div></article>
+    <article><span class="step">2차</span><div><p><b>요청 조건에 맞는지 점검</b></p><ul>
+      <li>요일: 2026년 12월 19일은 토요일, 20일은 일요일임을 달력 계산으로 확인했습니다.</li>
+      <li>후보 구성: 동해안 1곳(강릉)과 내륙 2곳(평창·문경)을 추천하고, 요청하신 제천·보은·남이섬 3곳을 더해 모두 6곳입니다.</li>
+      <li>16명과 노래방 조건을 함께 만족하는지 곳마다 따로 표시했습니다. 보은은 노래방 독채가 8인 규모여서 그 한계를 그대로 적었습니다.</li>
+      <li>네 출발지 가운데 가장 오래 걸리는 가족을 표에 따로 적어 이동 공평성을 비교했습니다.</li>
+    </ul></div></article>
+    <article><span class="step">3차</span><div><p><b>수치와 표현 재점검</b></p><ul>
+      <li>요금마다 기준 시점(2026년 6월, 2026년 가을)을 적었습니다. 겨울 요금은 다를 수 있다고 밝혔습니다.</li>
+      <li>남이섬 소재지를 다시 확인해, 섬은 춘천시이고 선착장은 가평군이라는 점을 표 아래에 적었습니다.</li>
+      <li>이동시간은 공식 수치가 아닌 추정치라는 점을 표 바로 아래에 밝혔습니다.</li>
+      <li>조사 한계: 이번 작업 환경에서는 숙박 예약 사이트를 직접 열 수 없어, 검색 엔진에 색인된 페이지 내용으로 검증했습니다. 예약 전에 각 링크와 전화로 최종 확인해 주세요.</li>
+    </ul></div></article>
+  </div>
+</section>
+
+<section aria-labelledby="s-fn">
+  <h2 id="s-fn">출처</h2>
+  <ol class="fn">
+    <li id="f1">맘맘, 「강릉 독채풀빌라 수」 숙소 정보. <a href="https://mom-mom.net/travel/properties/6669c7c278416e3cc3630111" target="_blank" rel="noopener">mom-mom.net</a></li>
+    <li id="f2">놀(야놀자), 「강릉 독채풀빌라 수」 객실 정보. <a href="https://nol.yanolja.com/stay/domestic/10058339" target="_blank" rel="noopener">nol.yanolja.com</a></li>
+    <li id="f3">여기어때, 「강릉 위스테이 독채 펜션」. <a href="https://www.yeogi.com/domestic-accommodations/89784" target="_blank" rel="noopener">yeogi.com</a></li>
+    <li id="f4">여기어때, 「휘닉스 평창」 부대시설 안내. <a href="https://www.yeogi.com/domestic-accommodations/61569" target="_blank" rel="noopener">yeogi.com</a></li>
+    <li id="f5">맘맘, 「평창 평창펜션마을(용평점)」. <a href="https://mom-mom.net/travel/properties/64f80bf2acd3f742aa51ab56" target="_blank" rel="noopener">mom-mom.net</a></li>
+    <li id="f6">헤럴드경제, 「평창송어축제 20년…9일 개막」, 2026.1.6. <a href="https://www.heraldk.com/article/2026010619094302550" target="_blank" rel="noopener">heraldk.com</a></li>
+    <li id="f7">맘맘, 「문경 STX 리조트」 부대시설. <a href="https://mom-mom.net/travel/properties/64f0bce00e9d8fca1f9134e2" target="_blank" rel="noopener">mom-mom.net</a></li>
+    <li id="f8">경북매일, 문경 STX리조트 인피니티풀·노천탕 기사, 2026.6. <a href="https://www.kbmaeil.com/article/20260608500129" target="_blank" rel="noopener">kbmaeil.com</a></li>
+    <li id="f9">한국관광 정보(ktriptips), 「문경새재도립공원」. <a href="https://www.ktriptips.com/kor/tourspot/126017" target="_blank" rel="noopener">ktriptips.com</a></li>
+    <li id="f10">맘맘, 「청풍리조트」 시설 안내. <a href="https://mom-mom.net/travel/properties/695ba78c7c4b817000c9259a" target="_blank" rel="noopener">mom-mom.net</a></li>
+    <li id="f11">한국관광 정보(ktriptips), 「청풍리조트」. <a href="https://www.ktriptips.com/kor/stay/143062" target="_blank" rel="noopener">ktriptips.com</a></li>
+    <li id="f12">텔트립, 「9분 만에 정상 닿는 호수 전망 케이블카」(청풍호반케이블카), 2026.6 기준. <a href="https://www.telltrip.com/domestic-travel/jecheon-cheongpung-lake-cable-car-views/" target="_blank" rel="noopener">telltrip.com</a></li>
+    <li id="f13">놀(야놀자), 「보은 속리산천왕봉가는길에펜션」. <a href="https://nol.yanolja.com/stay/domestic/1000109482" target="_blank" rel="noopener">nol.yanolja.com</a></li>
+    <li id="f14">야놀자 플레이스, 「보은 속리산야생화펜션」. <a href="https://place-site.yanolja.com/places/1000112747" target="_blank" rel="noopener">place-site.yanolja.com</a></li>
+    <li id="f15">한국관광 정보(ktriptips), 「레이크힐스 호텔 속리산」. <a href="https://www.ktriptips.com/kor/stay/143060" target="_blank" rel="noopener">ktriptips.com</a></li>
+    <li id="f16">뉴시스, 산사 7곳 유네스코 세계유산 등재 관련 기사, 2018.5.5. <a href="https://www.newsis.com/view/NISX20180505_0000300831" target="_blank" rel="noopener">newsis.com</a></li>
+    <li id="f17">텔트립, 「국내 유일 5층 목조탑 서 있는 천년 사찰」(법주사). <a href="https://www.telltrip.com/domestic-travel/beopjusa-temple-unesco-wooden-pagoda/" target="_blank" rel="noopener">telltrip.com</a></li>
+    <li id="f18">서울신문, 「세금 419억원 투입 사찰 관람료 감면」, 2023.5.9. <a href="https://m.seoul.co.kr/news/2023/05/09/20230509500228" target="_blank" rel="noopener">seoul.co.kr</a></li>
+    <li id="f19">MyTripKorea, 「경희식당」(속리산 법주사 입구). <a href="https://www.mytripkorea.com/en/food/3105635" target="_blank" rel="noopener">mytripkorea.com</a></li>
+    <li id="f20">맘맘, 「가평(남이섬) 미가쉴 가족&독채펜션」. <a href="https://mom-mom.net/travel/properties/676443bf46a4dcd942c20ffd" target="_blank" rel="noopener">mom-mom.net</a></li>
+    <li id="f21">맘맘, 「가평 뜰 독채풀빌라」 단체풀빌라 객실. <a href="https://mom-mom.net/travel/properties/64f80d03acd3f742aa51c00d/502594/521852" target="_blank" rel="noopener">mom-mom.net</a></li>
+    <li id="f22">가평 유명산하늘아래펜션 공식 홈페이지. <a href="http://undertheskyps.com/41" target="_blank" rel="noopener">undertheskyps.com</a></li>
+    <li id="f23">뉴스와, 「남이섬 입장료와 일반 선박 운항 구조」, 2026.11.1. <a href="https://www.news-wa.com/article/travel/tour-korea/2026/11/01/20261101500007" target="_blank" rel="noopener">news-wa.com</a></li>
+  </ol>
+</section>
+
+</div>
