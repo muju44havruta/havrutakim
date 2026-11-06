@@ -219,7 +219,7 @@
   /* ---------- Toolbar ---------- */
   .toolbar {
     position: sticky;
-    top: 0;
+    top: env(safe-area-inset-top, 0px);
     z-index: 5;
     display: flex;
     align-items: center;
@@ -298,6 +298,7 @@
   button.ghost:hover { color: var(--status-warn); border-color: transparent; }
 
   button.small { padding: 5px 10px; font-size: 12px; }
+  button.danger { background: var(--status-warn); border-color: var(--status-warn); color: #fff; }
 
   /* ---------- Share hint bar ---------- */
   .share-hint-bar {
@@ -644,8 +645,8 @@
 
   .theme-toggle {
     position: fixed;
-    right: 18px;
-    bottom: 18px;
+    right: calc(18px + env(safe-area-inset-right, 0px));
+    bottom: calc(18px + env(safe-area-inset-bottom, 0px));
     width: 36px;
     height: 36px;
     border-radius: 50%;
@@ -660,9 +661,9 @@
 
   .toast {
     position: fixed;
-    left: 18px;
-    bottom: 18px;
-    max-width: 320px;
+    left: calc(18px + env(safe-area-inset-left, 0px));
+    bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+    max-width: min(320px, calc(100vw - 36px));
     background: var(--card);
     border: 1px solid var(--card-line);
     box-shadow: var(--shadow);
@@ -1664,46 +1665,43 @@
     }
   }
 
-  function performDownload(csv, filename) {
-    if (!(window.claude && window.claude.downloads)) {
-      fallbackDownload(filename, csv);
-      markBackedUp();
-      return;
-    }
+  // 웹 링크(claude.ai 아티팩트)로 열었을 때는 downloads 기능으로 저장하고,
+  // 내려받은 파일을 직접 열었을 때는 일반 파일 내려받기를 씁니다.
+  var downloadsReady = (window.claude && typeof window.claude.use === "function")
+    ? Promise.resolve(window.claude.use("downloads")).catch(function () { return null; })
+    : Promise.resolve(null);
 
-    window.claude.downloads.save({ filename: filename, data: csv }).then(function () {
-      markBackedUp();
-    }).catch(function (err) {
-      var code = err && err.code;
-      if (code === "extension_not_enabled") {
-        var altName = filename.replace(/\.csv$/, ".txt");
-        window.claude.downloads.save({ filename: altName, data: csv })
-          .then(function () {
-            toast("csv 형식을 지원하지 않아 .txt로 저장했습니다. 엑셀의 '텍스트/CSV 가져오기'로 열 수 있습니다.");
-            markBackedUp();
-          })
-          .catch(function () {
-            fallbackDownload(filename, csv);
-            markBackedUp();
-          });
-      } else if (code === "declined") {
-        // viewer said no — don't mark as backed up
-      } else if (code === "rate_limited") {
-        toast("다운로드 요청이 진행 중입니다. 잠시 후 다시 시도해주세요.");
-      } else if (code === "too_large") {
-        toast("데이터가 너무 커서 내려받을 수 없습니다. 학생 수를 나누어 다시 시도해주세요.");
-      } else {
+  function performDownload(csv, filename) {
+    return downloadsReady.then(function (downloads) {
+      if (!downloads) {
         fallbackDownload(filename, csv);
-        markBackedUp();
+        return true;
       }
+      return downloads.save({ filename: filename, data: csv }).then(function () {
+        return true;
+      }).catch(function (err) {
+        var code = err && err.code;
+        if (code === "declined") return false; // 저장을 취소함
+        if (code === "rate_limited") toast("저장 확인 창이 이미 열려 있습니다. 잠시 후 다시 시도해주세요.");
+        else if (code === "too_large") toast("데이터가 너무 커서 내려받을 수 없습니다. 학생 수를 나누어 다시 시도해주세요.");
+        else toast("이 화면에서는 파일을 저장할 수 없습니다. 파일을 내려받아 브라우저에서 직접 열어 사용해주세요.", 5000);
+        return false;
+      });
     });
   }
 
+  // 저장 확인 창은 한 번에 하나만 뜨므로 메모 → 초안 순서로 차례로 저장합니다.
   function downloadAllCsv() {
-    performDownload(buildNotesCsv(), csvFilename("메모", "csv"));
-    setTimeout(function () {
-      performDownload(buildDraftCsv(), csvFilename("초안", "csv"));
-    }, 300);
+    performDownload(buildNotesCsv(), csvFilename("메모", "csv")).then(function (ok1) {
+      return performDownload(buildDraftCsv(), csvFilename("초안", "csv")).then(function (ok2) {
+        if (ok1 && ok2) {
+          markBackedUp();
+          toast("관찰 메모와 세특 초안 CSV 두 파일을 저장했습니다.");
+        } else if (ok1 || ok2) {
+          toast("두 파일 중 하나만 저장되었습니다. 필요하면 다시 저장해주세요.");
+        }
+      });
+    });
   }
 
   function shareAllCsv() {
@@ -1784,15 +1782,35 @@
   document.getElementById("backupAllBtn").addEventListener("click", downloadAllCsv);
   document.getElementById("backupDismiss").addEventListener("click", function () { backupBanner.hidden = true; });
 
+  var clearArmed = false, clearTimer = null;
+  function disarmClear() {
+    clearArmed = false;
+    if (clearTimer) clearTimeout(clearTimer);
+    var btn = document.getElementById("clearAll");
+    btn.textContent = "전체 초기화";
+    btn.classList.remove("danger");
+  }
+
   document.getElementById("clearAll").addEventListener("click", function () {
     if (state.entries.length === 0) return;
-    if (!confirm("모든 학생 기록과 관찰 메모를 삭제할까요? 이 작업은 되돌릴 수 없습니다.")) return;
+    // 브라우저 확인 창(confirm)이 막힌 환경이 있어, 버튼을 한 번 더 눌러야 지우도록 합니다.
+    var btn = document.getElementById("clearAll");
+    if (!clearArmed) {
+      clearArmed = true;
+      btn.textContent = "정말 삭제? 다시 누르기";
+      btn.classList.add("danger");
+      toast("모든 학생 기록과 관찰 메모가 지워집니다. 되돌릴 수 없으니, 지우려면 4초 안에 한 번 더 누르세요.", 4000);
+      clearTimer = setTimeout(disarmClear, 4000);
+      return;
+    }
+    disarmClear();
     state.entries = [];
     entriesEl.innerHTML = "";
     reindex();
     refreshQuickMemoOptions();
     checkBackupReminder();
     try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignore */ }
+    toast("모든 기록을 지웠습니다.");
   });
 
   targetLenEl.addEventListener("input", function () {
