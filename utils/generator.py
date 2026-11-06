@@ -2,6 +2,8 @@
 
 import anthropic
 
+from utils.forbidden_check import prompt_guideline
+
 MODEL = "claude-opus-4-8"
 
 STYLE_GUIDES = {
@@ -23,6 +25,7 @@ def build_prompt(
     extra_request: str,
     student_info: str,
 ) -> tuple[str, str]:
+    forbidden = prompt_guideline()
     style_guide = STYLE_GUIDES.get(style, STYLE_GUIDES["개조식 (~함, ~보임)"])
 
     system_prompt = f"""당신은 한국 중·고등학교 교사가 학교생활기록부의 '교과 세부능력 및 특기사항(세특)'을 \
@@ -36,7 +39,9 @@ def build_prompt(
 5. 문단을 나누지 말고 하나의 연결된 문단으로 작성하세요.
 6. 전체 분량은 공백 포함 {char_limit}자 내외로 작성하세요. 지나치게 짧거나 길게 작성하지 마세요.
 7. 결과물이나 자료 중 일부만 근거로 삼을 수 있는 경우, 억지로 모든 내용을 담으려 하지 말고 \
-가장 의미 있는 활동을 중심으로 응집력 있게 작성하세요."""
+가장 의미 있는 활동을 중심으로 응집력 있게 작성하세요.
+8. 학교생활기록부 기재요령상 기재할 수 없는 내용은 자료에 있더라도 절대 쓰지 마세요: {forbidden}. \
+이런 내용은 빼고, 수업 안에서 드러난 활동 과정과 역량만 서술하세요."""
 
     student_line = f"학생 관련 정보: {student_info}\n" if student_info.strip() else ""
     extra_line = f"\n추가 요청사항: {extra_request}\n" if extra_request.strip() else ""

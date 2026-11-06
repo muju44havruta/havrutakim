@@ -9,6 +9,7 @@ import os
 import streamlit as st
 
 from utils import storage
+from utils.forbidden_check import check_text
 from utils.generator import generate_setteuk
 from utils.pdf_extract import extract_text_from_pdf
 
@@ -91,6 +92,24 @@ def material_input_section() -> None:
         st.rerun()
 
 
+def show_forbidden_check(text: str) -> None:
+    """세특 문구에서 기재 금지 의심 표현을 찾아 경고를 표시합니다."""
+    findings = check_text(text)
+    if not findings:
+        st.success("✅ 기재 금지어 점검: 의심 표현이 발견되지 않았습니다. (키워드 기반 점검이므로 최종 검토는 직접 하세요.)")
+        return
+    banned = sum(1 for f in findings if f.level == "금지")
+    st.warning(
+        f"⚠️ 기재 금지어 점검: {len(findings)}개 범주에서 의심 표현이 발견되었습니다"
+        + (f" (금지 {banned}건)" if banned else "")
+        + ". 학교생활기록부 기재요령을 확인한 뒤 수정하세요."
+    )
+    for f in findings:
+        icon = "⛔" if f.level == "금지" else "🔎"
+        words = ", ".join(f"'{w}'" for w in f.matches)
+        st.markdown(f"- {icon} **[{f.level}] {f.category}**: {words}  \n  <small>{f.reason}</small>", unsafe_allow_html=True)
+
+
 def generation_form() -> None:
     st.subheader("2. 학생 정보 및 옵션")
     col1, col2 = st.columns(2)
@@ -153,6 +172,7 @@ def generation_form() -> None:
             key="result_editor",
         )
         st.caption(f"글자수: {len(result_text)}자 (공백 포함)")
+        show_forbidden_check(result_text)
 
         col1, col2, col3 = st.columns(3)
         with col1:
@@ -203,6 +223,7 @@ def records_page() -> None:
                 "세특 문구", value=record["generated_text"], height=180, key=f"text_{record['id']}"
             )
             st.caption(f"글자수: {len(edited_text)}자 | 학생 정보: {record.get('student_info', '') or '-'}")
+            show_forbidden_check(edited_text)
 
             with st.expander("원본 자료 보기"):
                 st.text(record.get("material", ""))

@@ -541,6 +541,33 @@
     font-family: inherit;
   }
 
+  /* ---------- Forbidden-word check ---------- */
+  .check { margin-top: 12px; font-size: 12.5px; line-height: 1.55; }
+  .check:empty { display: none; }
+  .check-ok { color: var(--status-ok); }
+  .check-box {
+    background: var(--status-warn-tint);
+    border: 1px solid var(--status-warn);
+    border-radius: 8px;
+    padding: 9px 12px;
+    color: var(--ink);
+  }
+  .check-title { font-weight: 700; color: var(--status-warn); margin-bottom: 4px; }
+  .check-item { margin-top: 4px; }
+  .check-level {
+    display: inline-block; font-size: 11px; font-weight: 700; border-radius: 100px;
+    padding: 0 7px; margin-right: 4px; color: #fff; background: var(--status-warn);
+  }
+  .check-level.caution { background: var(--status-short); }
+  .check-words { font-weight: 600; }
+  .check-reason { color: var(--ink-soft); font-size: 11.5px; }
+  .draft mark.forbidden {
+    background: var(--status-warn-tint);
+    color: var(--status-warn);
+    border-bottom: 2px solid var(--status-warn);
+    padding: 0 1px;
+  }
+
   /* ---------- Empty state ---------- */
   .empty {
     text-align: center;
@@ -709,6 +736,66 @@
     "생명과학", "지구과학", "기술·가정", "정보", "체육", "음악", "미술", "한국사", "진로와 직업"];
   var BACKUP_REMINDER_DAYS = 7;
 
+  // 기재 금지어 점검 규칙 (utils/forbidden_check.py 의 RULES 와 동일하게 유지하세요)
+  // level: "금지" = 기재요령상 명시적 기재 불가 / "주의" = 맥락에 따라 기재 불가일 수 있어 확인 필요
+  var FORBIDDEN_RULES = [
+    {
+      "category": "대회·수상",
+      "level": "금지",
+      "reason": "교내·교외 대회 참여 사실과 성적·수상 실적은 세특에 기재할 수 없습니다. 대회명을 행사명으로 바꿔 적는 것도 금지됩니다.",
+      "pattern": "(?:대회)|(?:경시)|(?:경연)|(?:공모전)|(?:올림피아드)|(?:챔피언십)|(?:수상)|(?:입상)|(?:(?:금|은|최우수|우수|장려|특|인기)상)|(?:대상을\\s*(?:받|차지|수상))|(?:[1-9]\\s*(?:위|등(?!급|분|변)))|(?:본선\\s*진출)|(?:예선\\s*통과)"
+    },
+    {
+      "category": "교외 온라인 강의",
+      "level": "금지",
+      "reason": "K-MOOC·MOOC·KOCW 등 교외 온라인 강의 이수 내용은 기재할 수 없습니다.",
+      "pattern": "(?:(?<![A-Za-z])K-?MOOC(?![A-Za-z]))|(?:(?<![A-Za-z])MOOC(?![A-Za-z]))|(?:(?<![A-Za-z])KOCW(?![A-Za-z]))|(?:무크)|(?:온라인\\s*공개\\s*강(?:좌|의))|(?:코세라)|(?:(?<![A-Za-z])Coursera(?![A-Za-z]))|(?:(?<![A-Za-z])edX(?![A-Za-z]))"
+    },
+    {
+      "category": "공인어학시험",
+      "level": "금지",
+      "reason": "공인어학시험 응시 사실과 성적은 기재할 수 없습니다.",
+      "pattern": "(?:토익)|(?:(?<![A-Za-z])TOEIC(?![A-Za-z]))|(?:토플)|(?:(?<![A-Za-z])TOEFL(?![A-Za-z]))|(?:텝스)|(?:(?<![A-Za-z])TEPS(?![A-Za-z]))|(?:(?<![A-Za-z])IELTS(?![A-Za-z]))|(?:아이엘츠)|(?:(?<![A-Za-z])OPIc(?![A-Za-z]))|(?:오픽)|(?:(?<![A-Za-z])TOSEL(?![A-Za-z]))|(?:토셀)|(?:(?<![A-Za-z])HSK(?![A-Za-z]))|(?:(?<![A-Za-z])JLPT(?![A-Za-z]))|(?:(?<![A-Za-z])JPT(?![A-Za-z]))|(?:(?<![A-Za-z])DELF(?![A-Za-z]))|(?:(?<![A-Za-z])DELE(?![A-Za-z]))|(?:(?<![A-Za-z])TestDaF(?![A-Za-z]))|(?:(?<![A-Za-z])ZD(?![A-Za-z]))|(?:(?<![A-Za-z])FLEX(?![A-Za-z]))|(?:(?<![A-Za-z])G-TELP(?![A-Za-z]))|(?:지텔프)"
+    },
+    {
+      "category": "교외 인증시험·검정",
+      "level": "금지",
+      "reason": "교외 기관이 주관하는 각종 인증시험·검정의 참여 사실과 성적은 기재할 수 없습니다.",
+      "pattern": "(?:한국사\\s*능력\\s*검정)|(?:한자\\s*능력\\s*검정)|(?:(?:급수|등급)\\s*(?:취득|합격))|(?:인증\\s*시험)|(?:검정\\s*시험)"
+    },
+    {
+      "category": "논문·출판·지식재산권",
+      "level": "금지",
+      "reason": "논문(학회지) 투고·등재, 학회 발표, 도서 출간, 특허 등 지식재산권 출원·등록은 기재할 수 없습니다.",
+      "pattern": "(?:학회)|(?:학술지)|(?:등재)|(?:투고)|(?:출간)|(?:책을\\s*출판)|(?:특허)|(?:실용신안)|(?:상표\\s*등록)|(?:지식\\s*재산권)|(?:저작권\\s*등록)"
+    },
+    {
+      "category": "해외 활동",
+      "level": "금지",
+      "reason": "해외 봉사, 어학연수 등 해외 활동 실적은 기재할 수 없습니다.",
+      "pattern": "(?:어학\\s*연수)|(?:해외\\s*(?:봉사|연수|캠프|탐방|활동))|(?:교환\\s*학생)"
+    },
+    {
+      "category": "사교육 유발 요인",
+      "level": "주의",
+      "reason": "사교육 유발 요인이 큰 사항(학원·과외·교외 캠프 등)은 학생부 어느 항목에도 기재할 수 없습니다.",
+      "pattern": "(?:(?<!대)학원)|(?:과외(?!\\s*활동))|(?:인강)|(?:사설\\s*캠프)|(?:컨설팅)"
+    },
+    {
+      "category": "부모·가정 배경",
+      "level": "금지",
+      "reason": "부모(친인척)의 사회·경제적 지위(직업·직장 등)를 암시하는 내용은 기재할 수 없습니다.",
+      "pattern": "(?:(?:부모|아버지|어머니|아빠|엄마)(?:님)?의?\\s*(?:직업|직장|회사|병원|연구소))|(?:장학(?:금|생))"
+    },
+    {
+      "category": "특정 대학·기관명",
+      "level": "주의",
+      "reason": "특정 대학·기관명, 교외 기관의 수료·인증 내용은 기재가 제한될 수 있습니다. 기재요령을 확인하세요.",
+      "pattern": "(?:[가-힣]{2,}대학교)|(?:[가-힣]{2,}대(?:학)?\\s*(?:주최|주관|캠프|프로그램))|(?:(?<![A-Za-z])KAIST(?![A-Za-z]))|(?:카이스트)|(?:(?<![A-Za-z])POSTECH(?![A-Za-z]))|(?:수료(?:증|함)?)"
+    }
+  ];
+  FORBIDDEN_RULES.forEach(function (r) { r.regex = new RegExp(r.pattern, "gi"); });
+
   var entriesEl = document.getElementById("entries");
   var targetLenEl = document.getElementById("targetLen");
   var teacherNameEl = document.getElementById("teacherName");
@@ -806,6 +893,56 @@
     return parts.join(" ");
   }
 
+  function checkForbidden(text) {
+    var findings = [];
+    if (!text) return findings;
+    FORBIDDEN_RULES.forEach(function (rule) {
+      var found = [];
+      var ranges = [];
+      rule.regex.lastIndex = 0;
+      var m;
+      while ((m = rule.regex.exec(text)) !== null) {
+        if (m[0] === "") { rule.regex.lastIndex++; continue; }
+        ranges.push([m.index, m.index + m[0].length]);
+        if (found.indexOf(m[0]) === -1) found.push(m[0]);
+      }
+      if (found.length) findings.push({ rule: rule, matches: found, ranges: ranges });
+    });
+    findings.sort(function (a, b) { return (a.rule.level === "금지" ? 0 : 1) - (b.rule.level === "금지" ? 0 : 1); });
+    return findings;
+  }
+
+  function highlightForbidden(text, findings) {
+    var ranges = [];
+    findings.forEach(function (f) { ranges = ranges.concat(f.ranges); });
+    if (!ranges.length) return escapeHtml(text);
+    ranges.sort(function (a, b) { return a[0] - b[0] || b[1] - a[1]; });
+    var html = "", pos = 0;
+    ranges.forEach(function (r) {
+      if (r[0] < pos) return; // 겹치는 구간은 앞의 것만 표시
+      html += escapeHtml(text.slice(pos, r[0])) + '<mark class="forbidden">' + escapeHtml(text.slice(r[0], r[1])) + "</mark>";
+      pos = r[1];
+    });
+    return html + escapeHtml(text.slice(pos));
+  }
+
+  function renderCheck(findings, draft, el) {
+    if (!draft) { el.innerHTML = ""; return; }
+    if (!findings.length) {
+      el.innerHTML = '<span class="check-ok">✓ 기재 금지어 점검: 의심 표현 없음 (키워드 기반 점검이므로 최종 검토는 직접 하세요)</span>';
+      return;
+    }
+    var html = '<div class="check-box"><div class="check-title">⚠ 기재 금지어 점검: ' + findings.length +
+      "개 범주에서 의심 표현이 발견되었습니다. 기재요령을 확인한 뒤 수정하세요.</div>";
+    findings.forEach(function (f) {
+      html += '<div class="check-item"><span class="check-level' + (f.rule.level === "금지" ? "" : " caution") + '">' +
+        escapeHtml(f.rule.level) + "</span><b>" + escapeHtml(f.rule.category) + "</b>: " +
+        '<span class="check-words">' + f.matches.map(function (w) { return "‘" + escapeHtml(w) + "’"; }).join(", ") + "</span>" +
+        '<div class="check-reason">' + escapeHtml(f.rule.reason) + "</div></div>";
+    });
+    el.innerHTML = html + "</div>";
+  }
+
   function statusFor(len, target) {
     if (len === 0) return { label: "-", cls: "muted" };
     if (len > target) return { label: "초과 (+" + (len - target) + "자)", cls: "warn" };
@@ -834,7 +971,9 @@
     var len = draft.length;
     var status = statusFor(len, state.targetLen);
 
-    card.querySelector(".draft").textContent = draft;
+    var findings = checkForbidden(draft);
+    card.querySelector(".draft").innerHTML = highlightForbidden(draft, findings);
+    renderCheck(findings, draft, card.querySelector(".check"));
     card.querySelector(".char-count").innerHTML =
       '<span class="num">' + len + "</span>자";
     var badge = card.querySelector(".badge");
@@ -963,6 +1102,7 @@
           "</div>" +
         "</div>" +
         "<div class=\"draft\"></div>" +
+        "<div class=\"check\" aria-live=\"polite\"></div>" +
       "</div>";
 
     entriesEl.appendChild(card);
