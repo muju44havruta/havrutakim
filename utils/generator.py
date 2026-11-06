@@ -2,6 +2,7 @@
 
 import anthropic
 
+from utils.examples import prompt_reference
 from utils.forbidden_check import prompt_guideline
 
 MODEL = "claude-opus-4-8"
@@ -24,6 +25,7 @@ def build_prompt(
     style: str,
     extra_request: str,
     student_info: str,
+    example_subject: str = "",
 ) -> tuple[str, str]:
     forbidden = prompt_guideline()
     style_guide = STYLE_GUIDES.get(style, STYLE_GUIDES["개조식 (~함, ~보임)"])
@@ -45,6 +47,15 @@ def build_prompt(
 
     student_line = f"학생 관련 정보: {student_info}\n" if student_info.strip() else ""
     extra_line = f"\n추가 요청사항: {extra_request}\n" if extra_request.strip() else ""
+
+    reference = prompt_reference(example_subject) if example_subject else ""
+    if reference:
+        system_prompt += f"""
+9. 아래 예시 문구는 서술 구조(수업 맥락 → 구체적 행동 → 드러난 역량 → 변화·성장)와 문체를 참고하기 위한 것입니다. \
+예시에 나오는 작품, 활동, 사실은 학생의 것이 아니므로 절대 가져다 쓰지 말고, 반드시 제공된 자료의 내용만으로 작성하세요.
+<예시>
+{reference}
+</예시>"""
 
     user_prompt = f"""과목: {subject}
 {student_line}{extra_line}
@@ -68,12 +79,13 @@ def generate_setteuk(
     style: str,
     extra_request: str = "",
     student_info: str = "",
+    example_subject: str = "",
 ) -> str:
     if not material.strip():
         raise ValueError("자료가 비어 있습니다. 직접 입력하거나 PDF를 업로드해주세요.")
 
     system_prompt, user_prompt = build_prompt(
-        subject, material, char_limit, style, extra_request, student_info
+        subject, material, char_limit, style, extra_request, student_info, example_subject
     )
 
     client = anthropic.Anthropic(api_key=api_key)

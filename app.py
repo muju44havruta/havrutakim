@@ -9,12 +9,14 @@ import os
 import streamlit as st
 
 from utils import storage
+from utils.examples import examples_for
 from utils.forbidden_check import check_text
 from utils.generator import generate_setteuk
 from utils.pdf_extract import extract_text_from_pdf
 
 SUBJECTS = [
-    "국어", "수학", "영어", "사회", "역사", "도덕",
+    "국어", "공통국어", "문학", "독서와 작문", "화법과 언어", "독서 토론과 글쓰기",
+    "주제 탐구 독서", "문학과 영상", "매체 의사소통", "수학", "영어", "사회", "역사", "도덕",
     "과학", "물리학", "화학", "생명과학", "지구과학",
     "기술·가정", "정보", "체육", "음악", "미술",
     "한국사", "진로와 직업", "직접 입력",
@@ -126,6 +128,22 @@ def generation_form() -> None:
         style = st.selectbox("문체", STYLES)
         extra_request = st.text_area("추가 요청사항 (선택)", placeholder="예) 협업 태도를 강조해서 작성해주세요.")
 
+    examples = examples_for(subject)
+    use_examples = False
+    if examples:
+        with st.expander(f"📚 {subject} 과세특 예시 문구 ({len(examples)}개)"):
+            st.caption(
+                "구조: 수업 맥락 → 학생의 구체적 행동 → 드러난 역량 → 변화·성장. "
+                "가상의 학생을 상정한 예시이므로 그대로 옮겨 쓰지 말고 서술 구조만 참고하세요."
+            )
+            for e in examples:
+                st.markdown(f"**{e['title']}** · `{e['focus']}`")
+                st.markdown(f"> {e['text']}")
+        use_examples = st.checkbox(
+            "예시 문구의 서술 구조를 참고해서 생성하기",
+            help="예시의 내용은 쓰지 않고 '맥락→행동→역량→성장' 흐름과 문체만 참고하도록 Claude에 지시합니다.",
+        )
+
     st.subheader("3. 세특 생성")
     api_key = get_api_key()
     if not api_key:
@@ -150,6 +168,7 @@ def generation_form() -> None:
                         style=style,
                         extra_request=extra_request,
                         student_info=student_info,
+                        example_subject=subject if use_examples else "",
                     )
                     st.session_state["generated_text"] = result
                     st.session_state["last_meta"] = {
