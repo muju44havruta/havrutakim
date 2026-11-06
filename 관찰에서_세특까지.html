@@ -561,6 +561,34 @@
     font-family: inherit;
   }
 
+  /* ---------- 4-step structure ---------- */
+  .step-label { display: flex; align-items: baseline; gap: 5px; font-size: 11.5px; font-weight: 700; color: var(--ink-soft); margin-bottom: -4px; }
+  .step-label small { font-weight: 400; color: var(--ink-faint); font-size: 11px; }
+  .step-no { color: var(--accent); }
+  .structure { margin-top: 12px; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 12px; }
+  .structure:empty { display: none; }
+  .structure-title { font-size: 11px; letter-spacing: 0.06em; color: var(--ink-faint); margin-right: 2px; }
+  .step-chip {
+    border: 1px dashed var(--card-line); color: var(--ink-faint);
+    border-radius: 100px; padding: 2px 9px; font-weight: 600; font-size: 11.5px;
+  }
+  .step-chip.on { border: 1px solid var(--accent); background: var(--accent-tint); color: var(--accent-ink); }
+  .step-arrow { color: var(--ink-faint); font-size: 11px; }
+  .structure-hint { flex-basis: 100%; color: var(--status-short); font-size: 11.5px; line-height: 1.6; }
+  .structure-hint.ok { color: var(--status-ok); }
+
+  .guide-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 10px 0; }
+  .guide-step { background: var(--paper); border-radius: 8px; padding: 10px 12px; font-size: 12.5px; line-height: 1.55; }
+  .guide-step b { display: block; color: var(--accent-ink); margin-bottom: 2px; }
+  .guide-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12.5px; line-height: 1.6; }
+  .guide-compare div { border-radius: 8px; padding: 10px 12px; }
+  .guide-bad { background: var(--status-warn-tint); }
+  .guide-good { background: var(--status-ok-tint); }
+  .guide-src { font-size: 11px; color: var(--ink-faint); margin-top: 8px; }
+  @media (max-width: 720px) {
+    .guide-steps, .guide-compare { grid-template-columns: 1fr; }
+  }
+
   /* ---------- Forbidden-word check ---------- */
   .check { margin-top: 12px; font-size: 12.5px; line-height: 1.55; }
   .check:empty { display: none; }
@@ -694,6 +722,24 @@
         <span><span class="legend-dot" style="background:var(--status-short)"></span>너무 짧음</span>
         <span><span class="legend-dot" style="background:var(--status-warn)"></span>목표 글자수 초과</span>
       </div>
+    </div>
+  </details>
+
+  <details class="info-strip" id="structureGuide">
+    <summary>좋은 과세특의 구조 (4단계)</summary>
+    <div class="info-body">
+      <p>학생 카드의 각 활동 칸은 아래 네 단계 순서로 되어 있습니다. 네 칸을 채우면 초안이 이 흐름대로 조립되고, 초안 아래에 빠진 단계가 표시됩니다.</p>
+      <div class="guide-steps">
+        <div class="guide-step"><b>① 수업 맥락</b>어떤 성취기준·수업 활동에서 관찰했는지 밝힙니다.</div>
+        <div class="guide-step"><b>② 구체적 행동</b>학생이 무엇을, 어떻게 했는지 사실로 적습니다.</div>
+        <div class="guide-step"><b>③ 드러난 역량</b>그 행동에서 드러난 역량을 교사의 평가로 판단합니다.</div>
+        <div class="guide-step"><b>④ 변화·성장</b>이전과 비교한 변화나 이어진 후속 탐구를 적습니다.</div>
+      </div>
+      <div class="guide-compare">
+        <div class="guide-bad"><b>✕ 상투적인 문장</b><br>수업에 적극적으로 참여하며 우수한 역량을 보임.</div>
+        <div class="guide-good"><b>✓ 4단계를 갖춘 문장</b><br>①『소년이 온다』의 서술 시점을 분석하는 모둠 토의에서 ②2인칭 서술이 독자를 목격자 자리에 세운다는 감상문을 작성하고 ‘문학이 역사를 기억하는 방식’이라는 질문을 제기함. ③작품의 형식과 주제를 연결해 해석하는 비평적 시각이 돋보임. ④이후 논술문에서 반론을 다루는 문단을 추가해 논증의 균형을 갖추는 성장을 보임.</div>
+      </div>
+      <div class="guide-src">참고: 「교과세특 기재 역량 강화 연수를 위한 교과세특 기재 예시 도움 자료」(2025), 교육부 「학교생활기록부 기재요령」.</div>
     </div>
   </details>
 
@@ -978,9 +1024,9 @@
       name: "", info: "", subject: "", subjectCustom: "",
       notes: [],
       acts: [
-        { name: "", content: "", learned: "" },
-        { name: "", content: "", learned: "" },
-        { name: "", content: "", learned: "" }
+        { name: "", content: "", learned: "", growth: "" },
+        { name: "", content: "", learned: "", growth: "" },
+        { name: "", content: "", learned: "", growth: "" }
       ],
       extra: ""
     };
@@ -1011,14 +1057,61 @@
     document.body.removeChild(ta);
   }
 
+  // 문장이 이미 '~함', '~보임', '~이끎' 같은 명사형 어미나 마침표로 끝나면 그대로 두고,
+  // 명사구로 끝나면 suffix(예: "을(를) 보임.")를 붙입니다.
+  function finishPhrase(text, suffix) {
+    text = text.trim();
+    if (!text) return "";
+    if (/[.!?]$/.test(text)) return text;
+    var code = text.charCodeAt(text.length - 1) - 0xAC00;
+    if (code >= 0 && code < 11172) {
+      var jong = code % 28;
+      if (jong === 16 || jong === 10) return text + "."; // 받침 ㅁ, ㄻ: 함·임·음·됨·이끎 등
+    }
+    return text + suffix;
+  }
+
   function sentenceFor(act, phrase) {
-    var name = act.name.trim();
+    var name = (act.name || "").trim();
     if (!name) return "";
-    var content = act.content.trim();
-    var s = "'" + name + "' " + phrase + (content ? " " + content + "을(를) 수행함." : " 수행함.");
-    var learned = act.learned.trim();
-    if (learned) s += " " + learned + "을(를) 보임.";
+    var content = (act.content || "").trim();
+    var s = "'" + name + "' " + phrase + (content ? " " + finishPhrase(content, "을(를) 수행함.") : " 수행함.");
+    var learned = (act.learned || "").trim();
+    if (learned) s += " " + finishPhrase(learned, "을(를) 보임.");
+    var growth = (act.growth || "").trim();
+    if (growth) s += " " + finishPhrase(growth, "의 성장을 보임.");
     return s;
+  }
+
+  // 좋은 과세특의 4단계 구조 충족 여부 (내용이 적힌 활동 기준)
+  var STRUCTURE_STEPS = [
+    { key: "name", no: "①", label: "수업 맥락", hint: "어떤 수업·성취기준의 활동인지 밝혀 주세요." },
+    { key: "content", no: "②", label: "구체적 행동", hint: "학생이 무엇을, 어떻게 했는지 구체적으로 적어 주세요." },
+    { key: "learned", no: "③", label: "드러난 역량", hint: "그 행동에서 드러난 역량을 교사의 판단으로 적어 주세요." },
+    { key: "growth", no: "④", label: "변화·성장", hint: "이전과 비교한 변화나 후속 탐구를 적어 주세요." }
+  ];
+
+  function structureFor(entry) {
+    var used = entry.acts.filter(function (a) { return (a.name || "").trim(); });
+    return STRUCTURE_STEPS.map(function (step) {
+      var filled = used.some(function (a) { return (a[step.key] || "").trim(); });
+      return { step: step, filled: filled };
+    });
+  }
+
+  function renderStructure(entry, el) {
+    var result = structureFor(entry);
+    var hasAny = entry.acts.some(function (a) { return (a.name || "").trim(); });
+    if (!hasAny) { el.innerHTML = ""; return; }
+    var missing = result.filter(function (r) { return !r.filled; });
+    var html = '<span class="structure-title">구조</span>' + result.map(function (r) {
+      return '<span class="step-chip' + (r.filled ? " on" : "") + '" title="' + escapeHtml(r.step.hint) + '">' +
+        r.step.no + " " + r.step.label + "</span>";
+    }).join('<span class="step-arrow">→</span>');
+    html += missing.length
+      ? '<div class="structure-hint">빠진 단계: ' + missing.map(function (r) { return "<b>" + r.step.no + " " + r.step.label + "</b> — " + escapeHtml(r.step.hint); }).join("<br>") + "</div>"
+      : '<div class="structure-hint ok">✓ 맥락 → 행동 → 역량 → 성장의 4단계를 모두 갖추었습니다.</div>';
+    el.innerHTML = html;
   }
 
   function buildDraft(entry) {
@@ -1148,6 +1241,7 @@
     var findings = checkForbidden(draft);
     card.querySelector(".draft").innerHTML = highlightForbidden(draft, findings);
     renderCheck(findings, draft, card.querySelector(".check"));
+    renderStructure(entry, card.querySelector(".structure"));
     card.querySelector(".char-count").innerHTML =
       '<span class="num">' + len + "</span>자";
     var badge = card.querySelector(".badge");
@@ -1223,9 +1317,14 @@
     return (
       "<div class=\"activity\" data-act=\"" + index + "\">" +
         "<div class=\"activity-label\">활동 " + (index + 1) + "</div>" +
-        "<textarea class=\"name\" data-f=\"name\" rows=\"1\" placeholder=\"활동명 (예: 광합성 실험 탐구)\"></textarea>" +
-        "<textarea data-f=\"content\" rows=\"2\" placeholder=\"수행내용 (예: 빛의 세기에 따른 산소 발생량을 측정하는 실험을 설계)\"></textarea>" +
-        "<textarea data-f=\"learned\" rows=\"2\" placeholder=\"배운점 / 성장 (예: 정량적 데이터 분석 능력과 협업 태도)\"></textarea>" +
+        "<label class=\"step-label\"><span class=\"step-no\">①</span>수업 맥락 <small>성취기준·활동명</small></label>" +
+        "<textarea class=\"name\" data-f=\"name\" rows=\"1\" placeholder=\"예: 소설 서술 시점 분석 토의\"></textarea>" +
+        "<label class=\"step-label\"><span class=\"step-no\">②</span>구체적 행동 <small>무엇을, 어떻게</small></label>" +
+        "<textarea data-f=\"content\" rows=\"2\" placeholder=\"예: 2인칭 '너'로 서술된 1장이 독자를 목격자 자리에 세운다는 감상문을 작성함\"></textarea>" +
+        "<label class=\"step-label\"><span class=\"step-no\">③</span>드러난 역량 <small>교사의 평가 판단</small></label>" +
+        "<textarea data-f=\"learned\" rows=\"2\" placeholder=\"예: 작품의 형식과 주제를 연결해 해석하는 비평적 시각\"></textarea>" +
+        "<label class=\"step-label\"><span class=\"step-no\">④</span>변화·성장 <small>이전과 비교, 후속 탐구</small></label>" +
+        "<textarea data-f=\"growth\" rows=\"2\" placeholder=\"예: 이후 반론을 다루는 문단을 추가해 논증의 균형을 갖춤\"></textarea>" +
       "</div>"
     );
   }
@@ -1290,6 +1389,7 @@
           "</div>" +
         "</div>" +
         "<div class=\"draft\"></div>" +
+        "<div class=\"structure\"></div>" +
         "<div class=\"check\" aria-live=\"polite\"></div>" +
       "</div>";
 
@@ -1332,6 +1432,7 @@
     // activity fields
     card.querySelectorAll(".activity").forEach(function (block) {
       var idx = parseInt(block.getAttribute("data-act"), 10);
+      if (entry.acts[idx].growth === undefined) entry.acts[idx].growth = ""; // 이전 버전 데이터 호환
       block.querySelectorAll("[data-f]").forEach(function (el) {
         var field = el.getAttribute("data-f");
         el.value = entry.acts[idx][field] || "";
@@ -1498,10 +1599,10 @@
 
   function buildDraftCsv() {
     var headers = ["작성교사", "순번", "이름", "학년/반/번호", "과목",
-      "활동1_활동명", "활동1_수행내용", "활동1_배운점",
-      "활동2_활동명", "활동2_수행내용", "활동2_배운점",
-      "활동3_활동명", "활동3_수행내용", "활동3_배운점",
-      "마무리강조문구", "세특초안", "글자수", "상태"];
+      "활동1_수업맥락", "활동1_구체적행동", "활동1_드러난역량", "활동1_변화성장",
+      "활동2_수업맥락", "활동2_구체적행동", "활동2_드러난역량", "활동2_변화성장",
+      "활동3_수업맥락", "활동3_구체적행동", "활동3_드러난역량", "활동3_변화성장",
+      "마무리강조문구", "세특초안", "글자수", "상태", "구조(4단계 중)"];
     var rows = [headers];
 
     state.entries.forEach(function (entry, i) {
@@ -1509,8 +1610,9 @@
       var draft = buildDraft(entry);
       var status = statusFor(draft.length, state.targetLen).label;
       var row = [state.teacherName, i + 1, entry.name, entry.info, subject];
-      entry.acts.forEach(function (a) { row.push(a.name, a.content, a.learned); });
-      row.push(entry.extra, draft, draft.length, status);
+      entry.acts.forEach(function (a) { row.push(a.name, a.content, a.learned, a.growth || ""); });
+      var steps = structureFor(entry).filter(function (r) { return r.filled; }).length;
+      row.push(entry.extra, draft, draft.length, status, steps + "/4");
       rows.push(row);
     });
 
