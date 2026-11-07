@@ -486,6 +486,24 @@
     flex-direction: column;
     gap: 8px;
   }
+  .activity[hidden] { display: none; }
+
+  .activity-addbar {
+    display: flex;
+    justify-content: center;
+    padding: 10px 18px;
+    border-top: 1px solid var(--card-line);
+  }
+  .activity-addbar[hidden] { display: none; }
+
+  .activity-more {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 2px;
+  }
+  .activity-more[hidden] { display: none; }
+  .activity-more-toggle { align-self: flex-start; }
 
   .activity-label {
     font-size: 11.5px;
@@ -681,7 +699,7 @@
   .toast.show { opacity: 1; transform: translateY(0); }
 
   @media (max-width: 720px) {
-    .entry-body { grid-template-columns: 1fr; }
+    .entry-body { grid-template-columns: 1fr !important; }
     .entry-head { flex-wrap: wrap; }
     .quickmemo input#qmText { flex: 1 1 100%; }
   }
@@ -709,7 +727,8 @@
       <ol>
         <li>먼저 <strong>‘+ 학생 추가’</strong>로 학생 명부를 등록합니다. 이름·학년/반/번호·과목은 한 번만 입력하면 계속 유지됩니다.</li>
         <li>수업이나 활동 중 관찰한 내용은 위쪽 <strong>‘빠른 관찰 메모’</strong>에서 학생을 고르고 짧게 적어 바로 저장하세요. 날짜는 자동으로 오늘 날짜가 채워지며 필요하면 바꿀 수 있습니다.</li>
-        <li>메모는 학생 카드의 <strong>‘관찰 메모’</strong>를 펼치면 날짜순으로 모아볼 수 있습니다. 세특을 작성할 때 이 메모들을 참고해 활동명·수행내용·배운점 칸에 정리해 옮기세요. (메모 내용을 자동으로 문장화하지는 않습니다.)</li>
+        <li>학생 카드에는 처음엔 활동 1개, ①②칸(수업 맥락·구체적 행동)만 보입니다. 더 필요하면 <strong>‘③④ 펼치기’</strong>나 <strong>‘+ 활동 추가’</strong>를 눌러 필요한 만큼만 늘려 쓰세요.</li>
+        <li>메모는 학생 카드의 <strong>‘관찰 메모’</strong>를 펼치면 날짜순으로 모아볼 수 있습니다. 세특을 작성할 때 이 메모들을 참고해 ①~④ 단계별 칸(수업 맥락·구체적 행동·드러난 역량·변화 성장)에 정리해 옮기세요. (메모 내용을 자동으로 문장화하지는 않습니다.)</li>
         <li>PDF 결과물이 있다면 핵심 내용을 확인한 뒤 직접 요약해 입력하세요. 이 페이지는 PDF 파일을 직접 읽지는 못합니다.</li>
         <li>학생 카드의 <strong>‘과목별 예시 문구’</strong>를 펼치면 국어과 과목(공통국어·문학·독서 토론과 글쓰기 등)의 과세특 예시를 볼 수 있습니다. 서술 구조를 참고하는 용도이며, 그대로 옮겨 쓰지 마세요.</li>
         <li>아래 "세특 초안"은 활동 입력 내용을 바탕으로 자동으로 조립된 문단입니다. 문구는 반드시 사실관계를 검토한 뒤 학교생활기록부에 반영하세요.</li>
@@ -1314,21 +1333,40 @@
     return html;
   }
 
-  function activityBlockHtml(index) {
+  function activityHasData(act) {
+    return !!(act && ((act.name || "").trim() || (act.content || "").trim() || (act.learned || "").trim() || (act.growth || "").trim()));
+  }
+
+  function activityBlockHtml(index, entry) {
+    var act = entry ? entry.acts[index] : null;
+    var hasMore = !!(act && ((act.learned || "").trim() || (act.growth || "").trim()));
+    var hiddenAttr = (index > 0 && !activityHasData(act)) ? " hidden" : "";
     return (
-      "<div class=\"activity\" data-act=\"" + index + "\">" +
+      "<div class=\"activity\" data-act=\"" + index + "\"" + hiddenAttr + ">" +
         "<div class=\"activity-label\">활동 " + (index + 1) + "</div>" +
         "<label class=\"step-label\"><span class=\"step-no\">①</span>수업 맥락 <small>성취기준·활동명</small></label>" +
         "<textarea class=\"name\" data-f=\"name\" rows=\"1\" placeholder=\"예: 소설 서술 시점 분석 토의\"></textarea>" +
         "<label class=\"step-label\"><span class=\"step-no\">②</span>구체적 행동 <small>무엇을, 어떻게</small></label>" +
         "<textarea data-f=\"content\" rows=\"2\" placeholder=\"예: 2인칭 '너'로 서술된 1장이 독자를 목격자 자리에 세운다는 감상문을 작성함\"></textarea>" +
-        "<label class=\"step-label\"><span class=\"step-no\">③</span>드러난 역량 <small>교사의 평가 판단</small></label>" +
-        "<textarea data-f=\"learned\" rows=\"2\" placeholder=\"예: 작품의 형식과 주제를 연결해 해석하는 비평적 시각\"></textarea>" +
-        "<label class=\"step-label\"><span class=\"step-no\">④</span>변화·성장 <small>이전과 비교, 후속 탐구</small></label>" +
-        "<textarea data-f=\"growth\" rows=\"2\" placeholder=\"예: 이후 반론을 다루는 문단을 추가해 논증의 균형을 갖춤\"></textarea>" +
+        "<button class=\"ghost small activity-more-toggle\" data-action=\"toggle-more\">" + (hasMore ? "③④ 접기" : "③④ 펼치기 (선택)") + "</button>" +
+        "<div class=\"activity-more\"" + (hasMore ? "" : " hidden") + ">" +
+          "<label class=\"step-label\"><span class=\"step-no\">③</span>드러난 역량 <small>교사의 평가 판단</small></label>" +
+          "<textarea data-f=\"learned\" rows=\"2\" placeholder=\"예: 작품의 형식과 주제를 연결해 해석하는 비평적 시각\"></textarea>" +
+          "<label class=\"step-label\"><span class=\"step-no\">④</span>변화·성장 <small>이전과 비교, 후속 탐구</small></label>" +
+          "<textarea data-f=\"growth\" rows=\"2\" placeholder=\"예: 이후 반론을 다루는 문단을 추가해 논증의 균형을 갖춤\"></textarea>" +
+        "</div>" +
       "</div>"
     );
   }
+
+  function syncActivityGrid(card) {
+    var body = card.querySelector(".entry-body");
+    var visibleCount = card.querySelectorAll(".activity:not([hidden])").length;
+    body.style.gridTemplateColumns = "repeat(" + visibleCount + ", 1fr)";
+    var addbar = card.querySelector(".activity-addbar");
+    if (addbar) addbar.hidden = visibleCount >= 3;
+  }
+
 
   function addEntry(entry) {
     entry = entry || blankEntry();
@@ -1374,7 +1412,10 @@
         "</div>" +
       "</div>" +
       "<div class=\"entry-body\">" +
-        activityBlockHtml(0) + activityBlockHtml(1) + activityBlockHtml(2) +
+        activityBlockHtml(0, entry) + activityBlockHtml(1, entry) + activityBlockHtml(2, entry) +
+      "</div>" +
+      "<div class=\"activity-addbar\">" +
+        "<button class=\"ghost small\" data-action=\"add-activity\">+ 활동 추가</button>" +
       "</div>" +
       "<div class=\"entry-extra\">" +
         "<label style=\"display:block;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:4px;\">전반적인 평가 및 강조점 (선택)</label>" +
@@ -1396,6 +1437,7 @@
 
     entriesEl.appendChild(card);
     bindEntry(entry, card);
+    syncActivityGrid(card);
     updateComputed(entry, card);
     renderNotesList(entry, card);
     updateNotesCount(entry, card);
@@ -1443,7 +1485,24 @@
           scheduleSave();
         });
       });
+
+      var moreBtn = block.querySelector('[data-action="toggle-more"]');
+      var morePanel = block.querySelector(".activity-more");
+      moreBtn.addEventListener("click", function () {
+        var willOpen = morePanel.hidden;
+        morePanel.hidden = !willOpen;
+        moreBtn.textContent = willOpen ? "③④ 접기" : "③④ 펼치기 (선택)";
+      });
     });
+
+    var addActivityBtn = card.querySelector('[data-action="add-activity"]');
+    if (addActivityBtn) {
+      addActivityBtn.addEventListener("click", function () {
+        var nextHidden = card.querySelector(".activity[hidden]");
+        if (nextHidden) nextHidden.hidden = false;
+        syncActivityGrid(card);
+      });
+    }
 
     if (entry.subject === "__custom__") {
       card.querySelector(".subject-custom").hidden = false;
