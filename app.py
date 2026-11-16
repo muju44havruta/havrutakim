@@ -9,11 +9,14 @@ import os
 import streamlit as st
 
 from utils import storage
+from utils.examples import examples_for
+from utils.forbidden_check import check_text
 from utils.generator import generate_setteuk
 from utils.pdf_extract import extract_text_from_pdf
 
 SUBJECTS = [
-    "국어", "수학", "영어", "사회", "역사", "도덕",
+    "국어", "공통국어", "문학", "독서와 작문", "화법과 언어", "독서 토론과 글쓰기",
+    "주제 탐구 독서", "문학과 영상", "매체 의사소통", "수학", "영어", "사회", "역사", "도덕",
     "과학", "물리학", "화학", "생명과학", "지구과학",
     "기술·가정", "정보", "체육", "음악", "미술",
     "한국사", "진로와 직업", "직접 입력",
@@ -53,6 +56,47 @@ def sidebar() -> str:
     return page
 
 
+STRUCTURE_TEMPLATE = """[활동 {n}]
+① 수업 맥락 (성취기준·활동명):
+② 구체적 행동 (무엇을, 어떻게):
+③ 드러난 역량 (교사의 평가 판단):
+④ 변화·성장 (이전과 비교, 후속 탐구):
+"""
+
+
+def structure_guide() -> None:
+    with st.expander("🧭 좋은 과세특의 구조 (4단계)"):
+        cols = st.columns(4)
+        steps = [
+            ("① 수업 맥락", "어떤 성취기준·수업 활동에서 관찰했는지 밝힙니다."),
+            ("② 구체적 행동", "학생이 무엇을, 어떻게 했는지 사실로 적습니다."),
+            ("③ 드러난 역량", "그 행동에서 드러난 역량을 교사의 평가로 판단합니다."),
+            ("④ 변화·성장", "이전과 비교한 변화나 이어진 후속 탐구를 적습니다."),
+        ]
+        for col, (title, desc) in zip(cols, steps):
+            col.markdown(f"**{title}**  \n{desc}")
+        st.markdown(
+            "- ✕ 상투적: 수업에 적극적으로 참여하며 우수한 역량을 보임.\n"
+            "- ✓ 4단계: ①『소년이 온다』의 서술 시점을 분석하는 모둠 토의에서 ②2인칭 서술이 독자를 목격자 자리에 "
+            "세운다는 감상문을 작성함. ③작품의 형식과 주제를 연결해 해석하는 비평적 시각이 돋보임. "
+            "④이후 논술문에서 반론을 다루는 문단을 추가해 논증의 균형을 갖추는 성장을 보임."
+        )
+        st.caption(
+            "자료를 이 4단계로 정리해 입력하면 초안의 완성도가 높아집니다. '4단계 입력 틀 넣기'를 눌러 보세요. "
+            "참고: 「교과세특 기재 역량 강화 연수를 위한 교과세특 기재 예시 도움 자료」(2025)"
+        )
+
+
+def _append_structure_template() -> None:
+    existing = st.session_state.get("material_text", "")
+    template = STRUCTURE_TEMPLATE.format(n=existing.count("[활동 ") + 1)
+    st.session_state["material_text"] = (existing.rstrip() + "\n\n" + template) if existing.strip() else template
+
+
+def _clear_material() -> None:
+    st.session_state["material_text"] = ""
+
+
 def material_input_section() -> None:
     st.subheader("1. 자료 입력")
     st.caption("직접 입력하거나 PDF를 업로드해서 자료를 추가하세요. 두 방식을 함께 사용할 수 있습니다.")
@@ -86,9 +130,28 @@ def material_input_section() -> None:
         placeholder="예) 3월 과학 탐구 프로젝트에서 광합성 실험을 설계하고 수행함. "
         "빛의 세기에 따른 산소 발생량을 측정하여 그래프로 정리하고 발표함...",
     )
-    if st.button("자료 비우기"):
-        st.session_state["material_text"] = ""
-        st.rerun()
+    # 입력창(material_text)이 이미 그려진 뒤에는 값을 바꿀 수 없으므로 on_click 콜백에서 바꿉니다.
+    col_t, col_c = st.columns([1, 1])
+    col_t.button("🧭 4단계 입력 틀 넣기", on_click=_append_structure_template)
+    col_c.button("자료 비우기", on_click=_clear_material)
+
+
+def show_forbidden_check(text: str) -> None:
+    """세특 문구에서 기재 금지 의심 표현을 찾아 경고를 표시합니다."""
+    findings = check_text(text)
+    if not findings:
+        st.success("✅ 기재 금지어 점검: 의심 표현이 발견되지 않았습니다. (키워드 기반 점검이므로 최종 검토는 직접 하세요.)")
+        return
+    banned = sum(1 for f in findings if f.level == "금지")
+    st.warning(
+        f"⚠️ 기재 금지어 점검: {len(findings)}개 범주에서 의심 표현이 발견되었습니다"
+        + (f" (금지 {banned}건)" if banned else "")
+        + ". 학교생활기록부 기재요령을 확인한 뒤 수정하세요."
+    )
+    for f in findings:
+        icon = "⛔" if f.level == "금지" else "🔎"
+        words = ", ".join(f"'{w}'" for w in f.matches)
+        st.markdown(f"- {icon} **[{f.level}] {f.category}**: {words}  \n  <small>{f.reason}</small>", unsafe_allow_html=True)
 
 
 def generation_form() -> None:
@@ -106,6 +169,22 @@ def generation_form() -> None:
             char_limit = st.text_input("글자수 직접 입력", value="800")
         style = st.selectbox("문체", STYLES)
         extra_request = st.text_area("추가 요청사항 (선택)", placeholder="예) 협업 태도를 강조해서 작성해주세요.")
+
+    examples = examples_for(subject)
+    use_examples = False
+    if examples:
+        with st.expander(f"📚 {subject} 과세특 예시 문구 ({len(examples)}개)"):
+            st.caption(
+                "구조: 수업 맥락 → 학생의 구체적 행동 → 드러난 역량 → 변화·성장. "
+                "가상의 학생을 상정한 예시이므로 그대로 옮겨 쓰지 말고 서술 구조만 참고하세요."
+            )
+            for e in examples:
+                st.markdown(f"**{e['title']}** · `{e['focus']}`")
+                st.markdown(f"> {e['text']}")
+        use_examples = st.checkbox(
+            "예시 문구의 서술 구조를 참고해서 생성하기",
+            help="예시의 내용은 쓰지 않고 '맥락→행동→역량→성장' 흐름과 문체만 참고하도록 Claude에 지시합니다.",
+        )
 
     st.subheader("3. 세특 생성")
     api_key = get_api_key()
@@ -131,6 +210,7 @@ def generation_form() -> None:
                         style=style,
                         extra_request=extra_request,
                         student_info=student_info,
+                        example_subject=subject if use_examples else "",
                     )
                     st.session_state["generated_text"] = result
                     st.session_state["last_meta"] = {
@@ -153,6 +233,7 @@ def generation_form() -> None:
             key="result_editor",
         )
         st.caption(f"글자수: {len(result_text)}자 (공백 포함)")
+        show_forbidden_check(result_text)
 
         col1, col2, col3 = st.columns(3)
         with col1:
@@ -203,6 +284,7 @@ def records_page() -> None:
                 "세특 문구", value=record["generated_text"], height=180, key=f"text_{record['id']}"
             )
             st.caption(f"글자수: {len(edited_text)}자 | 학생 정보: {record.get('student_info', '') or '-'}")
+            show_forbidden_check(edited_text)
 
             with st.expander("원본 자료 보기"):
                 st.text(record.get("material", ""))
@@ -231,6 +313,7 @@ def main() -> None:
     page = sidebar()
     if page == "세특 작성":
         st.title("과목별 세부능력 및 특기사항(세특) 작성")
+        structure_guide()
         material_input_section()
         st.divider()
         generation_form()
