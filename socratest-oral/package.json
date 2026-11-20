@@ -1,0 +1,20 @@
+{
+  "name": "socratest-oral",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "국어 구술 수행평가 도우미 (음성 녹음 → 전사 → Claude 평가 → 교사 최종 피드백)",
+  "scripts": {
+    "start": "node server.js",
+    "check": "node --check server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.12.0",
+    "qrcode": "^1.5.4",
+    "selfsigned": "^5.5.0",
+    "zod": "^4.6.7"
+  }
+}

@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>구술 수행평가 · 교사</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header class="top">
+  <h1>구술 수행평가 · 교사</h1>
+  <nav class="row hidden" id="nav">
+    <button class="link" data-go="list">수업 목록</button>
+    <button class="link" data-go="settings">설정</button>
+  </nav>
+  <span class="spacer"></span>
+  <span id="aiBadge"></span>
+  <button class="link hidden" id="logoutBtn">로그아웃</button>
+</header>
+<main>
+  <!-- 최초 설정 -->
+  <section class="card hidden" id="v-setup">
+    <h2>처음 사용 설정</h2>
+    <p>이 컴퓨터(교사 PC)에서 사용할 교사 비밀번호를 정하세요. 학생은 이 비밀번호 없이 수업 코드로만 입장합니다.</p>
+    <label for="setupPw">교사 비밀번호 <small>8자 이상</small></label>
+    <input id="setupPw" type="password" autocomplete="new-password">
+    <label for="setupPw2">비밀번호 확인</label>
+    <input id="setupPw2" type="password" autocomplete="new-password">
+    <p><button id="setupBtn">설정 완료</button></p>
+  </section>
+
+  <!-- 로그인 -->
+  <section class="card hidden" id="v-login">
+    <h2>교사 로그인</h2>
+    <label for="loginPw">교사 비밀번호</label>
+    <input id="loginPw" type="password" autocomplete="current-password">
+    <p><button id="loginBtn">로그인</button></p>
+  </section>
+
+  <!-- 수업 목록 -->
+  <section class="hidden" id="v-list">
+    <div class="card">
+      <div class="row"><h2 style="margin:0">수업 목록</h2><span class="spacer" style="flex:1"></span><button id="newClassBtn">+ 새 수업 만들기</button></div>
+      <div id="classList"></div>
+    </div>
+  </section>
+
+  <!-- 수업 만들기·편집 -->
+  <section class="card hidden" id="v-editor">
+    <h2 id="editorTitle">새 수업 만들기</h2>
+    <div class="grid2">
+      <div>
+        <label for="f-area">영역</label>
+        <select id="f-area"></select>
+      </div>
+      <div>
+        <label for="f-title">수업 제목 <small>예: 김소월 「진달래꽃」 구술 평가</small></label>
+        <input id="f-title" maxlength="100">
+      </div>
+    </div>
+    <label for="f-passage">제시문(작품·지문) <small>학생 화면에 그대로 보입니다. 저작권 이용 범위를 확인하세요.</small></label>
+    <textarea id="f-passage" rows="12"></textarea>
+    <label for="f-task">구술 과제 <small>학생이 말로 답할 핵심 질문</small></label>
+    <textarea id="f-task" rows="3"></textarea>
+    <label for="f-standard">성취기준 <small>(선택) 학교 교육과정의 성취기준 코드와 내용을 붙여 넣으면 AI가 평가 관점으로 참고합니다.</small></label>
+    <textarea id="f-standard" rows="2"></textarea>
+    <label for="f-rubric">평가 기준 <small>한 줄에 하나: 기준명 | 배점 | 상·중·하 설명 | (선택) 교사 — '교사'라고 적은 기준은 AI가 채점하지 않고 선생님이 녹음을 듣고 채점합니다.</small></label>
+    <textarea id="f-rubric" rows="8" style="font-size:.92rem"></textarea>
+    <p class="hint" id="rubricSum"></p>
+    <div class="grid2">
+      <div>
+        <label for="f-max">한 번 녹음 최대 시간</label>
+        <select id="f-max"><option value="60">1분</option><option value="120">2분</option><option value="180" selected>3분</option><option value="240">4분</option><option value="300">5분</option><option value="420">7분</option><option value="600">10분</option></select>
+      </div>
+      <div>
+        <label for="f-takes">실전(6단계) 녹음 기회</label>
+        <select id="f-takes"><option value="1">1회 (다시 녹음 불가)</option><option value="2">2회 (한 번 다시 녹음 가능)</option><option value="3">3회</option></select>
+      </div>
+    </div>
+    <label><input type="checkbox" id="f-showai"> 실전 AI 평가(7단계)를 학생에게 바로 보여 주기 <small>— 끄면 선생님이 최종 피드백을 공개할 때 함께 보입니다(권장).</small></label>
+    <p class="row" style="margin-top:18px"><button id="saveClassBtn">저장</button><button class="secondary" id="cancelEditBtn">취소</button></p>
+  </section>
+
+  <!-- 수업 화면 -->
+  <section class="hidden" id="v-class">
+    <div class="card">
+      <div class="row">
+        <h2 style="margin:0" id="c-title"></h2>
+        <span class="pill" id="c-code"></span>
+        <span class="spacer" style="flex:1"></span>
+        <button class="small secondary" id="editClassBtn">수업 설정 편집</button>
+      </div>
+      <p class="muted" id="c-meta"></p>
+      <h3>진행 모드 선택 <small class="hint">학생 화면에 바로 반영됩니다</small></h3>
+      <div class="phase-switch" id="phaseSwitch">
+        <button data-phase="practice" class="practice"><b>수행 연습</b><small>1~5단계 · 1차 구술 → AI 1차 피드백 → 수정 구술 → AI 평가 → AI 2차 피드백</small></button>
+        <button data-phase="assessment" class="exam"><b>실전 수행평가</b><small>6~7단계 · 최종 구술 → AI 평가 → 교사 최종 피드백</small></button>
+        <button data-phase="closed" class="closed"><b>마감</b><small>새 녹음 받지 않음 · 기록 열람만</small></button>
+      </div>
+    </div>
+
+    <div class="tabs" id="classTabs">
+      <button data-tab="students" class="on">학생 현황</button>
+      <button data-tab="join">학생 접속(QR)</button>
+      <button data-tab="export">내보내기·보관</button>
+    </div>
+
+    <div id="t-students">
+      <div class="split">
+        <div class="card sticky">
+          <div class="row"><b>학생</b><span class="spacer" style="flex:1"></span><span class="hint" id="queueInfo"></span></div>
+          <div class="table-wrap"><table class="students-table" id="studentTable"></table></div>
+          <p class="hint">학생을 누르면 오른쪽에 녹음·전사문·AI 평가가 나옵니다.</p>
+        </div>
+        <div class="card" id="detail"><p class="muted">왼쪽에서 학생을 선택하세요.</p></div>
+      </div>
+    </div>
+
+    <div id="t-join" class="card hidden">
+      <h2>학생 접속 안내</h2>
+      <div class="split">
+        <div class="qr-box">
+          <img id="qrImg" alt="학생 접속 QR코드">
+          <p><b id="qrLink"></b></p>
+          <p>수업 코드 <b class="pill" id="qrCode"></b></p>
+        </div>
+        <div>
+          <label for="hostSel">교사 PC 주소 <small>학생 기기와 같은 와이파이(네트워크)의 주소를 고르세요</small></label>
+          <select id="hostSel"></select>
+          <ol>
+            <li>학생은 휴대폰·태블릿·크롬북으로 QR코드를 찍거나 주소를 입력합니다.</li>
+            <li>처음 한 번 <b>"연결이 비공개로 설정되어 있지 않습니다"</b> 경고가 나옵니다. 교사 PC가 직접 만든 인증서이기 때문이며, <b>고급 → (주소)로 이동</b>을 누르면 됩니다. (아이폰: 세부사항 보기 → 이 웹 사이트 방문)</li>
+            <li>식별명(예: 2-3-07)과 PIN 4자리를 정해 입장하고, 마이크 사용을 <b>허용</b>합니다.</li>
+            <li>학생 기기가 접속되지 않으면: 교사 PC와 같은 와이파이인지, Windows 방화벽에서 Node.js를 '개인 네트워크' 허용했는지 확인하세요. 학교 와이파이가 기기 간 통신을 막는 경우 교사 PC 한 대에서 학생이 차례로 녹음하는 방식(이 PC 주소: <code>http://localhost:3000/student.html</code>)을 쓰세요.</li>
+          </ol>
+          <p class="warn">학생 실명·학번 대신 식별명을 쓰게 하세요. 녹음 파일은 이 PC의 data 폴더에만 저장됩니다.</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="t-export" class="card hidden">
+      <h2>내보내기·보관</h2>
+      <p class="row">
+        <button id="csvBtn">성적·피드백 엑셀(CSV) 내려받기</button>
+        <button class="secondary" id="jsonBtn">전체 기록(JSON) 백업</button>
+      </p>
+      <p class="hint">녹음 원본은 교사 PC의 <code id="dataDir"></code> 폴더 안 <code>audio/<span id="audioCode"></span></code>에 "식별명_단계_날짜" 이름으로 저장되어 있습니다. 각 녹음의 SHA-256 값(지문)이 기록되어 있어, 나중에 파일이 바뀌지 않았음을 확인할 수 있습니다.</p>
+      <p class="hint">보관 기간이 끝나면 아래에서 수업 전체(녹음 포함)를 삭제하세요. 학교의 수행평가 증빙 보관 기준을 따르세요.</p>
+      <p><button class="danger" id="deleteClassBtn">이 수업과 모든 녹음 삭제</button></p>
+    </div>
+  </section>
+
+  <!-- 설정 -->
+  <section class="card hidden" id="v-settings">
+    <h2>설정</h2>
+    <h3>① Claude (AI 평가)</h3>
+    <label for="s-akey">Claude API 키 <small>Anthropic 콘솔(console.anthropic.com)에서 발급 · 이 PC에만 저장되고 학생에게는 보이지 않습니다</small></label>
+    <input id="s-akey" type="password" autocomplete="off" placeholder="sk-ant-...">
+    <p class="hint" id="s-akey-now"></p>
+    <div class="grid2">
+      <div><label for="s-model">평가 모델</label><select id="s-model"></select></div>
+      <div><label for="s-effort">분석 깊이</label><select id="s-effort"><option value="low">빠르게(low)</option><option value="medium">보통(medium · 권장)</option><option value="high">깊게(high · 느리고 비용 증가)</option></select></div>
+    </div>
+    <p><button class="secondary small" id="testBtn">Claude 연결 확인</button> <span id="testResult" class="hint"></span></p>
+
+    <h3>② 음성 → 글(전사) 방식</h3>
+    <label><input type="radio" name="stt" value="browser"> 브라우저 음성 인식 <small>무료 · 학생 기기의 크롬·엣지·삼성 인터넷·사파리가 말하는 동안 글로 바꿈(인터넷 필요)</small></label>
+    <label><input type="radio" name="stt" value="openai"> OpenAI 음성 인식 <small>유료(녹음 1분당 약 4~9원) · 저장된 녹음 파일을 교사 PC가 전사 · 정확도 높음, 휴대폰에 적합</small></label>
+    <div id="openaiBox">
+      <label for="s-okey">OpenAI API 키 <small>음성 인식에만 사용(평가는 Claude)</small></label>
+      <input id="s-okey" type="password" autocomplete="off" placeholder="sk-...">
+      <p class="hint" id="s-okey-now"></p>
+      <label for="s-omodel">음성 인식 모델</label>
+      <select id="s-omodel"><option value="gpt-4o-mini-transcribe">gpt-4o-mini-transcribe (권장)</option><option value="gpt-4o-transcribe">gpt-4o-transcribe (더 정확)</option><option value="whisper-1">whisper-1</option></select>
+    </div>
+
+    <h3>③ 연습용 모의 AI</h3>
+    <label><input type="checkbox" id="s-mock"> 모의 AI 모드 <small>API 키 없이 화면 흐름만 미리 연습해 봅니다. 점수·피드백은 의미 없는 예시입니다. 실제 수업 전에 반드시 끄세요.</small></label>
+
+    <h3>④ 비밀번호 변경</h3>
+    <label for="s-newpw">새 교사 비밀번호 <small>(바꿀 때만 입력 · 8자 이상)</small></label>
+    <input id="s-newpw" type="password" autocomplete="new-password">
+
+    <p style="margin-top:18px"><button id="saveSettingsBtn">설정 저장</button></p>
+    <p class="hint">데이터 저장 위치: <code id="s-dir"></code> — 이 폴더(특히 config.json, audio)는 외부에 공유하지 마세요.</p>
+  </section>
+</main>
+<script src="/common.js"></script>
+<script src="/teacher.js"></script>
+</body>
+</html>

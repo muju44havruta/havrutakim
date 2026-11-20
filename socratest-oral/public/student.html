@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>구술 수행평가 · 학생</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header class="top">
+  <h1>구술 수행평가</h1>
+  <span id="who"></span>
+  <span class="spacer"></span>
+  <button class="link hidden" id="logout">나가기</button>
+</header>
+<main>
+  <section class="card" id="join">
+    <h2>수업 입장</h2>
+    <label for="code">수업 코드</label>
+    <input id="code" autocomplete="off" inputmode="latin" placeholder="예: 7F3A2C" style="text-transform:uppercase">
+    <p class="hint" id="classInfo"></p>
+    <label for="alias">식별명 <small>실명 대신 학년-반-번호 (예: 2-3-07)</small></label>
+    <input id="alias" autocomplete="off" placeholder="2-3-07">
+    <label for="pin">PIN 4자리 <small>처음 입장할 때 정하고, 다음 시간(실전 평가)에 같은 PIN으로 다시 들어옵니다.</small></label>
+    <input id="pin" inputmode="numeric" maxlength="4" pattern="\d{4}" placeholder="숫자 4자리" autocomplete="off">
+    <p style="margin-top:16px"><button id="joinBtn" class="big">입장하기</button></p>
+    <p class="hint">녹음한 음성과 평가 기록은 선생님 컴퓨터에 저장되며, 평가와 이의제기 확인에만 사용됩니다.</p>
+  </section>
+
+  <div id="app" class="hidden">
+    <section class="card">
+      <div class="row"><h2 id="title" style="margin:0"></h2><span id="phasePill"></span></div>
+      <div class="stepper" id="stepper"></div>
+    </section>
+
+    <section class="card">
+      <details open id="passageBox"><summary>제시문(작품·지문) 보기</summary><pre class="passage" id="passage"></pre></details>
+      <h3>구술 과제</h3>
+      <div class="task" id="task"></div>
+      <details><summary>평가 기준 보기</summary><table class="rubric-table" id="rubric"></table></details>
+    </section>
+
+    <section class="card" id="stage"></section>
+
+    <section class="card" id="history"></section>
+  </div>
+</main>
+<script src="/common.js"></script>
+<script src="/recorder.js"></script>
+<script src="/student.js"></script>
+</body>
+</html>
