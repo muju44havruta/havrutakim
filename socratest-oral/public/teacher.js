@@ -125,6 +125,23 @@ function rubricSum() {
   $('#rubricSum').textContent = `기준 ${lines.length}개 · 총 ${total}점${teacher ? ` · 교사 직접 채점 ${teacher}개` : ''}`;
 }
 $('#f-rubric').addEventListener('input', rubricSum);
+const SAMPLE_POEM = {
+  title: '김소월 「진달래꽃」 구술 평가',
+  passage: '진달래꽃\n\n김소월\n\n나 보기가 역겨워\n가실 때에는\n말없이 고이 보내 드리우리다\n\n영변에 약산\n진달래꽃\n아름 따다 가실 길에 뿌리우리다\n\n가시는 걸음걸음\n놓인 그 꽃을\n사뿐히 즈려밟고 가시옵소서\n\n나 보기가 역겨워\n가실 때에는\n죽어도 아니 눈물 흘리우리다',
+  task: '이 시의 화자가 처한 상황과 정서를 설명하고, 그렇게 판단한 근거가 되는 시어나 구절을 들어 말해 보세요. 특히 마지막 연의 "죽어도 아니 눈물 흘리우리다"에 담긴 화자의 진심을 어떻게 해석할 수 있는지 자신의 생각을 밝혀 보세요.',
+};
+const passageCount = () => ($('#pcount').textContent = `${$('#f-passage').value.length}자 · ${$('#f-passage').value.split('\n').length}줄`);
+$('#f-passage').addEventListener('input', passageCount);
+$('#sampleBtn').onclick = () => {
+  if (($('#f-passage').value.trim() || $('#f-title').value.trim()) && !confirm('지금 입력한 제목·제시문·과제를 예시로 바꿀까요?')) return;
+  $('#f-area').value = 'poetry';
+  $('#f-rubric').value = areas.poetry.rubricText;
+  $('#f-title').value = SAMPLE_POEM.title;
+  $('#f-passage').value = SAMPLE_POEM.passage;
+  $('#f-task').value = SAMPLE_POEM.task;
+  passageCount();
+  rubricSum();
+};
 $('#f-area').addEventListener('change', () => {
   const touched = $('#f-task').value.trim() || $('#f-rubric').value.trim();
   if (!touched || confirm('이 영역의 기본 구술 과제와 평가 기준으로 바꿀까요? (지금 입력한 과제·기준은 바뀝니다)')) fillArea(true);
@@ -144,6 +161,7 @@ function openEditor(c) {
   $('#f-showai').checked = !!c?.showAiInAssessment;
   if (!c) fillArea(false);
   rubricSum();
+  passageCount();
   show('editor');
 }
 $('#cancelEditBtn').onclick = () => (editingCode ? openClass(editingCode) : openList());
@@ -463,7 +481,7 @@ $('#importIn').onchange = async (e) => {
       const r = await fetch(`/api/classes/${currentCode}/import`, { method: 'POST', headers: { Authorization: 'Bearer ' + storage('teacherToken'), 'Content-Type': 'application/json' }, body: f });
       const j = await r.json();
       if (!r.ok) throw new Error(j.error);
-      line.innerHTML = `✅ ${esc(j.alias)} · ${esc(j.label)} 가져옴 → AI 평가 대기열에 넣었습니다.`;
+      line.innerHTML = `✅ ${esc(j.alias)} · ${esc(j.label)} 가져옴 → AI 평가 대기열에 넣었습니다.${j.otherClass ? ` <b>(다른 수업 「${esc(j.classTitle)}」(${j.classCode})에 넣었습니다. 수업 목록에서 확인하세요.)</b>` : ''}`;
     } catch (err) {
       line.innerHTML = `<span class="danger-box">❌ ${esc(f.name)}: ${esc(err.message)}</span>`;
     }

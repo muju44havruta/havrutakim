@@ -223,7 +223,9 @@ function renderHist() {
 }
 
 // ── 녹음기 ──
-const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+// 휴대폰은 녹음과 음성 인식이 마이크를 동시에 쓰면 녹음이 무음이 될 수 있어, 컴퓨터에서만 실시간 글자 변환을 합니다.
+const IS_MOBILE = /Android|iPhone|iPad|iPod|Mobile/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+const SR = !IS_MOBILE && (window.SpeechRecognition || window.webkitSpeechRecognition);
 const rec = {
   busy: false,
   mount(el, k) { this.el = el; this.k = k; this.exam = k === 3; this.idle(); },
@@ -233,7 +235,7 @@ const rec = {
       ${msg ? `<div class="err" style="margin-bottom:12px">${esc(msg)}</div>` : ''}
       <button class="mic" id="micBtn">${MIC}녹음 시작</button>
       <p class="muted">최대 ${mmss(S.class.maxSeconds)} · 조용한 곳에서 또박또박<br>${this.exam ? '실전은 한 번에 끝까지 말해요.' : '제출 전까지 몇 번이든 다시 녹음할 수 있어요.'}
-      ${stt && !SR ? '<br>⚠ 이 브라우저는 글자 변환이 안 돼요. 녹음은 저장되고 선생님이 확인해요.' : ''}</p></div>`;
+      ${stt && !SR ? '<br>글자 변환은 선생님 컴퓨터에서 해요.' : ''}</p></div>`;
     $('#micBtn').onclick = () => this.start();
   },
   async start() {
@@ -245,7 +247,7 @@ const rec = {
     const mime = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4'].find((m) => MediaRecorder.isTypeSupported?.(m)) || '';
     this.chunks = []; this.mr = new MediaRecorder(this.stream, mime ? { mimeType: mime } : undefined);
     this.mr.ondataavailable = (e) => e.data.size && this.chunks.push(e.data);
-    this.mr.start(1000); this.t0 = Date.now(); this.hidden = 0; this.text = ''; this.interim = '';
+    this.mr.start(1000); this.t0 = Date.now(); this.hidden = 0; this.text = ''; this.interim = ''; this.peak = 0;
     this.vis = () => document.hidden && this.hidden++; document.addEventListener('visibilitychange', this.vis);
     const stt = S.class.sttProvider === 'browser' && SR;
     this.el.innerHTML = `<div class="rec-wrap"><button class="mic stop" id="stopBtn">■<span>끝내기</span></button>
@@ -265,9 +267,9 @@ const rec = {
       this.ac = new (window.AudioContext || window.webkitAudioContext)();
       const an = this.ac.createAnalyser(); an.fftSize = 512; this.ac.createMediaStreamSource(this.stream).connect(an);
       const d = new Uint8Array(512);
-      const f = () => { if (this.mr?.state !== 'recording') return; an.getByteTimeDomainData(d); let p = 0; for (const v of d) p = Math.max(p, Math.abs(v - 128)); const m = $('#mt'); if (m) m.style.width = Math.min(100, p * 1.6) + '%'; requestAnimationFrame(f); };
+      const f = () => { if (this.mr?.state !== 'recording') return; an.getByteTimeDomainData(d); let p = 0; for (const v of d) p = Math.max(p, Math.abs(v - 128)); this.peak = Math.max(this.peak, p); const m = $('#mt'); if (m) m.style.width = Math.min(100, p * 1.6) + '%'; requestAnimationFrame(f); };
       f();
-    } catch {}
+    } catch { this.peak = -1; }
   },
   listen() {
     const sr = new SR(); sr.lang = 'ko-KR'; sr.continuous = true; sr.interimResults = true;
@@ -284,13 +286,15 @@ const rec = {
     if (this.sr) { await new Promise((r) => { this.srDone = r; try { this.sr.stop(); } catch { r(); } setTimeout(r, 1500); }); this.text += this.interim; this.sr = null; }
     this.tracks(); this.ac?.close().catch(() => {});
     this.blob = new Blob(this.chunks, { type: (this.mr.mimeType || 'audio/webm').split(';')[0] });
+    if (!this.blob.size) { this.busy = false; return this.idle('녹음 파일이 비어 있어요. 크롬(안드로이드)·사파리(아이폰)로 다시 시도하세요.'); }
     if (this.exam) S.takesUsed++;
     if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
     this.review();
   },
   review() {
     const canAgain = !this.exam || S.class.assessmentTakes - S.takesUsed > 0;
-    this.el.innerHTML = `<h3>녹음 확인 (${mmss(this.sec)})</h3><audio controls src="${URL.createObjectURL(this.blob)}"></audio>
+    const silent = this.peak >= 0 && this.peak < 4;
+    this.el.innerHTML = `<h3>녹음 확인 (${mmss(this.sec)})</h3>${silent ? '<div class="err"><b>소리가 거의 녹음되지 않았어요.</b> 들어 보고 소리가 없으면 다시 녹음하세요.</div>' : ''}<audio controls src="${URL.createObjectURL(this.blob)}"></audio><p class="muted">▶ 눌러서 내 목소리가 잘 들리는지 확인하세요.</p>
       ${S.class.sttProvider === 'browser' ? `<div class="live">${this.text.trim() ? esc(this.text) : '<span class="muted">글자 변환 결과가 없어요. 녹음은 저장되고 선생님이 확인해요.</span>'}</div>` : ''}
       ${this.exam ? '<p class="warn">제출하면 바꿀 수 없어요. 들어 보고 제출하세요.</p>' : ''}
       <button class="btn" id="sendBtn">제출하기</button>

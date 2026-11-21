@@ -47,7 +47,7 @@
 
   <!-- 수업 만들기·편집 -->
   <section class="card hidden" id="v-editor">
-    <h2 id="editorTitle">새 수업 만들기</h2>
+    <div class="row"><h2 id="editorTitle" style="margin:0">새 수업 만들기</h2><span style="flex:1"></span><button class="small secondary" id="sampleBtn">예시 불러오기: 김소월 「진달래꽃」 전문</button></div>
     <div class="grid2">
       <div>
         <label for="f-area">영역</label>
@@ -58,8 +58,9 @@
         <input id="f-title" maxlength="100">
       </div>
     </div>
-    <label for="f-passage">제시문(작품·지문) <small>학생 화면에 그대로 보입니다. 저작권 이용 범위를 확인하세요.</small></label>
-    <textarea id="f-passage" rows="12"></textarea>
+    <label for="f-passage">제시문(작품 전문·지문) <small>학생 화면에 그대로 보입니다. 행·연 구분은 줄바꿈과 빈 줄로 입력하세요. 저작권 이용 범위를 확인하세요.</small></label>
+    <textarea id="f-passage" rows="16" style="line-height:1.9"></textarea>
+    <p class="hint" id="pcount"></p>
     <label for="f-task">구술 과제 <small>학생이 말로 답할 핵심 질문</small></label>
     <textarea id="f-task" rows="3"></textarea>
     <label for="f-standard">성취기준 <small>(선택) 학교 교육과정의 성취기준 코드와 내용을 붙여 넣으면 AI가 평가 관점으로 참고합니다.</small></label>

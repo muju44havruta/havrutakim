@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1f5f8b">
+<title>구술 수행평가 · 교사용</title>
+<style>
+:root{--brand:#1f5f8b;--ink:#1d2733;--muted:#64717e;--line:#dfe5eb;--bg:#f3f5f7;--green:#2f7d5b;--green-soft:#e7f4ed;--red:#c9372a;--red-soft:#fbece9;--yellow:#fff4d6}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,'Apple SD Gothic Neo','Malgun Gothic','Pretendard',system-ui,sans-serif;word-break:keep-all;overflow-wrap:anywhere}
+header{background:var(--brand);color:#fff;padding:14px 18px}header b{font-size:1.1rem}header span{color:#d6e4ef;font-size:.85rem;margin-left:8px}
+main{max-width:860px;margin:0 auto;padding:16px 14px 60px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;margin:0 0 14px}
+h2{font-size:1.15rem;margin:0 0 10px}h3{font-size:1rem;margin:16px 0 6px}
+label{display:block;font-weight:700;margin:12px 0 5px}label small,.muted{font-weight:400;color:var(--muted);font-size:.88rem}
+input,textarea,select{width:100%;font:inherit;padding:11px 12px;border:1.5px solid #b9c6d2;border-radius:10px;background:#fff}
+textarea{min-height:110px;resize:vertical}
+#passage{min-height:280px;line-height:1.9;font-family:inherit}
+input:focus,textarea:focus,select:focus{outline:3px solid #9cc8e6}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+button,.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:46px;padding:10px 16px;border:0;border-radius:10px;background:var(--brand);color:#fff;font:inherit;font-weight:700;cursor:pointer;text-decoration:none}
+button.sub,.btn.sub{background:#fff;color:var(--brand);border:1.5px solid var(--brand)}
+button.green{background:var(--green)}button.danger{background:#fff;color:#a3281a;border:1.5px solid #d79a91}
+button.small{min-height:34px;padding:4px 10px;font-size:.9rem}
+.list .item{border-top:1px solid var(--line);padding:10px 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.list .item b{flex:1}
+.pill{display:inline-block;padding:1px 9px;border-radius:99px;background:#e9f2f8;color:var(--brand);font-size:.82rem;font-weight:700}
+.ok{background:var(--green-soft);border-radius:10px;padding:12px}
+.warn{background:var(--yellow);border-radius:10px;padding:10px 12px;font-size:.93rem}
+.err{background:var(--red-soft);color:#7a2215;border-radius:10px;padding:10px 12px}
+.link{font-size:.8rem;word-break:break-all;background:#f6f8fa;border:1px solid var(--line);border-radius:8px;padding:8px;max-height:90px;overflow:auto}
+#qr{display:flex;justify-content:center;margin:12px 0}#qr img,#qr canvas{max-width:280px;width:100%;height:auto}
+.sub-item{border-left:4px solid var(--green);padding-left:10px;margin:12px 0}
+audio{width:100%}
+.hidden{display:none!important}
+@media(max-width:640px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><b>구술 수행평가 · 교사용</b><span>제시문 등록 → 학생 링크 만들기</span></header>
+<main>
+  <section class="card">
+    <h2>내 수업</h2>
+    <div class="row"><button id="newBtn">+ 새 수업</button><button class="sub" id="sampleBtn">예시 불러오기: 김소월 「진달래꽃」</button></div>
+    <div class="list" id="list"></div>
+    <p class="muted">수업은 이 기기의 브라우저에만 저장됩니다. 다른 기기에서 쓰려면 아래 「수업 파일 백업」을 이용하세요.</p>
+  </section>
+
+  <section class="card">
+    <h2>① 제시문 등록</h2>
+    <div class="grid">
+      <div><label for="area">영역</label><select id="area"></select></div>
+      <div><label for="title">수업 제목</label><input id="title" maxlength="100" placeholder="예: 김소월 「진달래꽃」 구술 평가"></div>
+    </div>
+    <label for="passage">제시문(작품 전문·지문) <small>학생 화면에 그대로 보입니다. 행·연 구분은 줄바꿈과 빈 줄로 입력하세요.</small></label>
+    <textarea id="passage" placeholder="작품 전문을 붙여 넣으세요."></textarea>
+    <p class="muted" id="pcount"></p>
+    <label for="task">구술 과제 <small>학생이 말로 답할 질문</small></label>
+    <textarea id="task" rows="3"></textarea>
+    <label for="rubric">평가 기준 <small>한 줄에 하나: 기준명 | 배점 | 상·중·하 설명 | (선택) 교사</small></label>
+    <textarea id="rubric" rows="7" style="font-size:.9rem"></textarea>
+    <div class="grid">
+      <div><label for="maxs">한 번 녹음 최대 시간</label><select id="maxs"><option value="60">1분</option><option value="120">2분</option><option value="180" selected>3분</option><option value="240">4분</option><option value="300">5분</option><option value="420">7분</option><option value="600">10분</option></select></div>
+      <div><label for="code">수업 코드 <small>교사 프로그램의 수업과 맞추려면 그 코드를 입력</small></label><input id="code" maxlength="6" style="text-transform:uppercase"></div>
+    </div>
+    <div class="row" style="margin-top:14px"><button id="saveBtn">저장</button><button class="danger" id="delBtn">이 수업 삭제</button><span class="muted" id="saved"></span></div>
+  </section>
+
+  <section class="card">
+    <h2>② 학생에게 나눠 주기</h2>
+    <div class="row"><button class="green" id="linkBtn">학생용 링크·QR 만들기</button><button class="sub" id="fileBtn">학생용 HTML 파일 내려받기</button></div>
+    <div id="share"></div>
+  </section>
+
+  <section class="card">
+    <h2>③ 학생 제출 파일 확인</h2>
+    <p class="muted">학생이 보낸 <b>제출 파일(.json)</b>을 골라 녹음을 들어 볼 수 있습니다. AI 평가와 최종 피드백은 <b>교사 프로그램</b> ▸ 독립형 HTML 탭 ▸ [제출 파일 선택]에서 같은 파일을 가져오면 진행됩니다(이 웹에서 만든 수업도 자동으로 만들어집니다).</p>
+    <label class="btn sub" style="display:inline-flex">제출 파일 열기(여러 개)<input type="file" id="subIn" accept=".json,application/json" multiple hidden></label>
+    <div id="subs"></div>
+  </section>
+
+  <section class="card">
+    <h2>수업 파일 백업</h2>
+    <div class="row"><button class="sub small" id="exportBtn">모든 수업 내보내기(.json)</button><label class="btn sub small" style="display:inline-flex">가져오기<input type="file" id="importIn" accept=".json" hidden></label></div>
+  </section>
+</main>
+<script src="qrcode.min.js"></script>
+<script>
+'use strict';
+const AREAS = {"poetry":{"label":"문학 – 시·시가","task":"이 작품에서 화자가 처한 상황과 정서를 설명하고, 그렇게 판단한 근거가 되는 시어나 구절을 들어 작품의 주제를 해석해 보세요.","rubric":["작품 이해 | 20 | 상: 화자·대상·상황·정서를 정확하고 구체적으로 파악함 / 중: 대체로 파악하나 일부 모호함 / 하: 핵심 요소를 잘못 이해하거나 빠뜨림","근거 활용 | 25 | 상: 시어·구절을 정확히 인용하고 해석과 연결함 / 중: 인용은 있으나 해석과의 연결이 약함 / 하: 작품 속 근거 없이 주장만 함","해석의 타당성·깊이 | 25 | 상: 표현의 효과와 주제를 근거 있게 해석하고 자기 관점을 드러냄 / 중: 일반적 해석 수준에 머묾 / 하: 근거 없는 해석이나 오독","말하기 내용의 조직 | 15 | 상: 주장–근거–정리의 흐름이 분명함 / 중: 흐름은 있으나 반복·비약이 있음 / 하: 내용이 흩어져 요지를 알기 어려움","구술 전달 | 15 | 상: 또렷한 발음·적절한 속도·자신감 있는 태도 / 중: 대체로 전달되나 머뭇거림이 잦음 / 하: 알아듣기 어려움 | 교사"]},"novel":{"label":"문학 – 소설·극","task":"중심인물이 처한 갈등과 그 원인을 설명하고, 인물의 선택이 작품의 주제와 어떻게 연결되는지 작품 속 장면을 근거로 말해 보세요.","rubric":["인물·사건·갈등 이해 | 20 | 상: 인물 관계·갈등의 원인과 전개를 정확히 파악함 / 중: 대체로 파악하나 원인 설명이 부족함 / 하: 사건이나 인물을 잘못 이해함","서술 방식 이해 | 15 | 상: 시점·서술자·서술상 특징과 그 효과를 설명함 / 중: 특징을 말하나 효과 설명이 약함 / 하: 언급하지 않거나 잘못 파악함","근거 활용 | 25 | 상: 구체적 장면·대사를 들어 해석을 뒷받침함 / 중: 근거가 일반적이거나 부분적임 / 하: 근거 없이 주장함","해석의 타당성·깊이 | 25 | 상: 인물의 선택과 주제·시대 맥락을 연결해 자기 관점으로 해석함 / 중: 일반적 해석 수준 / 하: 오독 또는 근거 없는 해석","말하기 내용의 조직 | 15 | 상: 주장–근거–정리의 흐름이 분명함 / 중: 반복·비약이 있음 / 하: 요지를 알기 어려움"]},"reading":{"label":"독서 – 비문학","task":"글의 중심 화제와 핵심 개념을 설명하고, 글쓴이의 주장(또는 설명)의 구조를 정리한 뒤 그 내용을 새로운 사례에 적용해 보세요.","rubric":["핵심 정보·개념 이해 | 25 | 상: 핵심 개념과 정보를 정확한 용어로 설명함 / 중: 대체로 맞으나 일부 부정확함 / 하: 핵심 개념을 잘못 이해함","글의 구조·주제 파악 | 20 | 상: 문단 간 관계와 전개 방식, 주제를 정확히 정리함 / 중: 주제는 파악하나 구조 설명이 약함 / 하: 주제를 잘못 파악함","추론·비판적 평가 | 25 | 상: 생략된 전제나 한계를 근거 있게 짚어냄 / 중: 평가가 있으나 근거가 약함 / 하: 내용 반복에 그침","적용·확장 | 15 | 상: 새로운 사례에 정확히 적용함 / 중: 적용이 막연함 / 하: 적용하지 못함","말하기 내용의 조직 | 15 | 상: 요약–분석–적용의 흐름이 분명함 / 중: 흐름에 비약이 있음 / 하: 요지를 알기 어려움"]},"debate":{"label":"토론·논증","task":"제시된 논제에 대한 자신의 입장을 밝히고, 근거 두 가지 이상과 예상되는 반론 및 그에 대한 재반론을 포함하여 말해 보세요.","rubric":["주장의 명료성 | 20 | 상: 입장과 핵심 주장이 분명하고 일관됨 / 중: 입장은 있으나 일부 흔들림 / 하: 입장이 불분명함","근거의 타당성·충분성 | 25 | 상: 신뢰할 만한 근거를 두 가지 이상 들어 주장과 연결함 / 중: 근거가 하나이거나 연결이 약함 / 하: 근거가 없거나 부적절함","반론 고려와 재반론 | 20 | 상: 예상 반론을 공정하게 제시하고 논리적으로 재반박함 / 중: 반론을 언급하나 재반론이 약함 / 하: 반론을 고려하지 않음","논리적 구성 | 15 | 상: 주장–근거–반론–결론 구조가 분명함 / 중: 구조에 비약이 있음 / 하: 논리 흐름을 따라가기 어려움","용어·표현의 정확성 | 10 | 상: 쟁점 용어를 정확히 정의하고 사용함 / 중: 일부 모호함 / 하: 용어를 잘못 사용함","구술 전달 | 10 | 상: 또렷하고 설득력 있게 말함 / 중: 머뭇거림이 잦음 / 하: 알아듣기 어려움 | 교사"]},"free":{"label":"자유 설정","task":"","rubric":["내용 이해 | 30 | 상: 정확하고 구체적 / 중: 대체로 정확 / 하: 오류가 많음","근거 활용 | 30 | 상: 제시문 근거를 정확히 활용 / 중: 근거가 부분적 / 하: 근거 없음","사고의 깊이 | 25 | 상: 자기 관점이 드러나는 해석·평가 / 중: 일반적 수준 / 하: 피상적","말하기 내용의 조직 | 15 | 상: 흐름이 분명 / 중: 비약이 있음 / 하: 요지 불분명"]}};
+// 학생용 HTML 원본(교사용 파일만 있어도 학생용 파일을 만들 수 있도록 함께 넣어 둠)
+const STUDENT_TEMPLATE = "<!doctype html>\n<html lang=\"ko\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\">\n<meta name=\"theme-color\" content=\"#1f5f8b\">\n<title>구술 녹음 제출<\/title>\n<style>\n:root{--brand:#1f5f8b;--ink:#1d2733;--muted:#64717e;--line:#dfe5eb;--bg:#f3f5f7;--green:#2f7d5b;--green-soft:#e7f4ed;--red:#c9372a;--red-soft:#fbece9;--yellow:#fff4d6}\n*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}\nhtml,body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.6 -apple-system,'Apple SD Gothic Neo','Malgun Gothic','Pretendard',system-ui,sans-serif;word-break:keep-all;overflow-wrap:anywhere}\n.top{position:sticky;top:0;z-index:5;background:var(--brand);color:#fff;padding:12px 16px}\n.top b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.top span{color:#d6e4ef;font-size:.85rem}\nmain{max-width:560px;margin:0 auto;padding:14px 14px calc(40px + env(safe-area-inset-bottom))}\n.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;margin:0 0 12px}\nh2{font-size:1.1rem;margin:0 0 10px}h3{font-size:1rem;margin:14px 0 6px}\n.num{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--brand);color:#fff;font-size:.9rem;margin-right:6px}\n.muted{color:var(--muted);font-size:.9rem}\nlabel.f{display:block;font-weight:700;margin:12px 0 6px}\ninput[type=text]{width:100%;font:inherit;font-size:1.1rem;padding:14px;border:1.5px solid #b9c6d2;border-radius:12px}\ninput:focus{outline:3px solid #9cc8e6}\n.steps{display:grid;gap:8px}\n.steps label{display:flex;gap:10px;align-items:center;border:2px solid var(--line);border-radius:12px;padding:12px;font-weight:700;cursor:pointer}\n.steps label small{display:block;font-weight:400;color:var(--muted)}\n.steps input{width:22px;height:22px;flex:none}\n.steps label.on{border-color:var(--brand);background:#e9f2f8}\n.steps label.exam.on{border-color:var(--red);background:var(--red-soft)}\n.task{font-weight:700;background:#e9f2f8;border-left:5px solid var(--brand);padding:12px 14px;border-radius:8px;white-space:pre-wrap}\ndetails summary{cursor:pointer;color:var(--brand);font-weight:700;padding:6px 0}\n.passage{white-space:pre-wrap;background:#fbfaf6;border:1px solid #ebe5d6;border-radius:10px;padding:14px 16px;line-height:1.95}\n.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:56px;border:0;border-radius:14px;background:var(--brand);color:#fff;font:inherit;font-weight:800;font-size:1.08rem;margin-top:12px;cursor:pointer;text-decoration:none}\n.btn.sub{background:#fff;color:var(--brand);border:2px solid var(--brand);min-height:48px;font-size:1rem}\n.btn.green{background:var(--green)}\n.btn:disabled{opacity:.5}\n.rec-wrap{text-align:center}\n.mic{width:128px;height:128px;border-radius:50%;border:0;background:var(--red);color:#fff;font:inherit;font-weight:800;box-shadow:0 8px 22px rgba(201,55,42,.35);display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer}\n.mic svg{width:40px;height:40px}\n.mic.stop{background:#22303d;animation:pulse 1.4s infinite}\n@keyframes pulse{70%{box-shadow:0 0 0 22px rgba(201,55,42,0)}100%{box-shadow:0 0 0 0 rgba(201,55,42,0)}}\n.timer{font-size:2.2rem;font-weight:800;font-variant-numeric:tabular-nums;margin-top:8px}\n.meter{height:10px;max-width:260px;margin:8px auto;background:#e3e8ed;border-radius:5px;overflow:hidden}.meter i{display:block;height:100%;width:0;background:var(--green)}\n.live{text-align:left;min-height:56px;border:1px dashed var(--line);border-radius:10px;padding:10px;margin-top:10px;font-size:.95rem}\n.file{display:block;border:2px dashed #b9c6d2;border-radius:12px;padding:16px;text-align:center;color:var(--brand);font-weight:700;cursor:pointer;margin-top:8px}\n.file input{display:none}\naudio{width:100%;margin:8px 0}\n.warn{background:var(--yellow);border-radius:10px;padding:10px 12px;font-size:.92rem;margin:8px 0}\n.err{background:var(--red-soft);color:#7a2215;border-radius:10px;padding:10px 12px;font-size:.92rem;margin:8px 0}\n.ok{background:var(--green-soft);border-radius:10px;padding:12px;font-size:.95rem}\nol.how{margin:6px 0;padding-left:22px;font-size:.93rem}\ntable{width:100%;border-collapse:collapse;font-size:.92rem}td,th{padding:6px 4px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}\n.hidden{display:none!important}\n<\/style>\n<\/head>\n<body>\n<div class=\"top\"><b id=\"title\">구술 녹음 제출<\/b><span id=\"sub\"><\/span><\/div>\n<main>\n  <div id=\"envBox\"><\/div>\n  <div id=\"noClass\" class=\"card hidden\"><h2>수업 정보가 없어요<\/h2><p>선생님이 보내 준 <b>링크(또는 QR코드)<\/b>로 다시 열어 주세요.<\/p><\/div>\n\n  <div id=\"app\">\n  <section class=\"card\">\n    <h2><span class=\"num\">1<\/span>나는 누구인가요?<\/h2>\n    <label class=\"f\" for=\"alias\">식별명 <span class=\"muted\">(학년-반-번호, 예: 2-3-07)<\/span><\/label>\n    <input type=\"text\" id=\"alias\" autocomplete=\"off\" placeholder=\"2-3-07\">\n  <\/section>\n\n  <section class=\"card\">\n    <h2><span class=\"num\">2<\/span>몇 단계 녹음인가요?<\/h2>\n    <div class=\"steps\" id=\"steps\">\n      <label><input type=\"radio\" name=\"n\" value=\"1\"><span>1단계 · 1차 구술<small>처음 말하는 답변<\/small><\/span><\/label>\n      <label><input type=\"radio\" name=\"n\" value=\"2\"><span>3단계 · 수정 구술<small>1차 피드백을 반영해 다시 말하기<\/small><\/span><\/label>\n      <label class=\"exam\"><input type=\"radio\" name=\"n\" value=\"3\"><span>6단계 · 실전 최종 구술<small>2차 피드백을 반영한 실전 평가<\/small><\/span><\/label>\n    <\/div>\n  <\/section>\n\n  <section class=\"card\">\n    <h2><span class=\"num\">3<\/span>작품(지문)을 읽고 과제를 확인해요<\/h2>\n    <details open><summary>제시문 전문<\/summary><div class=\"passage\" id=\"passage\"><\/div><\/details>\n    <h3>구술 과제<\/h3>\n    <div class=\"task\" id=\"task\"><\/div>\n    <details><summary>평가 기준<\/summary><table id=\"rubric\"><\/table><\/details>\n  <\/section>\n\n  <section class=\"card\">\n    <h2><span class=\"num\">4<\/span>녹음해요<\/h2>\n    <div id=\"rec\"><\/div>\n  <\/section>\n\n  <section class=\"card hidden\" id=\"outCard\">\n    <h2><span class=\"num\">5<\/span>선생님께 제출해요<\/h2>\n    <div id=\"out\"><\/div>\n  <\/section>\n  <\/div>\n<\/main>\n<script>\n'use strict';\n// 교사 프로그램이 내려받기용 파일을 만들 때 아래 자리에 수업 정보를 넣습니다.\n// 비어 있으면 링크 주소의 #c= 뒤에 담긴 수업 정보를 읽습니다(교사용 HTML이 만든 링크).\nconst EMBED = /*__CLASS_JSON__*/ null /*__END__*/;\n\nconst $ = (s) => document.querySelector(s);\nconst esc = (s) => String(s ?? '').replace(/[&<>\"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;', \"'\": '&#39;' })[c]);\nconst mmss = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;\nconst store = (k, v) => { try { if (v === undefined) return localStorage.getItem(k) || ''; localStorage.setItem(k, v); } catch { return ''; } };\nconst MIC = '<svg viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V21h2v-2.1A7 7 0 0 0 19 12z\"/><\/svg>';\nconst UA = navigator.userAgent;\nconst IS_IOS = /iPhone|iPad|iPod/.test(UA) || (/Macintosh/.test(UA) && navigator.maxTouchPoints > 1);\nconst IS_ANDROID = /Android/.test(UA);\nconst IS_MOBILE = IS_IOS || IS_ANDROID || /Mobile/.test(UA);\nconst IN_APP = /KAKAOTALK|NAVER\\(inapp|Instagram|FBAN|FBAV|Line\\/|BAND\\/|DaumApps|everytimeApp|SamsungBrowser\\/[\\d.]+ CrossApp/i.test(UA);\nconst IS_KAKAO = /KAKAOTALK/i.test(UA);\n// 휴대폰은 녹음과 음성 인식이 마이크를 동시에 쓰면 녹음이 무음이 될 수 있어, 컴퓨터에서만 실시간 글자 변환을 합니다.\nconst SR = !IS_MOBILE && (window.SpeechRecognition || window.webkitSpeechRecognition);\nconst EXT = { 'audio/webm': 'webm', 'audio/ogg': 'ogg', 'audio/mp4': 'm4a', 'audio/x-m4a': 'm4a', 'audio/m4a': 'm4a', 'audio/aac': 'aac', 'audio/mpeg': 'mp3', 'audio/mp3': 'mp3', 'audio/wav': 'wav', 'audio/x-wav': 'wav', 'audio/wave': 'wav', 'audio/3gpp': '3gp', 'video/3gpp': '3gp', 'audio/amr': 'amr' };\nconst BY_EXT = { webm: 'audio/webm', ogg: 'audio/ogg', m4a: 'audio/mp4', mp4: 'audio/mp4', aac: 'audio/aac', mp3: 'audio/mpeg', wav: 'audio/wav', '3gp': 'audio/3gpp', '3ga': 'audio/3gpp', amr: 'audio/amr' };\n\n// ── 수업 정보 읽기 ──\nasync function readClass() {\n  if (EMBED) return EMBED;\n  const m = /[#&]c=([^&]+)/.exec(location.hash);\n  if (!m) return null;\n  const kind = m[1][0];\n  const b64 = m[1].slice(1).replace(/-/g, '+').replace(/_/g, '/');\n  const bytes = Uint8Array.from(atob(b64), (ch) => ch.charCodeAt(0));\n  let text;\n  if (kind === 'z') {\n    if (!window.DecompressionStream) throw new Error('브라우저가 오래되었어요. 크롬·사파리를 최신으로 업데이트하세요.');\n    text = await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).text();\n  } else text = new TextDecoder().decode(bytes);\n  return JSON.parse(text);\n}\n\nlet CLASS;\nconst canRecord = !!(window.isSecureContext && navigator.mediaDevices?.getUserMedia && window.MediaRecorder);\nconst R = { blob: null, sec: 0, text: '', hidden: 0, source: '', t0: 0, peak: 0 };\n\nfunction envNotice() {\n  let h = '';\n  if (IN_APP) {\n    const url = location.href;\n    const isWeb = /^https?:/.test(url);\n    h += `<div class=\"card\"><div class=\"err\"><b>앱 안의 브라우저에서는 녹음·저장이 잘 안 돼요.<\/b><br>${IS_IOS ? '오른쪽 아래(또는 위) <b>⋯ / 공유<\/b> 버튼 → <b>Safari로 열기<\/b>를 눌러 주세요.' : '오른쪽 위 <b>⋮<\/b> 버튼 → <b>다른 브라우저로 열기<\/b>(크롬)를 눌러 주세요.'}<\/div>\n      ${isWeb && IS_KAKAO ? `<a class=\"btn\" href=\"kakaotalk://web/openExternal?url=${encodeURIComponent(url)}\">기본 브라우저로 열기<\/a>` : ''}\n      ${isWeb && IS_ANDROID && !IS_KAKAO ? `<a class=\"btn\" href=\"intent://${url.replace(/^https?:\\/\\//, '')}#Intent;scheme=https;package=com.android.chrome;end\">크롬으로 열기<\/a>` : ''}<\/div>`;\n  } else if (!canRecord) {\n    h += `<div class=\"card\"><div class=\"warn\"><b>이 화면에서는 바로 녹음할 수 없어요.<\/b> 파일로 열었거나 보안 주소(https)가 아니기 때문이에요. 선생님이 보낸 <b>링크<\/b>로 열면 바로 녹음할 수 있어요.<br>지금은 아래 4번에서 <b>휴대폰 녹음 앱<\/b>으로 녹음해 첨부하면 돼요.<\/div><\/div>`;\n  }\n  $('#envBox').innerHTML = h;\n}\n\nfunction recorderHelp() {\n  if (IS_IOS) return `<ol class=\"how\"><li><b>음성 메모<\/b> 앱에서 녹음해요.<\/li><li>녹음 항목의 <b>⋯ → 공유 → '파일'에 저장<\/b>을 눌러요.<\/li><li>아래 <b>[녹음 파일 고르기]<\/b>에서 그 파일을 골라요.<\/li><\/ol>`;\n  return `<ol class=\"how\"><li>아래 <b>[휴대폰 녹음기로 녹음하기]<\/b>를 누르거나, <b>음성 녹음<\/b> 앱으로 녹음해요.<\/li><li>녹음 앱을 썼다면 <b>[녹음 파일 고르기]<\/b>에서 파일을 골라요(보통 '녹음' 또는 'Recordings' 폴더).<\/li><\/ol>`;\n}\nconst fileBox = () => `${!IS_IOS ? '<label class=\"file\">🎙 휴대폰 녹음기로 녹음하기<input type=\"file\" class=\"fin\" accept=\"audio/*\" capture><\/label>' : ''}\n  <label class=\"file\">📁 녹음 파일 고르기<input type=\"file\" class=\"fin\" accept=\"audio/*,.m4a,.mp3,.wav,.webm,.3gp,.amr,.aac\"><\/label>`;\n\nfunction idle(msg) {\n  $('#rec').innerHTML = `${msg ? `<div class=\"err\">${esc(msg)}<\/div>` : ''}\n    ${canRecord\n      ? `<div class=\"rec-wrap\"><button class=\"mic\" id=\"micBtn\">${MIC}녹음 시작<\/button>\n         <p class=\"muted\">최대 ${mmss(CLASS.maxSeconds)} · 조용한 곳에서 휴대폰을 입 가까이 두고 또박또박<br>${SR ? '말하는 동안 글자로도 바뀌어요.' : '글자 변환은 선생님 프로그램에서 해요.'}<\/p><\/div>\n         <details><summary>녹음 앱으로 녹음했어요 / 여기서 녹음이 안 돼요<\/summary>${recorderHelp()}${fileBox()}<\/details>`\n      : `${recorderHelp()}${fileBox()}`}`;\n  if ($('#micBtn')) $('#micBtn').onclick = start;\n  document.querySelectorAll('.fin').forEach((i) => (i.onchange = (e) => useFile(e.target.files[0])));\n}\n\nlet mr, stream, chunks, tick, sr, interim = '', srDone, ac;\nasync function start() {\n  try {\n    stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });\n  } catch (e) {\n    return idle(e?.name === 'NotAllowedError' ? '마이크가 허용되지 않았어요. 주소창 왼쪽(아이폰은 \"가가\" 또는 설정 ▸ Safari ▸ 마이크)에서 \"허용\"으로 바꾼 뒤 다시 눌러 주세요.' : '마이크를 켤 수 없어요(' + (e?.name || '오류') + '). 다른 앱이 마이크를 쓰고 있는지 확인하거나 아래 녹음 앱 방법을 쓰세요.');\n  }\n  const mime = ['audio/mp4', 'audio/webm;codecs=opus', 'audio/webm'].find((m) => MediaRecorder.isTypeSupported?.(m)) || '';\n  try { mr = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined); }\n  catch { stream.getTracks().forEach((t) => t.stop()); return idle('이 브라우저는 녹음을 지원하지 않아요. 아래 녹음 앱 방법을 쓰세요.'); }\n  chunks = [];\n  mr.ondataavailable = (e) => e.data && e.data.size && chunks.push(e.data);\n  mr.onerror = (e) => idle('녹음 중 오류가 났어요: ' + (e.error?.name || '알 수 없음'));\n  mr.start(1000);\n  R.t0 = Date.now(); R.hidden = 0; R.text = ''; R.peak = 0; interim = '';\n  document.onvisibilitychange = () => document.hidden && R.hidden++;\n  $('#rec').innerHTML = `<div class=\"rec-wrap\"><button class=\"mic stop\" id=\"stopBtn\">■<span>끝내기<\/span><\/button><div class=\"timer\" id=\"tm\">0:00<\/div>\n    <div class=\"meter\"><i id=\"mt\"><\/i><\/div><div class=\"muted\" id=\"left\">말하면 초록 막대가 움직여요<\/div>\n    ${SR ? '<div class=\"live\" id=\"live\"><span class=\"muted\">말하면 여기에 글자가 나타나요…<\/span><\/div>' : ''}<\/div>`;\n  $('#stopBtn').onclick = stop;\n  meter();\n  if (SR) {\n    sr = new SR(); sr.lang = 'ko-KR'; sr.continuous = true; sr.interimResults = true;\n    sr.onresult = (e) => { interim = ''; for (let i = e.resultIndex; i < e.results.length; i++) { const r = e.results[i]; if (r.isFinal) R.text += r[0].transcript.trim() + ' '; else interim += r[0].transcript; } const l = $('#live'); if (l) l.innerHTML = esc(R.text) + `<span class=\"muted\">${esc(interim)}<\/span>`; };\n    sr.onend = () => { if (mr?.state === 'recording') { try { sr.start(); } catch {} } else srDone?.(); };\n    try { sr.start(); } catch {}\n  }\n  tick = setInterval(() => { const s = Math.floor((Date.now() - R.t0) / 1000), left = CLASS.maxSeconds - s; $('#tm').textContent = mmss(s); if (left <= 30) $('#left').textContent = `${left}초 남았어요`; if (left <= 0) stop(); }, 250);\n}\nfunction meter() {\n  try {\n    ac = new (window.AudioContext || window.webkitAudioContext)();\n    if (ac.state === 'suspended') ac.resume();\n    const an = ac.createAnalyser(); an.fftSize = 512; ac.createMediaStreamSource(stream).connect(an);\n    const d = new Uint8Array(512);\n    const f = () => { if (mr?.state !== 'recording') return; an.getByteTimeDomainData(d); let p = 0; for (const v of d) p = Math.max(p, Math.abs(v - 128)); R.peak = Math.max(R.peak, p); const m = $('#mt'); if (m) m.style.width = Math.min(100, p * 1.6) + '%'; requestAnimationFrame(f); };\n    f();\n  } catch { R.peak = -1; }\n}\nasync function stop() {\n  if (mr?.state !== 'recording') return;\n  clearInterval(tick); document.onvisibilitychange = null;\n  R.sec = Math.round((Date.now() - R.t0) / 1000);\n  const done = new Promise((r) => (mr.onstop = r)); mr.stop(); await done;\n  if (sr) { await new Promise((r) => { srDone = r; try { sr.stop(); } catch { r(); } setTimeout(r, 1500); }); R.text += interim; sr = null; }\n  stream.getTracks().forEach((t) => t.stop()); ac?.close().catch(() => {});\n  R.blob = new Blob(chunks, { type: (mr.mimeType || mime0()).split(';')[0] });\n  R.text = R.text.trim(); R.source = 'recorder';\n  if (!R.blob.size) return idle('녹음 파일이 비어 있어요. 브라우저를 크롬(안드로이드)이나 사파리(아이폰)로 바꾸거나, 아래 녹음 앱 방법을 쓰세요.');\n  review();\n}\nconst mime0 = () => (IS_IOS ? 'audio/mp4' : 'audio/webm');\nfunction useFile(f) {\n  if (!f) return;\n  let type = (f.type || '').split(';')[0];\n  if (!EXT[type]) type = BY_EXT[(f.name.split('.').pop() || '').toLowerCase()] || '';\n  if (!type) return idle('이 파일 형식은 쓸 수 없어요. m4a·mp3·wav·webm·3gp 파일을 골라 주세요.');\n  if (f.size > 25 * 1024 * 1024) return idle('파일이 너무 커요(25MB 이하). 녹음 앱에서 음질을 \"보통\"으로 바꿔 보세요.');\n  if (f.size < 2000) return idle('파일이 비어 있는 것 같아요. 다시 녹음해 주세요.');\n  R.blob = new Blob([f], { type }); R.text = ''; R.hidden = 0; R.source = 'file'; R.t0 = f.lastModified || Date.now(); R.sec = 0; R.peak = -1;\n  const a = new Audio(URL.createObjectURL(R.blob));\n  a.onloadedmetadata = () => { if (isFinite(a.duration)) { R.sec = Math.round(a.duration); const t = $('#dur'); if (t) t.textContent = `(${mmss(R.sec)})`; } };\n  review();\n}\nfunction review() {\n  const silent = R.source === 'recorder' && R.peak >= 0 && R.peak < 4;\n  const ext = EXT[R.blob.type] || 'webm';\n  $('#rec').innerHTML = `<h3>녹음 확인 <span id=\"dur\">${R.sec ? `(${mmss(R.sec)})` : ''}<\/span><\/h3>\n    ${silent ? '<div class=\"err\"><b>소리가 거의 녹음되지 않았어요.<\/b> 아래에서 들어 보고, 소리가 없으면 다시 녹음하거나 녹음 앱 방법을 쓰세요.<\/div>' : ''}\n    <audio controls preload=\"metadata\" src=\"${URL.createObjectURL(R.blob)}\"><\/audio>\n    <p class=\"muted\">▶ 눌러서 내 목소리가 잘 들리는지 꼭 확인하세요.${['amr', '3gp'].includes(ext) ? ' (이 형식은 여기서 재생이 안 될 수 있지만 제출은 돼요.)' : ''}<\/p>\n    ${R.source === 'recorder' && SR ? `<div class=\"live\">${R.text ? esc(R.text) : '<span class=\"muted\">글자 변환 결과가 없어요. 괜찮아요, 선생님이 녹음을 들어요.<\/span>'}<\/div>` : ''}\n    <button class=\"btn\" id=\"makeBtn\">제출 파일 만들기<\/button>\n    <button class=\"btn sub\" id=\"againBtn\">다시 녹음<\/button>`;\n  $('#makeBtn').onclick = make;\n  $('#againBtn').onclick = () => { R.blob = null; $('#outCard').classList.add('hidden'); idle(); };\n}\nconst toB64 = (blob) => new Promise((ok, no) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(',')[1]); r.onerror = no; r.readAsDataURL(blob); });\nasync function make() {\n  const alias = $('#alias').value.trim();\n  const n = Number(document.querySelector('[name=n]:checked')?.value || 0);\n  if (alias.length < 2) { $('#alias').scrollIntoView({ behavior: 'smooth', block: 'center' }); $('#alias').focus(); return alert('1번에 식별명을 입력하세요.'); }\n  if (!n) { $('#steps').scrollIntoView({ behavior: 'smooth', block: 'center' }); return alert('2번에서 몇 단계 녹음인지 고르세요.'); }\n  const b = $('#makeBtn'); b.disabled = true; b.textContent = '만드는 중…';\n  try {\n    const data = {\n      format: 'socratest-oral-submission', version: 2,\n      classCode: CLASS.code, class: CLASS, alias, n, transcript: R.text, durationSec: R.sec, source: R.source, hiddenCount: R.hidden,\n      startedAt: R.t0, createdAt: Date.now(), userAgent: UA.slice(0, 200),\n      audio: { mime: R.blob.type, base64: await toB64(R.blob) },\n    };\n    const step = { 1: 1, 2: 3, 3: 6 }[n];\n    const hms = new Date().toTimeString().slice(0, 8).replace(/:/g, '');\n    const safe = alias.replace(/[^\\w-]/g, '_');\n    // 파일 이름은 영문·숫자만 씁니다(일부 휴대폰·메신저에서 한글 이름이 깨짐). 학생 정보는 파일 안에 있습니다.\n    const name = `oral_${CLASS.code}_${safe}_s${step}_${hms}.json`;\n    const file = new File([JSON.stringify(data)], name, { type: 'application/json' });\n    const audioName = `voice_${CLASS.code}_${safe}_s${step}_${hms}.${EXT[R.blob.type] || 'webm'}`;\n    const canShare = !!navigator.canShare?.({ files: [file] });\n    $('#outCard').classList.remove('hidden');\n    $('#out').innerHTML = `<div class=\"ok\">✅ 제출 파일이 준비됐어요: <b>${esc(name)}<\/b><\/div>\n      ${canShare ? '<button class=\"btn green\" id=\"shareBtn\">공유하기 (클래스룸·메신저로 보내기)<\/button>' : ''}\n      <a class=\"btn ${canShare ? 'sub' : 'green'}\" href=\"${URL.createObjectURL(file)}\" download=\"${esc(name)}\">제출 파일 저장<\/a>\n      <a class=\"btn sub\" href=\"${URL.createObjectURL(R.blob)}\" download=\"${esc(audioName)}\">내 녹음만 따로 저장<\/a>\n      <p class=\"muted\">선생님이 안내한 곳(클래스룸·과제함 등)에 <b>제출 파일(.json)<\/b>을 올리면 끝이에요. 녹음은 제출 파일 안에 들어 있어요.<br>\n      저장한 파일 위치: 안드로이드 <b>내 파일 ▸ 다운로드<\/b> / 아이폰 <b>파일 앱 ▸ 다운로드<\/b><\/p>\n      ${IN_APP ? '<div class=\"warn\">앱 안의 브라우저에서는 저장이 안 될 수 있어요. 위 안내대로 크롬·사파리로 열어 주세요.<\/div>' : ''}`;\n    if ($('#shareBtn')) $('#shareBtn').onclick = () => navigator.share({ files: [file], title: name }).catch(() => {});\n    $('#outCard').scrollIntoView({ behavior: 'smooth' });\n  } catch (e) {\n    alert('제출 파일을 만들지 못했어요: ' + e.message);\n  } finally {\n    b.disabled = false; b.textContent = '제출 파일 다시 만들기';\n  }\n}\n\n(async () => {\n  try { CLASS = await readClass(); } catch (e) { CLASS = null; $('#noClass').innerHTML += `<p class=\"err\">${esc(e.message)}<\/p>`; }\n  if (!CLASS) { $('#app').classList.add('hidden'); $('#noClass').classList.remove('hidden'); return; }\n  CLASS.maxSeconds = Number(CLASS.maxSeconds) || 180;\n  CLASS.rubric = Array.isArray(CLASS.rubric) ? CLASS.rubric : [];\n  document.title = '구술 녹음 · ' + CLASS.title;\n  $('#title').textContent = CLASS.title;\n  $('#sub').textContent = `${CLASS.areaLabel || ''} · 수업 코드 ${CLASS.code}`;\n  $('#task').textContent = CLASS.task;\n  $('#passage').textContent = CLASS.passage;\n  $('#rubric').innerHTML = CLASS.rubric.map((r) => `<tr><th>${esc(r.name)} (${r.points}점)<\/th><td class=\"muted\">${esc(r.desc)}<\/td><\/tr>`).join('');\n  $('#alias').value = store('soAlias');\n  $('#alias').oninput = () => store('soAlias', $('#alias').value.trim());\n  document.querySelectorAll('#steps input').forEach((i) => (i.onchange = () => document.querySelectorAll('#steps label').forEach((l) => l.classList.toggle('on', l.querySelector('input').checked))));\n  envNotice();\n  idle();\n})();\n<\/script>\n<\/body>\n<\/html>\n";
+const SAMPLE = {
+  area: 'poetry',
+  title: '김소월 「진달래꽃」 구술 평가',
+  passage: '진달래꽃\n\n김소월\n\n나 보기가 역겨워\n가실 때에는\n말없이 고이 보내 드리우리다\n\n영변에 약산\n진달래꽃\n아름 따다 가실 길에 뿌리우리다\n\n가시는 걸음걸음\n놓인 그 꽃을\n사뿐히 즈려밟고 가시옵소서\n\n나 보기가 역겨워\n가실 때에는\n죽어도 아니 눈물 흘리우리다',
+  task: '이 시의 화자가 처한 상황과 정서를 설명하고, 그렇게 판단한 근거가 되는 시어나 구절을 들어 말해 보세요. 특히 마지막 연의 "죽어도 아니 눈물 흘리우리다"에 담긴 화자의 진심을 어떻게 해석할 수 있는지 자신의 생각을 밝혀 보세요.',
+};
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+const KEY = 'socratest-web-classes';
+const load = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; } };
+const save = (arr) => { try { localStorage.setItem(KEY, JSON.stringify(arr)); } catch { alert('이 브라우저에는 저장할 수 없어요. 「수업 파일 백업」으로 내보내 두세요.'); } };
+const newCode = () => [...crypto.getRandomValues(new Uint8Array(3))].map((b) => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+let cur = null;
+
+$('#area').innerHTML = Object.entries(AREAS).map(([k, v]) => `<option value="${k}">${esc(v.label)}</option>`).join('');
+$('#area').onchange = () => {
+  const a = AREAS[$('#area').value];
+  if ((!$('#task').value.trim() && !$('#rubric').value.trim()) || confirm('이 영역의 기본 과제와 평가 기준으로 바꿀까요?')) { $('#task').value = a.task; $('#rubric').value = a.rubric.join('\n'); }
+};
+$('#passage').oninput = () => ($('#pcount').textContent = `${$('#passage').value.length}자 · ${$('#passage').value.split('\n').length}줄`);
+
+function fill(c) {
+  cur = c;
+  $('#area').value = c.area;
+  $('#title').value = c.title;
+  $('#passage').value = c.passage;
+  $('#task').value = c.task;
+  $('#rubric').value = c.rubricText;
+  $('#maxs').value = String(c.maxSeconds);
+  $('#code').value = c.code;
+  $('#passage').oninput();
+  $('#saved').textContent = c.savedAt ? '저장됨 · ' + new Date(c.savedAt).toLocaleString('ko-KR') : '아직 저장 안 됨';
+  $('#share').innerHTML = '';
+  renderList();
+}
+function blank(area = 'poetry') {
+  const a = AREAS[area];
+  return { id: crypto.randomUUID?.() || String(Date.now()), area, title: '', passage: '', task: a.task, rubricText: a.rubric.join('\n'), maxSeconds: 180, code: newCode(), savedAt: 0 };
+}
+function collect() {
+  const c = { ...cur, area: $('#area').value, title: $('#title').value.trim(), passage: $('#passage').value.replace(/\s+$/, ''), task: $('#task').value.trim(), rubricText: $('#rubric').value.trim(), maxSeconds: Number($('#maxs').value), code: $('#code').value.trim().toUpperCase() };
+  if (c.title.length < 2) throw new Error('수업 제목을 입력하세요.');
+  if (c.passage.length < 20) throw new Error('제시문을 입력하세요(20자 이상).');
+  if (c.task.length < 5) throw new Error('구술 과제를 입력하세요.');
+  if (!/^[0-9A-F]{6}$/.test(c.code)) throw new Error('수업 코드는 0~9, A~F로 된 6자리입니다.');
+  if (!parseRubric(c.rubricText).length) throw new Error('평가 기준을 "기준명 | 배점 | 설명" 형식으로 입력하세요.');
+  return c;
+}
+function parseRubric(text) {
+  return text.split('\n').map((l) => l.trim()).filter(Boolean).map((l) => { const [name, points, desc = '', who = ''] = l.split('|').map((x) => x.trim()); return { name, points: Math.round(Number(points)), desc, teacherOnly: /교사/.test(who) }; }).filter((r) => r.name && r.points > 0 && r.points <= 100);
+}
+function renderList() {
+  const arr = load();
+  $('#list').innerHTML = arr.length ? arr.map((c) => `<div class="item"><b>${esc(c.title)}</b><span class="pill">${c.code}</span>${cur?.id === c.id ? '<span class="pill">편집 중</span>' : `<button class="small sub" data-open="${c.id}">열기</button>`}</div>`).join('') : '<p class="muted">저장된 수업이 없습니다.</p>';
+  document.querySelectorAll('[data-open]').forEach((b) => (b.onclick = () => fill(load().find((c) => c.id === b.dataset.open))));
+}
+$('#newBtn').onclick = () => fill(blank());
+$('#sampleBtn').onclick = () => { const c = blank('poetry'); Object.assign(c, SAMPLE); fill(c); };
+$('#saveBtn').onclick = () => {
+  try {
+    const c = collect(); c.savedAt = Date.now();
+    const arr = load().filter((x) => x.id !== c.id); arr.unshift(c); save(arr); fill(c);
+  } catch (e) { alert(e.message); }
+};
+$('#delBtn').onclick = () => { if (!confirm('이 수업을 삭제할까요?')) return; save(load().filter((x) => x.id !== cur.id)); fill(load()[0] || blank()); };
+
+function classData(c) {
+  return { code: c.code, title: c.title, areaLabel: AREAS[c.area]?.label || '', task: c.task, passage: c.passage, maxSeconds: c.maxSeconds, rubric: parseRubric(c.rubricText) };
+}
+async function encode(obj) {
+  const bytes = new TextEncoder().encode(JSON.stringify(obj));
+  let out = bytes, kind = 'j';
+  if (window.CompressionStream) { out = new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(new CompressionStream('deflate-raw'))).arrayBuffer()); kind = 'z'; }
+  let bin = ''; for (const b of out) bin += String.fromCharCode(b);
+  return kind + btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+const studentBase = () => new URL('student.html', location.href).href;
+$('#linkBtn').onclick = async () => {
+  let c; try { c = collect(); } catch (e) { return alert(e.message); }
+  if (!/^https:/.test(location.href)) {
+    $('#share').innerHTML = `<div class="warn">이 교사용 화면이 인터넷 주소(https)가 아닌 곳에서 열려 있어 학생 링크를 만들 수 없어요. GitHub Pages 주소에서 열거나, 옆의 <b>[학생용 HTML 파일 내려받기]</b>를 쓰세요.</div>`;
+    return;
+  }
+  const link = studentBase() + '#c=' + await encode(classData(c));
+  $('#share').innerHTML = `<h3>학생용 링크</h3><div class="link" id="lk">${esc(link)}</div>
+    <div class="row" style="margin-top:8px"><button class="small" id="copyBtn">링크 복사</button><a class="btn sub small" href="${esc(link)}" target="_blank" rel="noopener">학생 화면 미리 보기</a></div>
+    <div id="qr"></div><p class="muted" id="qrMsg"></p>
+    <div class="ok">이 링크를 클래스룸·학급 단톡방에 올리거나 QR코드를 화면에 띄우세요. 학생이 링크를 <b>크롬(안드로이드)·사파리(아이폰)</b>로 열면 바로 녹음할 수 있습니다. 제시문을 고치면 링크를 다시 만들어 주세요.</div>`;
+  $('#copyBtn').onclick = async () => { try { await navigator.clipboard.writeText(link); alert('복사했습니다.'); } catch { prompt('복사하세요', link); } };
+  try {
+    if (!window.QRCodeLib) throw new Error('QR 기능을 불러오지 못했어요.');
+    const url = await QRCodeLib.toDataURL(link, { errorCorrectionLevel: 'L', width: 560, margin: 2 });
+    $('#qr').innerHTML = `<img src="${url}" alt="학생용 링크 QR코드">`;
+    $('#qrMsg').textContent = '휴대폰 카메라로 찍으면 열립니다. QR이 촘촘하면 화면을 크게 띄우세요.';
+  } catch {
+    $('#qrMsg').textContent = '제시문이 길어 QR코드에 담을 수 없어요. 링크를 복사해 나눠 주세요.';
+  }
+};
+$('#fileBtn').onclick = async () => {
+  let c; try { c = collect(); } catch (e) { return alert(e.message); }
+  let tpl;
+  tpl = STUDENT_TEMPLATE;
+  if (!tpl) {
+    try { tpl = await (await fetch(studentBase(), { cache: 'no-store' })).text(); if (!tpl.includes('/*__CLASS_JSON__*/')) throw 0; }
+    catch { return alert('학생용 HTML 원본을 불러오지 못했어요.'); }
+  }
+  const json = JSON.stringify(classData(c)).replace(/</g, '\\u003c');
+  const html = tpl.replace(/\/\*__CLASS_JSON__\*\/[\s\S]*?\/\*__END__\*\//, () => json);
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+  a.download = `oral_${c.code}.html`;
+  a.click();
+  $('#share').innerHTML = '<div class="warn">파일로 나눠 주면 휴대폰에 따라 화면 녹음이 막혀 <b>녹음 앱으로 녹음 후 첨부</b> 방식이 됩니다. 가능하면 링크로 나눠 주세요.</div>';
+};
+
+// ── 제출 파일 확인 ──
+$('#subIn').onchange = async (e) => {
+  const out = [];
+  for (const f of e.target.files) {
+    try {
+      const d = JSON.parse(await f.text());
+      if (d.format !== 'socratest-oral-submission') throw new Error('구술 제출 파일이 아닙니다.');
+      const bin = atob(d.audio.base64); const u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+      const url = URL.createObjectURL(new Blob([u8], { type: d.audio.mime }));
+      const step = { 1: '1단계 1차 구술', 2: '3단계 수정 구술', 3: '6단계 실전 구술' }[d.n];
+      out.push(`<div class="sub-item"><b>${esc(d.alias)}</b> · ${step} · 수업 ${esc(d.classCode)} · ${new Date(d.createdAt).toLocaleString('ko-KR')}${d.durationSec ? ` · ${Math.round(d.durationSec)}초` : ''}${d.source === 'file' ? ' · <span class="pill">녹음 파일 첨부</span>' : ''}
+        <audio controls src="${url}"></audio><a class="btn sub small" href="${url}" download="${esc(f.name.replace(/\.json$/, ''))}.${(d.audio.mime.split('/')[1] || 'webm').replace('mpeg', 'mp3').replace('mp4', 'm4a')}">녹음 저장</a>
+        ${d.transcript ? `<p>${esc(d.transcript)}</p>` : ''}</div>`);
+    } catch (err) { out.push(`<p class="err">${esc(f.name)}: ${esc(err.message)}</p>`); }
+  }
+  $('#subs').innerHTML = out.join('');
+  e.target.value = '';
+};
+
+// ── 백업 ──
+$('#exportBtn').onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(load(), null, 1)], { type: 'application/json' })); a.download = 'oral_classes_backup.json'; a.click(); };
+$('#importIn').onchange = async (e) => {
+  try { const arr = JSON.parse(await e.target.files[0].text()); if (!Array.isArray(arr)) throw 0; const map = new Map(load().map((c) => [c.id, c])); arr.forEach((c) => map.set(c.id, c)); save([...map.values()]); renderList(); alert(`${arr.length}개 수업을 가져왔습니다.`); }
+  catch { alert('백업 파일을 읽지 못했습니다.'); }
+  e.target.value = '';
+};
+
+fill(load()[0] || blank());
+</script>
+</body>
+</html>

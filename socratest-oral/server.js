@@ -88,8 +88,8 @@ function lanAddresses() {
   return out;
 }
 const audioPath = (rel) => path.join(AUDIO_DIR, rel);
-const EXT = { 'audio/webm': '.webm', 'audio/ogg': '.ogg', 'audio/mp4': '.m4a', 'audio/x-m4a': '.m4a', 'audio/m4a': '.m4a', 'audio/aac': '.aac', 'audio/mpeg': '.mp3', 'audio/mp3': '.mp3', 'audio/wav': '.wav', 'audio/x-wav': '.wav', 'audio/wave': '.wav' };
-const MIME = { '.webm': 'audio/webm', '.ogg': 'audio/ogg', '.m4a': 'audio/mp4', '.aac': 'audio/aac', '.mp3': 'audio/mpeg', '.wav': 'audio/wav' };
+const EXT = { 'audio/webm': '.webm', 'audio/ogg': '.ogg', 'audio/mp4': '.m4a', 'audio/x-m4a': '.m4a', 'audio/m4a': '.m4a', 'audio/aac': '.aac', 'audio/mpeg': '.mp3', 'audio/mp3': '.mp3', 'audio/wav': '.wav', 'audio/x-wav': '.wav', 'audio/wave': '.wav', 'audio/3gpp': '.3gp', 'video/3gpp': '.3gp', 'audio/amr': '.amr' };
+const MIME = { '.webm': 'audio/webm', '.ogg': 'audio/ogg', '.m4a': 'audio/mp4', '.aac': 'audio/aac', '.mp3': 'audio/mpeg', '.wav': 'audio/wav', '.3gp': 'audio/3gpp', '.amr': 'audio/amr' };
 
 // ───────────────────────── 진행 단계 계산 ─────────────────────────
 // 반환값: 0 마감, 1~7 진행 단계, 5 연습 완료(실전 대기), 8 교사 확정 대기, 9 최종 결과 공개
@@ -500,18 +500,44 @@ route('DELETE', '/api/students/:id', (req, url, p) => {
 
 
 // ── 독립형 HTML(서버 없이 녹음 → 제출 파일) ──
+// 교사용 HTML(웹)에서 만든 수업의 제출 파일이면, 파일에 담긴 수업 정보로 프로그램에 수업을 만듭니다.
+function createClassFromSubmission(d) {
+  const k = d.class;
+  const code = str(d.classCode, 10).toUpperCase();
+  if (!k || !/^[0-9A-F]{6}$/.test(code)) return null;
+  const rubric = parseRubric((k.rubric || []).map((r) => [r.name, r.points, r.desc, r.teacherOnly ? '교사' : ''].join(' | ')));
+  const c = {
+    code,
+    title: str(k.title, 100) || '웹에서 만든 수업',
+    area: 'free',
+    areaLabel: str(k.areaLabel, 40) || AREAS.free.label,
+    passage: str(k.passage, 20000),
+    task: str(k.task, 2000),
+    standard: '',
+    rubric: rubric.length ? rubric : parseRubric(AREAS.free.rubric),
+    phase: 'practice',
+    maxSeconds: Math.max(30, Math.min(600, Number(k.maxSeconds) || 180)),
+    assessmentTakes: 1,
+    showAiInAssessment: false,
+    created: Date.now(),
+    fromWeb: true,
+  };
+  db.classes.push(c);
+  saveDbNow();
+  return c;
+}
 const STANDALONE = path.resolve('lib/standalone-template.html');
 route('GET', '/api/classes/:code/standalone.html', (req, url, p) => {
   requireTeacher(req, url);
   const c = findClass(p.code) || fail(404, '수업 없음');
-  const data = { code: c.code, title: c.title, areaLabel: c.areaLabel, task: c.task, passage: c.passage, maxSeconds: c.maxSeconds, rubric: c.rubric.map(({ name, points, desc }) => ({ name, points, desc })) };
+  const data = { code: c.code, title: c.title, areaLabel: c.areaLabel, task: c.task, passage: c.passage, maxSeconds: c.maxSeconds, rubric: c.rubric.map(({ name, points, desc, teacherOnly }) => ({ name, points, desc, teacherOnly })) };
   const json = JSON.stringify(data).replace(/</g, '\\u003c').replace(/\u2028|\u2029/g, '');
   const html = fs.readFileSync(STANDALONE, 'utf8').replace(/\/\*__CLASS_JSON__\*\/[\s\S]*?\/\*__END__\*\//, () => json);
   return { __raw: html, type: 'text/html; charset=utf-8', filename: `구술녹음_${c.title.replace(/[\\/:*?"<>|]/g, '').slice(0, 30)}_${c.code}.html` };
 });
 route('POST', '/api/classes/:code/import', async (req, url, p) => {
   requireTeacher(req, url);
-  const c = findClass(p.code) || fail(404, '수업 없음');
+  let c = findClass(p.code) || fail(404, '수업 없음');
   const buf = await readBody(req, 40 * 1024 * 1024);
   let d;
   try {
@@ -520,7 +546,10 @@ route('POST', '/api/classes/:code/import', async (req, url, p) => {
     fail(400, '제출 파일(JSON)을 읽을 수 없습니다.');
   }
   if (d?.format !== 'socratest-oral-submission') fail(400, '구술 제출 파일이 아닙니다.');
-  if (String(d.classCode).toUpperCase() !== c.code) fail(400, `다른 수업(${str(d.classCode, 10)})의 제출 파일입니다.`);
+  if (String(d.classCode).toUpperCase() !== c.code) {
+    // 다른 수업의 파일: 그 수업이 프로그램에 있으면 그쪽으로, 없으면 파일 속 수업 정보로 새로 만듭니다.
+    c = findClass(d.classCode) || createClassFromSubmission(d) || fail(400, `다른 수업(${str(d.classCode, 10)})의 제출 파일입니다.`);
+  }
   const alias = str(d.alias, 30).replace(/\s+/g, ' ');
   const n = Number(d.n);
   if (alias.length < 2) fail(400, '식별명이 없습니다.');
@@ -540,7 +569,7 @@ route('POST', '/api/classes/:code/import', async (req, url, p) => {
   const tmp = path.join(TMP_DIR, crypto.randomUUID() + ext);
   fs.writeFileSync(tmp, audio);
   addAttempt(s, c, n, { tmp, ext, transcript: d.transcript, durationSec: d.durationSec, hiddenCount: d.hiddenCount, startedAt: d.startedAt, source: d.source === 'file' ? 'file' : 'recorder', via: 'standalone' });
-  return { ok: true, alias, label: ATTEMPT_LABEL[n] };
+  return { ok: true, alias, label: ATTEMPT_LABEL[n], classCode: c.code, classTitle: c.title, otherClass: c.code !== p.code };
 });
 
 // 내보내기

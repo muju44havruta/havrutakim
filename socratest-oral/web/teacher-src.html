@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1f5f8b">
+<title>구술 수행평가 · 교사용</title>
+<style>
+:root{--brand:#1f5f8b;--ink:#1d2733;--muted:#64717e;--line:#dfe5eb;--bg:#f3f5f7;--green:#2f7d5b;--green-soft:#e7f4ed;--red:#c9372a;--red-soft:#fbece9;--yellow:#fff4d6}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,'Apple SD Gothic Neo','Malgun Gothic','Pretendard',system-ui,sans-serif;word-break:keep-all;overflow-wrap:anywhere}
+header{background:var(--brand);color:#fff;padding:14px 18px}header b{font-size:1.1rem}header span{color:#d6e4ef;font-size:.85rem;margin-left:8px}
+main{max-width:860px;margin:0 auto;padding:16px 14px 60px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;margin:0 0 14px}
+h2{font-size:1.15rem;margin:0 0 10px}h3{font-size:1rem;margin:16px 0 6px}
+label{display:block;font-weight:700;margin:12px 0 5px}label small,.muted{font-weight:400;color:var(--muted);font-size:.88rem}
+input,textarea,select{width:100%;font:inherit;padding:11px 12px;border:1.5px solid #b9c6d2;border-radius:10px;background:#fff}
+textarea{min-height:110px;resize:vertical}
+#passage{min-height:280px;line-height:1.9;font-family:inherit}
+input:focus,textarea:focus,select:focus{outline:3px solid #9cc8e6}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+button,.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:46px;padding:10px 16px;border:0;border-radius:10px;background:var(--brand);color:#fff;font:inherit;font-weight:700;cursor:pointer;text-decoration:none}
+button.sub,.btn.sub{background:#fff;color:var(--brand);border:1.5px solid var(--brand)}
+button.green{background:var(--green)}button.danger{background:#fff;color:#a3281a;border:1.5px solid #d79a91}
+button.small{min-height:34px;padding:4px 10px;font-size:.9rem}
+.list .item{border-top:1px solid var(--line);padding:10px 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.list .item b{flex:1}
+.pill{display:inline-block;padding:1px 9px;border-radius:99px;background:#e9f2f8;color:var(--brand);font-size:.82rem;font-weight:700}
+.ok{background:var(--green-soft);border-radius:10px;padding:12px}
+.warn{background:var(--yellow);border-radius:10px;padding:10px 12px;font-size:.93rem}
+.err{background:var(--red-soft);color:#7a2215;border-radius:10px;padding:10px 12px}
+.link{font-size:.8rem;word-break:break-all;background:#f6f8fa;border:1px solid var(--line);border-radius:8px;padding:8px;max-height:90px;overflow:auto}
+#qr{display:flex;justify-content:center;margin:12px 0}#qr img,#qr canvas{max-width:280px;width:100%;height:auto}
+.sub-item{border-left:4px solid var(--green);padding-left:10px;margin:12px 0}
+audio{width:100%}
+.hidden{display:none!important}
+@media(max-width:640px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><b>구술 수행평가 · 교사용</b><span>제시문 등록 → 학생 링크 만들기</span></header>
+<main>
+  <section class="card">
+    <h2>내 수업</h2>
+    <div class="row"><button id="newBtn">+ 새 수업</button><button class="sub" id="sampleBtn">예시 불러오기: 김소월 「진달래꽃」</button></div>
+    <div class="list" id="list"></div>
+    <p class="muted">수업은 이 기기의 브라우저에만 저장됩니다. 다른 기기에서 쓰려면 아래 「수업 파일 백업」을 이용하세요.</p>
+  </section>
+
+  <section class="card">
+    <h2>① 제시문 등록</h2>
+    <div class="grid">
+      <div><label for="area">영역</label><select id="area"></select></div>
+      <div><label for="title">수업 제목</label><input id="title" maxlength="100" placeholder="예: 김소월 「진달래꽃」 구술 평가"></div>
+    </div>
+    <label for="passage">제시문(작품 전문·지문) <small>학생 화면에 그대로 보입니다. 행·연 구분은 줄바꿈과 빈 줄로 입력하세요.</small></label>
+    <textarea id="passage" placeholder="작품 전문을 붙여 넣으세요."></textarea>
+    <p class="muted" id="pcount"></p>
+    <label for="task">구술 과제 <small>학생이 말로 답할 질문</small></label>
+    <textarea id="task" rows="3"></textarea>
+    <label for="rubric">평가 기준 <small>한 줄에 하나: 기준명 | 배점 | 상·중·하 설명 | (선택) 교사</small></label>
+    <textarea id="rubric" rows="7" style="font-size:.9rem"></textarea>
+    <div class="grid">
+      <div><label for="maxs">한 번 녹음 최대 시간</label><select id="maxs"><option value="60">1분</option><option value="120">2분</option><option value="180" selected>3분</option><option value="240">4분</option><option value="300">5분</option><option value="420">7분</option><option value="600">10분</option></select></div>
+      <div><label for="code">수업 코드 <small>교사 프로그램의 수업과 맞추려면 그 코드를 입력</small></label><input id="code" maxlength="6" style="text-transform:uppercase"></div>
+    </div>
+    <div class="row" style="margin-top:14px"><button id="saveBtn">저장</button><button class="danger" id="delBtn">이 수업 삭제</button><span class="muted" id="saved"></span></div>
+  </section>
+
+  <section class="card">
+    <h2>② 학생에게 나눠 주기</h2>
+    <div class="row"><button class="green" id="linkBtn">학생용 링크·QR 만들기</button><button class="sub" id="fileBtn">학생용 HTML 파일 내려받기</button></div>
+    <div id="share"></div>
+  </section>
+
+  <section class="card">
+    <h2>③ 학생 제출 파일 확인</h2>
+    <p class="muted">학생이 보낸 <b>제출 파일(.json)</b>을 골라 녹음을 들어 볼 수 있습니다. AI 평가와 최종 피드백은 <b>교사 프로그램</b> ▸ 독립형 HTML 탭 ▸ [제출 파일 선택]에서 같은 파일을 가져오면 진행됩니다(이 웹에서 만든 수업도 자동으로 만들어집니다).</p>
+    <label class="btn sub" style="display:inline-flex">제출 파일 열기(여러 개)<input type="file" id="subIn" accept=".json,application/json" multiple hidden></label>
+    <div id="subs"></div>
+  </section>
+
+  <section class="card">
+    <h2>수업 파일 백업</h2>
+    <div class="row"><button class="sub small" id="exportBtn">모든 수업 내보내기(.json)</button><label class="btn sub small" style="display:inline-flex">가져오기<input type="file" id="importIn" accept=".json" hidden></label></div>
+  </section>
+</main>
+<script src="qrcode.min.js"></script>
+<script>
+'use strict';
+const AREAS = /*__AREAS__*/ {} /*__END__*/;
+// 학생용 HTML 원본(교사용 파일만 있어도 학생용 파일을 만들 수 있도록 함께 넣어 둠)
+const STUDENT_TEMPLATE = /*__TEMPLATE__*/ '' /*__END2__*/;
+const SAMPLE = {
+  area: 'poetry',
+  title: '김소월 「진달래꽃」 구술 평가',
+  passage: '진달래꽃\n\n김소월\n\n나 보기가 역겨워\n가실 때에는\n말없이 고이 보내 드리우리다\n\n영변에 약산\n진달래꽃\n아름 따다 가실 길에 뿌리우리다\n\n가시는 걸음걸음\n놓인 그 꽃을\n사뿐히 즈려밟고 가시옵소서\n\n나 보기가 역겨워\n가실 때에는\n죽어도 아니 눈물 흘리우리다',
+  task: '이 시의 화자가 처한 상황과 정서를 설명하고, 그렇게 판단한 근거가 되는 시어나 구절을 들어 말해 보세요. 특히 마지막 연의 "죽어도 아니 눈물 흘리우리다"에 담긴 화자의 진심을 어떻게 해석할 수 있는지 자신의 생각을 밝혀 보세요.',
+};
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+const KEY = 'socratest-web-classes';
+const load = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; } };
+const save = (arr) => { try { localStorage.setItem(KEY, JSON.stringify(arr)); } catch { alert('이 브라우저에는 저장할 수 없어요. 「수업 파일 백업」으로 내보내 두세요.'); } };
+const newCode = () => [...crypto.getRandomValues(new Uint8Array(3))].map((b) => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+let cur = null;
+
+$('#area').innerHTML = Object.entries(AREAS).map(([k, v]) => `<option value="${k}">${esc(v.label)}</option>`).join('');
+$('#area').onchange = () => {
+  const a = AREAS[$('#area').value];
+  if ((!$('#task').value.trim() && !$('#rubric').value.trim()) || confirm('이 영역의 기본 과제와 평가 기준으로 바꿀까요?')) { $('#task').value = a.task; $('#rubric').value = a.rubric.join('\n'); }
+};
+$('#passage').oninput = () => ($('#pcount').textContent = `${$('#passage').value.length}자 · ${$('#passage').value.split('\n').length}줄`);
+
+function fill(c) {
+  cur = c;
+  $('#area').value = c.area;
+  $('#title').value = c.title;
+  $('#passage').value = c.passage;
+  $('#task').value = c.task;
+  $('#rubric').value = c.rubricText;
+  $('#maxs').value = String(c.maxSeconds);
+  $('#code').value = c.code;
+  $('#passage').oninput();
+  $('#saved').textContent = c.savedAt ? '저장됨 · ' + new Date(c.savedAt).toLocaleString('ko-KR') : '아직 저장 안 됨';
+  $('#share').innerHTML = '';
+  renderList();
+}
+function blank(area = 'poetry') {
+  const a = AREAS[area];
+  return { id: crypto.randomUUID?.() || String(Date.now()), area, title: '', passage: '', task: a.task, rubricText: a.rubric.join('\n'), maxSeconds: 180, code: newCode(), savedAt: 0 };
+}
+function collect() {
+  const c = { ...cur, area: $('#area').value, title: $('#title').value.trim(), passage: $('#passage').value.replace(/\s+$/, ''), task: $('#task').value.trim(), rubricText: $('#rubric').value.trim(), maxSeconds: Number($('#maxs').value), code: $('#code').value.trim().toUpperCase() };
+  if (c.title.length < 2) throw new Error('수업 제목을 입력하세요.');
+  if (c.passage.length < 20) throw new Error('제시문을 입력하세요(20자 이상).');
+  if (c.task.length < 5) throw new Error('구술 과제를 입력하세요.');
+  if (!/^[0-9A-F]{6}$/.test(c.code)) throw new Error('수업 코드는 0~9, A~F로 된 6자리입니다.');
+  if (!parseRubric(c.rubricText).length) throw new Error('평가 기준을 "기준명 | 배점 | 설명" 형식으로 입력하세요.');
+  return c;
+}
+function parseRubric(text) {
+  return text.split('\n').map((l) => l.trim()).filter(Boolean).map((l) => { const [name, points, desc = '', who = ''] = l.split('|').map((x) => x.trim()); return { name, points: Math.round(Number(points)), desc, teacherOnly: /교사/.test(who) }; }).filter((r) => r.name && r.points > 0 && r.points <= 100);
+}
+function renderList() {
+  const arr = load();
+  $('#list').innerHTML = arr.length ? arr.map((c) => `<div class="item"><b>${esc(c.title)}</b><span class="pill">${c.code}</span>${cur?.id === c.id ? '<span class="pill">편집 중</span>' : `<button class="small sub" data-open="${c.id}">열기</button>`}</div>`).join('') : '<p class="muted">저장된 수업이 없습니다.</p>';
+  document.querySelectorAll('[data-open]').forEach((b) => (b.onclick = () => fill(load().find((c) => c.id === b.dataset.open))));
+}
+$('#newBtn').onclick = () => fill(blank());
+$('#sampleBtn').onclick = () => { const c = blank('poetry'); Object.assign(c, SAMPLE); fill(c); };
+$('#saveBtn').onclick = () => {
+  try {
+    const c = collect(); c.savedAt = Date.now();
+    const arr = load().filter((x) => x.id !== c.id); arr.unshift(c); save(arr); fill(c);
+  } catch (e) { alert(e.message); }
+};
+$('#delBtn').onclick = () => { if (!confirm('이 수업을 삭제할까요?')) return; save(load().filter((x) => x.id !== cur.id)); fill(load()[0] || blank()); };
+
+function classData(c) {
+  return { code: c.code, title: c.title, areaLabel: AREAS[c.area]?.label || '', task: c.task, passage: c.passage, maxSeconds: c.maxSeconds, rubric: parseRubric(c.rubricText) };
+}
+async function encode(obj) {
+  const bytes = new TextEncoder().encode(JSON.stringify(obj));
+  let out = bytes, kind = 'j';
+  if (window.CompressionStream) { out = new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(new CompressionStream('deflate-raw'))).arrayBuffer()); kind = 'z'; }
+  let bin = ''; for (const b of out) bin += String.fromCharCode(b);
+  return kind + btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+const studentBase = () => new URL('student.html', location.href).href;
+$('#linkBtn').onclick = async () => {
+  let c; try { c = collect(); } catch (e) { return alert(e.message); }
+  if (!/^https:/.test(location.href)) {
+    $('#share').innerHTML = `<div class="warn">이 교사용 화면이 인터넷 주소(https)가 아닌 곳에서 열려 있어 학생 링크를 만들 수 없어요. GitHub Pages 주소에서 열거나, 옆의 <b>[학생용 HTML 파일 내려받기]</b>를 쓰세요.</div>`;
+    return;
+  }
+  const link = studentBase() + '#c=' + await encode(classData(c));
+  $('#share').innerHTML = `<h3>학생용 링크</h3><div class="link" id="lk">${esc(link)}</div>
+    <div class="row" style="margin-top:8px"><button class="small" id="copyBtn">링크 복사</button><a class="btn sub small" href="${esc(link)}" target="_blank" rel="noopener">학생 화면 미리 보기</a></div>
+    <div id="qr"></div><p class="muted" id="qrMsg"></p>
+    <div class="ok">이 링크를 클래스룸·학급 단톡방에 올리거나 QR코드를 화면에 띄우세요. 학생이 링크를 <b>크롬(안드로이드)·사파리(아이폰)</b>로 열면 바로 녹음할 수 있습니다. 제시문을 고치면 링크를 다시 만들어 주세요.</div>`;
+  $('#copyBtn').onclick = async () => { try { await navigator.clipboard.writeText(link); alert('복사했습니다.'); } catch { prompt('복사하세요', link); } };
+  try {
+    if (!window.QRCodeLib) throw new Error('QR 기능을 불러오지 못했어요.');
+    const url = await QRCodeLib.toDataURL(link, { errorCorrectionLevel: 'L', width: 560, margin: 2 });
+    $('#qr').innerHTML = `<img src="${url}" alt="학생용 링크 QR코드">`;
+    $('#qrMsg').textContent = '휴대폰 카메라로 찍으면 열립니다. QR이 촘촘하면 화면을 크게 띄우세요.';
+  } catch {
+    $('#qrMsg').textContent = '제시문이 길어 QR코드에 담을 수 없어요. 링크를 복사해 나눠 주세요.';
+  }
+};
+$('#fileBtn').onclick = async () => {
+  let c; try { c = collect(); } catch (e) { return alert(e.message); }
+  let tpl;
+  tpl = STUDENT_TEMPLATE;
+  if (!tpl) {
+    try { tpl = await (await fetch(studentBase(), { cache: 'no-store' })).text(); if (!tpl.includes('/*__CLASS_JSON__*/')) throw 0; }
+    catch { return alert('학생용 HTML 원본을 불러오지 못했어요.'); }
+  }
+  const json = JSON.stringify(classData(c)).replace(/</g, '\\u003c');
+  const html = tpl.replace(/\/\*__CLASS_JSON__\*\/[\s\S]*?\/\*__END__\*\//, () => json);
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+  a.download = `oral_${c.code}.html`;
+  a.click();
+  $('#share').innerHTML = '<div class="warn">파일로 나눠 주면 휴대폰에 따라 화면 녹음이 막혀 <b>녹음 앱으로 녹음 후 첨부</b> 방식이 됩니다. 가능하면 링크로 나눠 주세요.</div>';
+};
+
+// ── 제출 파일 확인 ──
+$('#subIn').onchange = async (e) => {
+  const out = [];
+  for (const f of e.target.files) {
+    try {
+      const d = JSON.parse(await f.text());
+      if (d.format !== 'socratest-oral-submission') throw new Error('구술 제출 파일이 아닙니다.');
+      const bin = atob(d.audio.base64); const u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+      const url = URL.createObjectURL(new Blob([u8], { type: d.audio.mime }));
+      const step = { 1: '1단계 1차 구술', 2: '3단계 수정 구술', 3: '6단계 실전 구술' }[d.n];
+      out.push(`<div class="sub-item"><b>${esc(d.alias)}</b> · ${step} · 수업 ${esc(d.classCode)} · ${new Date(d.createdAt).toLocaleString('ko-KR')}${d.durationSec ? ` · ${Math.round(d.durationSec)}초` : ''}${d.source === 'file' ? ' · <span class="pill">녹음 파일 첨부</span>' : ''}
+        <audio controls src="${url}"></audio><a class="btn sub small" href="${url}" download="${esc(f.name.replace(/\.json$/, ''))}.${(d.audio.mime.split('/')[1] || 'webm').replace('mpeg', 'mp3').replace('mp4', 'm4a')}">녹음 저장</a>
+        ${d.transcript ? `<p>${esc(d.transcript)}</p>` : ''}</div>`);
+    } catch (err) { out.push(`<p class="err">${esc(f.name)}: ${esc(err.message)}</p>`); }
+  }
+  $('#subs').innerHTML = out.join('');
+  e.target.value = '';
+};
+
+// ── 백업 ──
+$('#exportBtn').onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(load(), null, 1)], { type: 'application/json' })); a.download = 'oral_classes_backup.json'; a.click(); };
+$('#importIn').onchange = async (e) => {
+  try { const arr = JSON.parse(await e.target.files[0].text()); if (!Array.isArray(arr)) throw 0; const map = new Map(load().map((c) => [c.id, c])); arr.forEach((c) => map.set(c.id, c)); save([...map.values()]); renderList(); alert(`${arr.length}개 수업을 가져왔습니다.`); }
+  catch { alert('백업 파일을 읽지 못했습니다.'); }
+  e.target.value = '';
+};
+
+fill(load()[0] || blank());
+</script>
+</body>
+</html>

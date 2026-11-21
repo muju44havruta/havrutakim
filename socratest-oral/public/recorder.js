@@ -2,7 +2,9 @@
 // - MediaRecorder로 원본 음성을 녹음(이의제기 대응용으로 교사 PC에 보관)
 // - 설정이 '브라우저 음성 인식'이면 Web Speech API로 녹음과 동시에 글로 변환
 // - 실전 평가에서는 녹음 중 다른 화면으로 나간 횟수를 기록(교사 참고용)
-const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+// 휴대폰은 녹음과 음성 인식이 마이크를 동시에 쓰면 녹음이 무음이 될 수 있어, 컴퓨터에서만 실시간 글자 변환을 합니다.
+const IS_MOBILE_DEVICE = /Android|iPhone|iPad|iPod|Mobile/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+const SpeechRec = !IS_MOBILE_DEVICE && (window.SpeechRecognition || window.webkitSpeechRecognition);
 
 function pickMime() {
   const list = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus'];
@@ -22,7 +24,7 @@ class OralRecorder {
     const sttNote = o.browserStt
       ? SpeechRec
         ? '말하는 동안 아래에 글자로 표시됩니다. 인식이 조금 틀려도 괜찮아요. 선생님이 녹음을 듣고 확인합니다.'
-        : '⚠ 이 브라우저는 음성 인식을 지원하지 않아요. 녹음은 그대로 저장되고 선생님이 글로 옮겨 평가합니다. (크롬·엣지·삼성 인터넷 권장)'
+        : '녹음은 그대로 저장되고, 글자 변환은 선생님 컴퓨터에서 합니다.'
       : '녹음을 제출하면 선생님 PC에서 자동으로 글로 바뀝니다.';
     this.el.innerHTML = `<div class="recorder">
       ${message ? `<p class="danger-box">${esc(message)}</p>` : ''}
