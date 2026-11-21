@@ -221,7 +221,7 @@ $$('#phaseSwitch button').forEach(
 );
 function switchTab(tab) {
   $$('#classTabs button').forEach((b) => b.classList.toggle('on', b.dataset.tab === tab));
-  for (const t of ['students', 'join', 'export']) $('#t-' + t).classList.toggle('hidden', t !== tab);
+  for (const t of ['students', 'join', 'offline', 'export']) $('#t-' + t).classList.toggle('hidden', t !== tab);
   if (tab === 'join') renderJoin();
   if (tab === 'export') renderExport();
 }
@@ -286,7 +286,7 @@ function renderDetail(force) {
     }[at.state];
     return `<div class="attempt ${exam ? 'exam' : ''}">
       <h3>${label}</h3>
-      <p class="kv">${fmtTime(at.submittedAt)} 제출 · ${fmtSec(at.durationSec)} · ${at.take}번째 녹음${at.hiddenCount ? ` · <b>녹음 중 화면 이탈 ${at.hiddenCount}회</b>` : ''} · 전사: ${SOURCE[at.transcriptSource] || at.transcriptSource}<br>
+      <p class="kv">${fmtTime(at.submittedAt)} 제출 · ${fmtSec(at.durationSec)} · ${at.take}번째 녹음${at.hiddenCount ? ` · <b>녹음 중 화면 이탈 ${at.hiddenCount}회</b>` : ''} · 전사: ${SOURCE[at.transcriptSource] || at.transcriptSource}${at.via === 'standalone' ? ' · <span class="pill gray">독립형 제출</span>' : ''}${at.source === 'file' ? ' · <span class="pill warn">녹음 파일 첨부(화면 녹음 아님)</span>' : ''}<br>
       SHA-256 <code>${at.sha256.slice(0, 16)}…</code> · ${Math.round(at.bytes / 1024)}KB</p>
       <audio controls preload="none" src="/api/audio/${s.id}/a${n}?t=${t}"></audio>
       <p class="row"><a class="btn small secondary" href="/api/audio/${s.id}/a${n}?t=${t}&download=1">녹음 파일 저장</a></p>
@@ -296,7 +296,7 @@ function renderDetail(force) {
       <p class="row">
         <button class="small secondary" data-savetr="${n}">전사문 저장</button>
         <button class="small" data-savetr-eval="${n}">저장 후 AI 재평가</button>
-        ${ev ? `<button class="small secondary" data-reeval="${n}">AI 재평가</button>` : ''}
+        ${ev ? `<button class="small secondary" data-reeval="${n}">AI 재평가</button><button class="small secondary" data-copyfb="${n}">학생에게 보낼 피드백 복사</button>` : ''}
         <button class="small danger" data-reset="${n}">이 단계부터 다시 녹음하게 하기</button>
       </p>
       ${at.transcriptHistory?.length > 1 ? `<details><summary>전사 이력 ${at.transcriptHistory.length}건</summary>${at.transcriptHistory.map((h) => `<p class="kv">${fmtTime(h.at)} · ${SOURCE[h.source] || h.source}</p><p>${nl(h.text)}</p>`).join('')}</details>` : ''}
@@ -398,6 +398,21 @@ function bindDetail(s) {
   const pf = $('#publishFinalBtn');
   if (pf) pf.onclick = () => confirm('최종 점수와 피드백을 학생에게 공개합니다.') && act(() => api(`/api/students/${s.id}/final`, { body: finalBody(true) }), '학생에게 공개했습니다.');
   $$('[data-sendreply]', d).forEach((b) => (b.onclick = () => act(() => api(`/api/students/${s.id}/objection/${b.dataset.sendreply}`, { body: { reply: $(`[data-reply="${b.dataset.sendreply}"]`, d).value } }), '답변을 저장했습니다.')));
+  $$('[data-copyfb]', d).forEach(
+    (b) =>
+      (b.onclick = async () => {
+        const n = b.dataset.copyfb;
+        const r = s.evals['e' + n].result;
+        const label = { 1: '1차 피드백(2단계)', 2: '2차 피드백(5단계)', 3: '실전 AI 평가(7단계)' }[n];
+        const text = `[${classData.class.title}] ${s.alias} · ${label}\n\n${r.studentFeedback}\n\n생각해 볼 질문\n${r.questions.map((q) => '- ' + q).join('\n')}`;
+        try {
+          await navigator.clipboard.writeText(text);
+          toast('복사했습니다. 클래스룸·메신저에 붙여 넣으세요.', 'ok');
+        } catch {
+          prompt('아래 내용을 복사하세요.', text);
+        }
+      }),
+  );
   $('#reportBtn').onclick = () => window.open('/report.html?id=' + s.id, '_blank');
   $('#delStudentBtn').onclick = () =>
     confirm(`${s.alias} 학생의 모든 녹음과 기록을 삭제합니다. 되돌릴 수 없습니다.`) &&
@@ -432,6 +447,29 @@ async function renderJoin() {
   sel.onchange = draw;
   draw();
 }
+
+// ── 독립형 HTML ──
+$('#standaloneBtn').onclick = () => download(`/api/classes/${currentCode}/standalone.html`, `구술녹음_${currentCode}.html`);
+$('#importIn').onchange = async (e) => {
+  const files = [...e.target.files];
+  e.target.value = '';
+  const log = $('#importLog');
+  log.innerHTML = '';
+  for (const f of files) {
+    const line = document.createElement('p');
+    line.innerHTML = `<span class="spinner"></span> ${esc(f.name)}`;
+    log.append(line);
+    try {
+      const r = await fetch(`/api/classes/${currentCode}/import`, { method: 'POST', headers: { Authorization: 'Bearer ' + storage('teacherToken'), 'Content-Type': 'application/json' }, body: f });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error);
+      line.innerHTML = `✅ ${esc(j.alias)} · ${esc(j.label)} 가져옴 → AI 평가 대기열에 넣었습니다.`;
+    } catch (err) {
+      line.innerHTML = `<span class="danger-box">❌ ${esc(f.name)}: ${esc(err.message)}</span>`;
+    }
+  }
+  refreshClass();
+};
 
 // ── 내보내기 ──
 async function renderExport() {

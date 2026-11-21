@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1f5f8b">
+<title>구술 수행평가</title>
+<style>
+:root{--brand:#1f5f8b;--ink:#1d2733;--muted:#64717e;--line:#dfe5eb;--bg:#f3f5f7;--green:#2f7d5b;--green-soft:#e7f4ed;--red:#c9372a;--red-soft:#fbece9;--yellow:#fff4d6}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.6 -apple-system,'Apple SD Gothic Neo','Malgun Gothic','Pretendard',system-ui,sans-serif;word-break:keep-all;overflow-wrap:anywhere}
+.top{position:sticky;top:0;z-index:5;background:var(--brand);color:#fff;padding:12px 16px calc(10px);display:flex;align-items:center;gap:10px}
+.top b{flex:1;font-size:1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top button{background:none;border:0;color:#fff;font:inherit;font-size:.85rem;text-decoration:underline;padding:4px}
+.bar{height:6px;background:#d5dee6}.bar i{display:block;height:100%;background:var(--green);transition:width .4s}
+main{max-width:560px;margin:0 auto;padding:14px 14px calc(40px + env(safe-area-inset-bottom))}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;margin:0 0 12px}
+h1{font-size:1.35rem;margin:0 0 6px}h2{font-size:1.15rem;margin:0 0 8px}h3{font-size:1rem;margin:14px 0 6px}
+.muted{color:var(--muted);font-size:.9rem}
+label{display:block;font-weight:700;margin:14px 0 6px}
+input,textarea{width:100%;font:inherit;font-size:1.1rem;padding:14px;border:1.5px solid #b9c6d2;border-radius:12px;background:#fff}
+textarea{min-height:120px;font-size:1rem}
+input:focus,textarea:focus{outline:3px solid #9cc8e6;border-color:var(--brand)}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:58px;border:0;border-radius:14px;background:var(--brand);color:#fff;font:inherit;font-weight:800;font-size:1.1rem;margin-top:14px;cursor:pointer}
+.btn.sub{background:#fff;color:var(--brand);border:2px solid var(--brand);min-height:50px;font-size:1rem}
+.btn:disabled{opacity:.5}
+.now{display:flex;gap:10px;align-items:flex-start}
+.now .n{flex:none;width:44px;height:44px;border-radius:50%;background:var(--brand);color:#fff;font-weight:800;display:grid;place-items:center;font-size:1.15rem}
+.now.exam .n{background:var(--red)}
+.chip{display:inline-block;font-size:.8rem;font-weight:700;padding:2px 10px;border-radius:99px;background:var(--green-soft);color:var(--green)}
+.chip.exam{background:var(--red-soft);color:var(--red)}
+.task{font-weight:700;background:#e9f2f8;border-left:5px solid var(--brand);padding:12px 14px;border-radius:8px}
+details summary{cursor:pointer;color:var(--brand);font-weight:700;padding:6px 0;list-style:none}
+details summary::before{content:'▸ '}details[open] summary::before{content:'▾ '}
+.passage{white-space:pre-wrap;background:#fbfaf6;border:1px solid #ebe5d6;border-radius:10px;padding:14px;line-height:1.9;max-height:60vh;overflow:auto}
+.fb{background:var(--green-soft);border-radius:12px;padding:14px}
+.fb ul{margin:6px 0 0;padding-left:20px}
+.q{background:var(--yellow);border-radius:12px;padding:12px 14px;margin-top:10px}
+.rec-wrap{text-align:center;padding:8px 0}
+.mic{width:132px;height:132px;border-radius:50%;border:0;background:var(--red);color:#fff;font:inherit;font-weight:800;font-size:1.05rem;box-shadow:0 8px 22px rgba(201,55,42,.35);cursor:pointer;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.mic svg{width:40px;height:40px}
+.mic.stop{background:#22303d;box-shadow:0 0 0 0 rgba(201,55,42,.6);animation:pulse 1.4s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 22px rgba(201,55,42,0)}100%{box-shadow:0 0 0 0 rgba(201,55,42,0)}}
+.timer{font-size:2.2rem;font-weight:800;font-variant-numeric:tabular-nums;margin:10px 0 0}
+.meter{height:8px;max-width:240px;margin:8px auto;background:#e3e8ed;border-radius:4px;overflow:hidden}.meter i{display:block;height:100%;width:0;background:var(--green)}
+.live{text-align:left;min-height:56px;border:1px dashed var(--line);border-radius:10px;padding:10px;margin-top:10px;color:#34414e;font-size:.95rem}
+audio{width:100%;margin:8px 0}
+.warn{background:var(--yellow);border-radius:10px;padding:10px 12px;font-size:.92rem}
+.err{background:var(--red-soft);color:#7a2215;border-radius:10px;padding:10px 12px;font-size:.92rem}
+.spin{width:54px;height:54px;border:6px solid #d3dee8;border-top-color:var(--brand);border-radius:50%;animation:s 1s linear infinite;margin:16px auto}
+@keyframes s{to{transform:rotate(360deg)}}
+.score{font-size:2.2rem;font-weight:800;color:var(--red)}
+table{width:100%;border-collapse:collapse;font-size:.95rem}td,th{padding:8px 4px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}td.r{text-align:right;white-space:nowrap}
+.hist{border-left:4px solid var(--green);padding-left:10px;margin:12px 0}.hist.exam{border-color:var(--red)}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translate(-50%,150%);background:#22303d;color:#fff;padding:12px 18px;border-radius:12px;transition:transform .25s,opacity .25s;max-width:92vw;z-index:9;opacity:0;pointer-events:none}
+#toast.on{transform:translate(-50%,0);opacity:1}#toast.bad{background:#a3281a}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="top"><b id="topTitle">구술 수행평가</b><button id="outBtn" class="hidden">나가기</button></div>
+<div class="bar"><i id="bar" style="width:0"></i></div>
+<main>
+  <!-- 입장 -->
+  <section id="join" class="card">
+    <h1>수업 입장</h1>
+    <p class="muted" id="joinInfo">선생님이 알려 준 수업 코드로 들어갑니다.</p>
+    <label for="code">수업 코드</label>
+    <input id="code" autocomplete="off" autocapitalize="characters" placeholder="예: 7F3A2C">
+    <label for="alias">내 식별명 <span class="muted">(학년-반-번호)</span></label>
+    <input id="alias" autocomplete="off" placeholder="예: 2-3-07">
+    <label for="pin">PIN 숫자 4자리 <span class="muted">(다음 시간에도 같은 번호)</span></label>
+    <input id="pin" type="tel" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="● ● ● ●">
+    <button class="btn" id="joinBtn">입장하기</button>
+  </section>
+
+  <div id="app" class="hidden">
+    <section class="card" id="nowCard"></section>
+    <section class="card">
+      <div class="task" id="task"></div>
+      <details id="pBox"><summary>제시문(작품·지문) 보기</summary><div class="passage" id="passage"></div></details>
+      <details><summary>평가 기준 보기</summary><table id="rubric"></table></details>
+    </section>
+    <section class="card" id="stage"></section>
+    <section class="card"><details><summary>내 기록 보기</summary><div id="hist"></div></details></section>
+  </div>
+</main>
+<div id="toast" role="status"></div>
+<script>
+'use strict';
+// ── 기본 도우미 ──
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+const nl = (s) => esc(s).replace(/\n/g, '<br>');
+const mmss = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+const store = (k, v) => { try { if (v === undefined) return localStorage.getItem(k) || ''; v === null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch { return ''; } };
+let tt;
+function toast(m, bad) { const t = $('#toast'); t.textContent = m; t.className = 'on' + (bad ? ' bad' : ''); clearTimeout(tt); tt = setTimeout(() => (t.className = ''), bad ? 5000 : 2500); }
+async function api(url, body, raw) {
+  const h = { Authorization: 'Bearer ' + store('studentToken') };
+  if (raw) h['Content-Type'] = raw.type; else if (body) h['Content-Type'] = 'application/json';
+  const r = await fetch(url, { method: body || raw ? 'POST' : 'GET', headers: h, body: raw ? raw : body ? JSON.stringify(body) : undefined });
+  const j = await r.json().catch(() => ({ error: '서버 응답 오류' }));
+  if (!r.ok) { const e = new Error(j.error || '오류'); e.status = r.status; throw e; }
+  return j;
+}
+const MIC = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V21h2v-2.1A7 7 0 0 0 19 12z"/></svg>';
+
+// ── 입장 ──
+const qs = new URLSearchParams(location.search);
+$('#code').value = (qs.get('code') || store('lastCode')).toUpperCase();
+$('#alias').value = store('lastAlias');
+async function joinInfo() {
+  const c = $('#code').value.trim();
+  if (c.length < 6) return;
+  try { const j = await api('/api/join-info/' + encodeURIComponent(c)); $('#joinInfo').textContent = '▶ ' + j.title; } catch (e) { $('#joinInfo').textContent = e.message; }
+}
+$('#code').oninput = joinInfo; joinInfo();
+$('#joinBtn').onclick = async () => {
+  const code = $('#code').value.trim().toUpperCase(), alias = $('#alias').value.trim();
+  try {
+    const j = await api('/api/student/join', { code, alias, pin: $('#pin').value.trim() });
+    store('studentToken', j.token); store('lastCode', code); store('lastAlias', alias); $('#pin').value = '';
+    load();
+  } catch (e) { toast(e.message, 1); }
+};
+$('#outBtn').onclick = () => { if (rec.busy && !confirm('녹음 중이에요. 나갈까요?')) return; store('studentToken', null); location.href = location.pathname; };
+
+// ── 상태 ──
+let S = null, sig = '', timer = null;
+async function load() {
+  clearTimeout(timer);
+  try { S = await api('/api/student/state'); }
+  catch (e) {
+    if (e.status === 401) { store('studentToken', null); $('#join').classList.remove('hidden'); $('#app').classList.add('hidden'); return; }
+    toast(e.message, 1); timer = setTimeout(load, 8000); return;
+  }
+  $('#join').classList.add('hidden'); $('#app').classList.remove('hidden'); $('#outBtn').classList.remove('hidden');
+  const g = JSON.stringify([S.step, S.class.phase, S.attempts, Object.keys(S.evals), S.final, S.objections, S.takesUsed]);
+  if (g !== sig && !rec.busy) { sig = g; render(); }
+  const busy = [2, 4, 7].includes(S.step) || Object.values(S.attempts).some((a) => a && a.state !== 'done');
+  timer = setTimeout(load, busy ? 3000 : [5, 8].includes(S.step) ? 15000 : 30000);
+}
+
+const NOW = {
+  0: ['–', '수업이 마감되었어요', '내 기록에서 지난 녹음과 피드백을 볼 수 있어요.'],
+  1: [1, '1차 구술을 녹음하세요', '과제를 읽고 내 생각을 말로 설명해요. 글을 그대로 읽기보다 내 말로!'],
+  2: [2, 'AI가 듣고 있어요', '1차 피드백을 만드는 중이에요. 화면을 그대로 두세요.'],
+  3: [3, '피드백을 반영해 다시 말해요', '아래 피드백과 질문을 읽고, 보완한 답을 처음부터 끝까지 말해요.'],
+  4: [4, 'AI가 수정 구술을 보고 있어요', '1차와 비교해 2차 피드백을 만드는 중이에요.'],
+  5: [5, '연습 완료! 2차 피드백을 정리하세요', '선생님이 실전 평가를 시작하면 6단계가 열려요.'],
+  6: [6, '실전 최종 구술', '2차 피드백을 반영해 최종 답변을 말해요. 이 녹음으로 평가해요.'],
+  7: [7, '제출 완료 · AI 분석 중', '잠시 기다려 주세요.'],
+  8: [7, '선생님이 확인 중이에요', '선생님이 녹음을 듣고 최종 피드백을 보내 줄 거예요.'],
+  9: ['✓', '최종 결과가 나왔어요', '선생님 피드백을 확인하세요.'],
+};
+function render() {
+  const c = S.class, n = S.step, exam = n >= 6;
+  $('#topTitle').textContent = `${c.title} · ${S.alias}`;
+  $('#bar').style.width = Math.min(100, (n === 0 ? 100 : (n / 9) * 100)) + '%';
+  const [num, h, p] = NOW[n];
+  $('#nowCard').innerHTML = `<div class="now ${exam ? 'exam' : ''}"><div class="n">${num}</div><div>
+    <span class="chip ${exam ? 'exam' : ''}">${exam ? '실전 수행평가' : n === 0 ? '마감' : '수행 연습'}</span>
+    <h2 style="margin:4px 0 2px">${h}</h2><div class="muted">${p}</div></div></div>`;
+  $('#task').textContent = '구술 과제 · ' + c.task;
+  $('#passage').textContent = c.passage;
+  if ([1, 3, 6].includes(n)) $('#pBox').open = true;
+  $('#rubric').innerHTML = c.rubric.map((r) => `<tr><th>${esc(r.name)}<br><span class="muted">${r.points}점${r.teacherOnly ? ' · 선생님 채점' : ''}</span></th><td class="muted">${esc(r.desc)}</td></tr>`).join('');
+  renderStage(); renderHist();
+}
+function fbHtml(r, title) {
+  if (!r) return '';
+  return `<h3>${title}</h3><div class="fb">${nl(r.studentFeedback)}</div>
+    ${r.questions?.length ? `<div class="q"><b>생각해 볼 질문</b><ul>${r.questions.map((x) => `<li>${esc(x)}</li>`).join('')}</ul></div>` : ''}
+    <details><summary>기준별 자세히</summary><table>${r.criteria.map((c) => `<tr><td><b>${esc(c.name)}</b><br><span class="muted">${esc(c.comment)}</span></td><td class="r">${c.score}/${c.points}</td></tr>`).join('')}</table></details>`;
+}
+function waitHtml(k) {
+  const a = S.attempts['a' + k];
+  if (a?.state === 'error') return `<div class="err">처리 중 문제가 생겼어요: ${esc(a.error)}</div><button class="btn" id="retry">다시 시도</button><p class="muted">녹음은 안전하게 저장되어 있어요.</p>`;
+  if (a?.state === 'needs_transcript') return `<div class="warn">${esc(a.error)}</div>`;
+  const msg = { queued: '차례를 기다리는 중…', transcribing: '목소리를 글로 바꾸는 중…', evaluating: 'AI가 답변을 분석하는 중…' }[a?.state] || '처리 중…';
+  return `<div class="spin"></div><p style="text-align:center"><b>${msg}</b><br><span class="muted">보통 30초~1분 걸려요</span></p>`;
+}
+function renderStage() {
+  const n = S.step, E = S.evals, el = $('#stage');
+  let h = '';
+  if (n === 1) h = '<div id="rec"></div>';
+  if (n === 2) h = waitHtml(1);
+  if (n === 3) h = fbHtml(E.e1, '1차 피드백') + '<h3>수정 구술 녹음</h3><div id="rec"></div>';
+  if (n === 4) h = waitHtml(2);
+  if (n === 5) h = fbHtml(E.e2, '2차 피드백') + '<p class="warn">실전에서 이 피드백을 반영해요. 메모해 두세요!</p>';
+  if (n === 6) {
+    const left = S.class.assessmentTakes - S.takesUsed;
+    h = (E.e2 ? fbHtml(E.e2, '반영할 2차 피드백') : '') + `<h3>실전 녹음 <span class="chip exam">기회 ${Math.max(0, left)}회</span></h3>` + (left > 0 ? '<div id="rec"></div>' : '<div class="err">녹음 기회를 모두 사용했어요. 선생님께 말씀하세요.</div>');
+  }
+  if (n === 7) h = waitHtml(3);
+  if (n === 8) h = '<p>실전 구술이 잘 제출되었어요. 👏</p>' + (E.e3 ? fbHtml(E.e3, 'AI 평가(선생님 확정 전)') : '');
+  if (n === 9) h = finalHtml();
+  if (n === 0) h = '<p class="muted">새 녹음은 받지 않아요.</p>';
+  el.innerHTML = h;
+  if ($('#retry')) $('#retry').onclick = async () => { const a = Object.values(S.attempts).find((x) => x?.state === 'error'); try { await api('/api/student/retry', { n: a.n }); load(); } catch (e) { toast(e.message, 1); } };
+  if ($('#rec')) rec.mount($('#rec'), S.recordFor);
+  if ($('#objBtn')) $('#objBtn').onclick = async () => { try { await api('/api/student/objection', { text: $('#objText').value }); toast('이의제기를 보냈어요'); sig = ''; load(); } catch (e) { toast(e.message, 1); } };
+}
+function finalHtml() {
+  const f = S.final, pend = S.objections.some((o) => !o.reply);
+  return `<div style="text-align:center"><div class="muted">최종 점수</div><div class="score">${f.total} / ${f.max}</div></div>
+    <table>${S.class.rubric.map((r) => `<tr><td>${esc(r.name)}</td><td class="r">${f.scores[r.name] ?? '-'} / ${r.points}</td></tr>`).join('')}</table>
+    <h3>선생님 피드백</h3><div class="fb">${nl(f.feedback)}</div>
+    ${S.objections.map((o) => `<div class="q"><b>내 의견</b><br>${nl(o.text)}${o.reply ? `<hr><b>선생님 답변</b><br>${nl(o.reply)}` : '<br><span class="muted">답변을 기다리는 중</span>'}</div>`).join('')}
+    ${pend ? '' : `<details><summary>이의제기하기</summary><p class="muted">어느 기준인지, 녹음의 어느 부분인지 구체적으로 적어 주세요. 선생님이 녹음 원본을 다시 들어요.</p><textarea id="objText" maxlength="2000"></textarea><button class="btn sub" id="objBtn">보내기</button></details>`}`;
+}
+function renderHist() {
+  const t = encodeURIComponent(store('studentToken'));
+  const L = { 1: '1차 구술', 2: '수정 구술', 3: '실전 최종 구술' };
+  const out = [1, 2, 3].filter((k) => S.attempts['a' + k]).map((k) => {
+    const a = S.attempts['a' + k];
+    return `<div class="hist ${k === 3 ? 'exam' : ''}"><b>${L[k]}</b> <span class="muted">${mmss(a.durationSec || 0)}</span>
+      <audio controls preload="none" src="/api/audio/${S.id}/a${k}?t=${t}"></audio>
+      <details><summary>글로 보기</summary><p>${nl(a.transcript || '(아직 없음)')}</p></details></div>`;
+  });
+  $('#hist').innerHTML = out.join('') || '<p class="muted">아직 제출한 녹음이 없어요.</p>';
+}
+
+// ── 녹음기 ──
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const rec = {
+  busy: false,
+  mount(el, k) { this.el = el; this.k = k; this.exam = k === 3; this.idle(); },
+  idle(msg) {
+    const stt = S.class.sttProvider === 'browser';
+    this.el.innerHTML = `<div class="rec-wrap">
+      ${msg ? `<div class="err" style="margin-bottom:12px">${esc(msg)}</div>` : ''}
+      <button class="mic" id="micBtn">${MIC}녹음 시작</button>
+      <p class="muted">최대 ${mmss(S.class.maxSeconds)} · 조용한 곳에서 또박또박<br>${this.exam ? '실전은 한 번에 끝까지 말해요.' : '제출 전까지 몇 번이든 다시 녹음할 수 있어요.'}
+      ${stt && !SR ? '<br>⚠ 이 브라우저는 글자 변환이 안 돼요. 녹음은 저장되고 선생님이 확인해요.' : ''}</p></div>`;
+    $('#micBtn').onclick = () => this.start();
+  },
+  async start() {
+    if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) return this.idle('이 주소에서는 마이크를 쓸 수 없어요. 선생님 QR코드의 https:// 주소로 접속하세요.');
+    try { this.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }); }
+    catch { return this.idle('마이크가 허용되지 않았어요. 주소창 왼쪽 아이콘을 눌러 마이크를 "허용"으로 바꾸세요.'); }
+    try { await api('/api/student/record-start', {}); } catch (e) { this.tracks(); return this.idle(e.message); }
+    this.busy = true;
+    const mime = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4'].find((m) => MediaRecorder.isTypeSupported?.(m)) || '';
+    this.chunks = []; this.mr = new MediaRecorder(this.stream, mime ? { mimeType: mime } : undefined);
+    this.mr.ondataavailable = (e) => e.data.size && this.chunks.push(e.data);
+    this.mr.start(1000); this.t0 = Date.now(); this.hidden = 0; this.text = ''; this.interim = '';
+    this.vis = () => document.hidden && this.hidden++; document.addEventListener('visibilitychange', this.vis);
+    const stt = S.class.sttProvider === 'browser' && SR;
+    this.el.innerHTML = `<div class="rec-wrap"><button class="mic stop" id="stopBtn">■<span>끝내기</span></button>
+      <div class="timer" id="tm">0:00</div><div class="muted" id="left"></div><div class="meter"><i id="mt"></i></div>
+      ${stt ? '<div class="live" id="live"><span class="muted">말하면 여기에 글자가 나타나요…</span></div>' : ''}</div>`;
+    $('#stopBtn').onclick = () => this.stop();
+    this.meter(); if (stt) this.listen();
+    this.tick = setInterval(() => {
+      const s = Math.floor((Date.now() - this.t0) / 1000), left = S.class.maxSeconds - s;
+      $('#tm').textContent = mmss(s); $('#left').textContent = left <= 30 ? `${left}초 남았어요` : '';
+      if (left <= 0) this.stop();
+    }, 250);
+    if (navigator.vibrate) navigator.vibrate(60);
+  },
+  meter() {
+    try {
+      this.ac = new (window.AudioContext || window.webkitAudioContext)();
+      const an = this.ac.createAnalyser(); an.fftSize = 512; this.ac.createMediaStreamSource(this.stream).connect(an);
+      const d = new Uint8Array(512);
+      const f = () => { if (this.mr?.state !== 'recording') return; an.getByteTimeDomainData(d); let p = 0; for (const v of d) p = Math.max(p, Math.abs(v - 128)); const m = $('#mt'); if (m) m.style.width = Math.min(100, p * 1.6) + '%'; requestAnimationFrame(f); };
+      f();
+    } catch {}
+  },
+  listen() {
+    const sr = new SR(); sr.lang = 'ko-KR'; sr.continuous = true; sr.interimResults = true;
+    sr.onresult = (e) => { this.interim = ''; for (let i = e.resultIndex; i < e.results.length; i++) { const r = e.results[i]; if (r.isFinal) this.text += r[0].transcript.trim() + ' '; else this.interim += r[0].transcript; } const l = $('#live'); if (l) l.innerHTML = esc(this.text) + `<span class="muted">${esc(this.interim)}</span>`; };
+    sr.onend = () => { if (this.mr?.state === 'recording') { try { sr.start(); } catch {} } else this.srDone?.(); };
+    this.sr = sr; try { sr.start(); } catch {}
+  },
+  tracks() { this.stream?.getTracks().forEach((t) => t.stop()); },
+  async stop() {
+    if (this.mr?.state !== 'recording') return;
+    clearInterval(this.tick); document.removeEventListener('visibilitychange', this.vis);
+    this.sec = Math.round((Date.now() - this.t0) / 1000);
+    const done = new Promise((r) => (this.mr.onstop = r)); this.mr.stop(); await done;
+    if (this.sr) { await new Promise((r) => { this.srDone = r; try { this.sr.stop(); } catch { r(); } setTimeout(r, 1500); }); this.text += this.interim; this.sr = null; }
+    this.tracks(); this.ac?.close().catch(() => {});
+    this.blob = new Blob(this.chunks, { type: (this.mr.mimeType || 'audio/webm').split(';')[0] });
+    if (this.exam) S.takesUsed++;
+    if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
+    this.review();
+  },
+  review() {
+    const canAgain = !this.exam || S.class.assessmentTakes - S.takesUsed > 0;
+    this.el.innerHTML = `<h3>녹음 확인 (${mmss(this.sec)})</h3><audio controls src="${URL.createObjectURL(this.blob)}"></audio>
+      ${S.class.sttProvider === 'browser' ? `<div class="live">${this.text.trim() ? esc(this.text) : '<span class="muted">글자 변환 결과가 없어요. 녹음은 저장되고 선생님이 확인해요.</span>'}</div>` : ''}
+      ${this.exam ? '<p class="warn">제출하면 바꿀 수 없어요. 들어 보고 제출하세요.</p>' : ''}
+      <button class="btn" id="sendBtn">제출하기</button>
+      ${canAgain ? `<button class="btn sub" id="againBtn">다시 녹음${this.exam ? ` (남은 기회 ${S.class.assessmentTakes - S.takesUsed}회)` : ''}</button>` : ''}`;
+    $('#sendBtn').onclick = () => this.send();
+    if ($('#againBtn')) $('#againBtn').onclick = () => this.start();
+  },
+  async send() {
+    if (this.sec < 3) return toast('녹음이 너무 짧아요', 1);
+    const b = $('#sendBtn'); b.disabled = true; b.textContent = '보내는 중…';
+    try {
+      const up = await api('/api/student/audio', null, this.blob);
+      await api('/api/student/submit', { n: this.k, uploadId: up.uploadId, ext: up.ext, transcript: this.text.trim(), durationSec: this.sec, hiddenCount: this.hidden, startedAt: this.t0 });
+      this.busy = false; toast('제출했어요!'); sig = ''; window.scrollTo(0, 0); load();
+    } catch (e) { toast(e.message, 1); b.disabled = false; b.textContent = '다시 제출하기'; }
+  },
+};
+window.addEventListener('beforeunload', (e) => { if (rec.busy) { e.preventDefault(); e.returnValue = ''; } });
+if (store('studentToken')) load();
+</script>
+</body>
+</html>
