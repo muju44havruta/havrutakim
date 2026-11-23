@@ -1,4 +1,4 @@
-<title>독서 300 프로젝트</title>
+<title>하브루타 원만이샘 독서 300</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap">
@@ -38,6 +38,18 @@ header.top{display:flex;flex-wrap:wrap;gap:16px 24px;align-items:flex-end;justif
 .brand h1{font-size:30px;letter-spacing:-.5px}
 .brand h1 b{color:var(--accent)}
 .brand p{margin:4px 0 0;color:var(--muted);font-size:14px}
+.eyebrow{display:block;font-size:12px;letter-spacing:.6px;color:var(--muted);margin-bottom:2px}
+.goals{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.goal{border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px;min-width:0}
+.goal.cur{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.goal b.n{font-family:var(--display);font-size:20px}
+.goal .bar{height:5px;border-radius:3px;background:var(--soft);margin-top:4px;overflow:hidden}
+.goal .bar i{display:block;height:100%;background:var(--accent)}
+.daily{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-size:13px;color:var(--muted)}
+.onchaek{display:inline-block;font-size:11.5px;font-weight:700;padding:1px 7px;border-radius:4px;background:var(--soft);color:var(--ink);margin-right:6px;letter-spacing:.3px}
+table.cls{border-collapse:collapse;width:100%;font-size:13.5px}
+table.cls th,table.cls td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;white-space:nowrap}
+@media (max-width:600px){ .goals{grid-template-columns:1fr} }
 .who{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .who select,.who input{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:6px 10px;min-width:0}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--paper)}
@@ -178,8 +190,9 @@ dialog::backdrop{background:rgba(0,0,0,.35)}
 <div class="wrap">
   <header class="top">
     <div class="brand">
+      <span class="eyebrow">하브루타 원만이샘 · 전북 ‘온책’ 독서 300 실천 도구</span>
       <h1>독서 <b>300</b> 프로젝트</h1>
-      <p>초·중·고 12년 300권 · 대주제 심화 독서 · 읽기 → 토론 → 논술 → 구술</p>
+      <p>초 150 · 중 100 · 고 50권 · 질문하는 하브루타 독서 · 읽기 → 토론 → 논술 → 구술</p>
     </div>
     <div class="who">
       <span class="seg" role="group" aria-label="사용자">
@@ -621,15 +634,31 @@ const BOOKS = document.getElementById("books-data").textContent.trim().split("\n
 const CORE = BOOKS.filter(b=>!b.extraSet); // 300권
 const themeOf = id => THEMES.find(t=>t.id===id);
 const stageOf = id => STAGES.find(s=>s.id===id);
-const bookOf = id => BOOKS.find(b=>b.id===id);
+const allBooks = () => BOOKS.concat((me()&&me().custom)||[]);
+const bookOf = id => BOOKS.find(b=>b.id===id) || ((me()&&me().custom)||[]).find(b=>b.id===id);
 const booksFor = (tid,sid) => BOOKS.filter(b=>b.lv===sid && b.themes.includes(tid));
+
+/* 도교육청 학교급별 목표(초 150 · 중 100 · 고 50) */
+const LEVELS_GOAL = [
+  {k:"초", name:"초등 6년", goal:150, grades:[1,2,3,4,5,6], pace:"월 2권"},
+  {k:"중", name:"중학교 3년", goal:100, grades:[7,8,9], pace:"월 약 3권"},
+  {k:"고", name:"고등학교 3년", goal:50, grades:[10,11,12], pace:"2개월 3권"}];
+const levelOfGrade = g => LEVELS_GOAL.find(l=>l.grades.includes(+g)) || LEVELS_GOAL[0];
+const SUBJECTS = ["국어","사회","역사","도덕","과학","수학","기술·가정","정보","음악","미술","체육","영어","진로","창체"];
+/* 읽음 기록: 예전 형식(날짜 문자열)과 새 형식({d,g}) 모두 읽음 */
+const readInfo = (st,id) => { const v=st.read[id]; if(!v) return null; if(typeof v==="string"){ const b=bookOf(id); const g = b? ({e1:2,e2:4,e3:6,m:8,h:11}[b.lv]||st.grade) : st.grade; return {d:v,g}; } return v; };
 
 /* ───────────── 상태 저장 ───────────── */
 const KEY="dokseo300.v1";
-function blankStudent(){ return {id:"s"+Date.now().toString(36), name:"", num:"", school:"", grade:7, read:{}, cards:[]}; }
+function blankStudent(){ return {id:"s"+Date.now().toString(36), name:"", num:"", school:"", grade:7, read:{}, cards:[], custom:[], log:[]}; }
+function normStudent(st){
+  st.read=st.read||{}; st.cards=st.cards||[]; st.custom=st.custom||[]; st.log=st.log||[];
+  st.cards.forEach(c=>{ c.cur.read.myq = c.cur.read.myq||""; c.post = c.post||{to:"",text:""}; c.subject=c.subject||""; c.teacher=c.teacher||{comment:"",areas:{}}; c.record=c.record||{text:""}; });
+  return st;
+}
 let S = load();
 function load(){
-  try{ const raw=localStorage.getItem(KEY); if(raw){ const d=JSON.parse(raw); if(d&&d.students) return d; } }catch(e){}
+  try{ const raw=localStorage.getItem(KEY); if(raw){ const d=JSON.parse(raw); if(d&&d.students){ Object.values(d.students).forEach(normStudent); return d; } } }catch(e){}
   const st=blankStudent(); st.name="예시 학생"; st.grade=8;
   return {mode:"student", cur:st.id, tab:"map", sel:{theme:"A", stage:"m"}, students:{[st.id]:st}, curCard:null};
 }
@@ -679,20 +708,28 @@ function renderWho(){
   sel.hidden = S.mode!=="teacher" && Object.keys(S.students).length<2;
 }
 function renderShelf(){
-  const st=me(); const readIds=Object.keys(st.read).filter(id=>bookOf(id) && !bookOf(id).extraSet);
-  const n=readIds.length; const stg=stageOfGrade(st.grade);
+  const st=me(); const readIds=Object.keys(st.read).filter(id=>bookOf(id));
+  const n=readIds.length; const stg=stageOfGrade(st.grade); const lvNow=levelOfGrade(st.grade);
   const byTheme={}; THEMES.forEach(t=>byTheme[t.id]=0);
-  readIds.forEach(id=>{ byTheme[bookOf(id).themes[0]]++; });
+  const byLevel={초:0,중:0,고:0};
+  readIds.forEach(id=>{ const b=bookOf(id); byTheme[b.themes[0]]=(byTheme[b.themes[0]]||0)+1; byLevel[levelOfGrade(readInfo(st,id).g).k]++; });
   const spines=[]; THEMES.forEach(t=>{ for(let i=0;i<byTheme[t.id];i++) spines.push(`<i class="on" style="background:var(--t${t.id})"></i>`); });
-  for(let i=n;i<300;i++) spines.push("<i></i>");
-  const yearsLeft = Math.max(1, 13-st.grade);
-  const pace = Math.ceil(Math.max(0,300-n)/yearsLeft);
+  for(let i=spines.length;i<300;i++) spines.push("<i></i>");
+  /* 온책읽기: 매일 독서 기록 */
+  const days=[...new Set(st.log.map(l=>l.d))].sort();
+  let streak=0; { let d=new Date(); for(;;){ const k=d.toISOString().slice(0,10); if(days.includes(k)){ streak++; d.setDate(d.getDate()-1); } else break; } }
+  const month=today().slice(0,7); const mMin=st.log.filter(l=>l.d.startsWith(month)).reduce((a,l)=>a+(+l.min||0),0);
   $("#shelf").innerHTML = `
     <div class="big num">${n}<small> / 300권</small></div>
-    <div class="spines" aria-hidden="true">${spines.join("")}</div>
+    <div class="spines" aria-hidden="true">${spines.slice(0,300).join("")}</div>
+    <div class="goals">${LEVELS_GOAL.map(l=>{ const v=byLevel[l.k]; const yrsLeft = l===lvNow ? (l.grades[l.grades.length-1]-st.grade+1) : 0;
+      return `<div class="goal ${l===lvNow?"cur":""}"><span class="muted">${l.name} 목표</span> <b class="n num">${v}</b><span class="muted"> / ${l.goal}권 · ${l.pace}</span>
+      <div class="bar"><i style="width:${Math.min(100,Math.round(v/l.goal*100))}%"></i></div>
+      ${l===lvNow?`<span class="small">남은 ${Math.max(0,l.goal-v)}권 · 한 해 약 <b class="num">${Math.ceil(Math.max(0,l.goal-v)/Math.max(1,yrsLeft))}</b>권</span>`:""}</div>`;}).join("")}</div>
+    <div class="daily"><span class="onchaek">온책읽기</span><span>연속 독서 <b class="num">${streak}</b>일 · 이번 달 <b class="num">${mMin}</b>분</span>
+      <button class="btn sm" id="log-add">오늘 읽은 시간 기록</button></div>
     <div class="legend">
-      <span><b>${esc(st.name||"학생")}</b> · ${GRADE_NAMES[st.grade]} · 현재 단계 <b>${stg.name}</b></span>
-      <span>남은 ${300-n}권 · 졸업까지 한 해 약 <b class="num">${pace}</b>권</span>
+      <span><b>${esc(st.name||"학생")}</b> · ${GRADE_NAMES[st.grade]} · 대주제 단계 <b>${stg.name}</b></span>
       <span>활동 카드 <b class="num">${st.cards.length}</b>개</span>
       ${THEMES.map(t=>`<span><i class="dot" style="background:var(--t${t.id})"></i>${t.name} ${byTheme[t.id]}</span>`).join("")}
     </div>`;
@@ -743,7 +780,7 @@ function bookCard(b){
     <input type="checkbox" data-read="${b.id}" ${done?"checked":""} aria-label="${esc(b.title)} 읽음 표시">
     <span class="t">${esc(b.title)}</span>
     <span class="m">${esc(b.author)} · ${esc(b.field)} · ${stg.short}${b.extra?` · ${esc(b.extra)}`:""}</span>
-    <span class="chips">${b.themes.map(x=>`<span class="chip t" style="${tc(x)}">${themeOf(x).name}</span>`).join("")}<span class="chip">${esc(b.kw)}</span>${b.extraSet?`<span class="chip">보충(300권 외)</span>`:""}${done?`<span class="chip">읽음 ${esc(st.read[b.id])}</span>`:""}</span>
+    <span class="chips">${b.themes.map(x=>`<span class="chip t" style="${tc(x)}">${themeOf(x).name}</span>`).join("")}<span class="chip">${esc(b.kw)}</span>${b.extraSet?`<span class="chip">보충(300권 외)</span>`:""}${b.custom?`<span class="chip">자유 도서</span>`:""}${done?`<span class="chip">읽음 ${esc(readInfo(st,b.id).d)} · ${GRADE_NAMES[readInfo(st,b.id).g]||""}</span>`:""}</span>
   </label>`;
 }
 
@@ -757,16 +794,22 @@ function renderBooks(){
       <select id="f-th"><option value="">전체 대주제</option>${THEMES.map(t=>`<option value="${t.id}" ${F.th===t.id?"selected":""}>${t.name}</option>`).join("")}</select>
       <select id="f-only"><option value="">읽음·안 읽음</option><option value="read" ${F.only==="read"?"selected":""}>읽은 책</option><option value="unread" ${F.only==="unread"?"selected":""}>안 읽은 책</option></select>
     </div>
+    <details class="ai" style="margin:0 0 12px"><summary><b>추천 목록 밖의 책 추가</b> <span class="small muted">(초등 150권 목표는 추천 100선 외 자유 도서로 채웁니다)</span></summary>
+      <div class="row">
+        <input class="tx" id="cb-title" placeholder="도서명" style="flex:2 1 200px;width:auto">
+        <input class="tx" id="cb-author" placeholder="저자" style="flex:1 1 120px;width:auto">
+        <select class="tx" id="cb-theme" style="flex:1 1 140px;width:auto">${THEMES.map(t=>`<option value="${t.id}">${t.name}</option>`).join("")}</select>
+        <button class="btn pri" id="cb-add">읽은 책으로 추가</button></div></details>
     <p class="small muted" id="f-count"></p>
     <div class="books" id="book-list"></div>`;
   fillBooks();
 }
 function fillBooks(){
   const st=me(); const q=F.q.trim();
-  const list=BOOKS.filter(b=>(!F.lv||b.lv===F.lv)&&(!F.th||b.themes.includes(F.th))
+  const list=allBooks().filter(b=>(!F.lv||b.lv===F.lv)&&(!F.th||b.themes.includes(F.th))
     &&(!F.only||(F.only==="read")===!!st.read[b.id])
     &&(!q||(b.title+b.author+b.kw+b.field).includes(q)));
-  $("#f-count").textContent = `${list.length}권 표시 · 전북특별자치도교육청 초·중·고 추천도서 각 100선(300권) + 고등 수학교과 연계 20권(보충)`;
+  $("#f-count").textContent = `${list.length}권 표시 · 전북특별자치도교육청 초·중·고 추천도서 각 100선(300권) + 고등 수학교과 연계 20권(보충) + 내가 추가한 자유 도서 ${st.custom.length}권`;
   $("#book-list").innerHTML = list.map(bookCard).join("") || `<div class="empty">조건에 맞는 책이 없습니다.</div>`;
 }
 
@@ -774,7 +817,7 @@ function fillBooks(){
 function newCard(tid,sid){
   const st=me();
   const card={id:"c"+Date.now().toString(36), theme:tid, stage:sid, books:[], created:today(),
-    cur:{read:{summary:"",quote:"",answer:"",connect:""}, debate:{side:"",claim:"",reasons:"",rebut:"",listen:""}, essay:{text:""}, oral:{script:"",tail:"",reflect:""}},
+    subject:"", post:{to:"",text:""}, cur:{read:{summary:"",quote:"",answer:"",connect:"",myq:""}, debate:{side:"",claim:"",reasons:"",rebut:"",listen:""}, essay:{text:""}, oral:{script:"",tail:"",reflect:""}},
     v1:null, v2:null, ai1:null, ai2:null, teacher:{comment:"", areas:{}}, record:{text:"", neis:""}};
   st.cards.unshift(card); S.curCard=card.id; S.tab="act"; save(); renderAll();
 }
@@ -798,7 +841,7 @@ function renderAct(){
   const lockedAfterV2 = !!c.ai2 && !teacher;
   const flow=["자기주도 활동","1차 AI 평가·피드백","수정·보완","2차 AI 평가·피드백","교사 피드백","특기사항 문구"];
   const avail=BOOKS.filter(b=>b.lv===c.stage && b.themes.includes(c.theme));
-  const others=BOOKS.filter(b=>st.read[b.id] && !avail.includes(b));
+  const others=allBooks().filter(b=>st.read[b.id] && !avail.includes(b));
   const ta=(part,key,ph,cls="")=>`<textarea data-f="${part}.${key}" class="${cls}" placeholder="${esc(ph)}" ${lockedAfterV2?"readonly":""}>${esc(c.cur[part][key])}</textarea>`;
   const essayLen=c.cur.essay.text.length, [lo,hi]=s.len;
   $("#view").innerHTML = `
@@ -820,7 +863,9 @@ function renderAct(){
         <select id="bk-sel" class="tx" style="flex:1 1 240px;width:auto" ${lockedAfterV2?"disabled":""}><option value="">책 추가…</option>
           <optgroup label="${t.name} · ${s.short}">${avail.filter(b=>!c.books.includes(b.id)).map(b=>`<option value="${b.id}">${esc(b.title)} (${esc(b.author)})</option>`).join("")}</optgroup>
           ${others.length?`<optgroup label="내가 읽은 다른 책">${others.filter(b=>!c.books.includes(b.id)).map(b=>`<option value="${b.id}">${esc(b.title)} (${esc(b.author)})</option>`).join("")}</optgroup>`:""}
-        </select></div>
+        </select>
+        <label class="small muted" for="subj-sel"><span class="onchaek">온책잇기</span>연계 교과</label>
+        <select id="subj-sel" class="tx" style="flex:0 1 150px;width:auto"><option value="">선택</option>${SUBJECTS.map(x=>`<option ${c.subject===x?"selected":""}>${x}</option>`).join("")}</select></div>
       <div class="chips" style="margin-top:6px">${c.books.map(id=>{const b=bookOf(id);return b?`<span class="chip t" style="${tc(b.themes[0])}">${esc(b.title)} · ${esc(b.author)} ${lockedAfterV2?"":`<button class="btn sm ghost" style="padding:0 4px;border:0" data-unbook="${id}" aria-label="${esc(b.title)} 빼기">×</button>`}</span>`:""}).join("")||`<span class="muted small">아직 고른 책이 없습니다.</span>`}</div>
 
       <section class="part"><header><h3>① ${L.read}</h3><span class="muted small">책을 정확히 이해하고 질문에 답하기</span></header>
@@ -829,6 +874,7 @@ function renderAct(){
           <div><label class="f">${s.id==="e1"?"어떤 이야기인가요? (일어난 순서대로)":"줄거리·핵심 내용 요약"}</label>${ta("read","summary","누가, 무엇을, 어떻게 했는지 간추려 보세요.")}</div>
           <div><label class="f">인상 깊은 문장 (쪽수)</label>${ta("read","quote","“…” (00쪽)")}</div>
         </div>
+        <label class="f">하브루타 질문 만들기 (짝과 묻고 답할 나의 질문)</label>${ta("read","myq", s.id==="e1"?"궁금한 것: …?\n내가 주인공이라면 …?":"사실 질문: …?\n상상(만약) 질문: …?\n적용 질문(나라면/우리 사회라면): …?\n종합 질문(그래서 무엇이 중요한가): …?")}
         <label class="f">핵심 질문에 대한 나의 생각과 그 근거</label>${ta("read","answer","책의 어느 장면이 그렇게 생각하게 했나요?")}
         <label class="f">${s.id.startsWith("e")?"나의 경험과 이어 보기":"나·사회와 연결하기 / 새로 생긴 질문"}</label>${ta("read","connect","책 밖의 세상이나 내 삶에서 비슷한 일을 찾아보세요.")}
       </section>
@@ -857,6 +903,15 @@ function renderAct(){
         <label class="f">답변 원고 (말하듯 쓰기${s.id==="h"?" · 2분 분량":""})</label>${ta("oral","script","첫 문장에 결론을 말하고, 근거와 예를 이어 가세요.")}
         <label class="f">꼬리 질문에 대한 답</label>${ta("oral","tail","")}
         <label class="f">말하기 후 성찰 (잘한 점·아쉬운 점)</label>${ta("oral","reflect","")}
+      </section>
+
+      <section class="part"><header><h3><span class="onchaek">온책마을</span>온책이음 마음엽서 (선택)</h3><span class="muted small">가족·친구·작가에게 독후 엽서 쓰기</span></header>
+        <div class="two">
+          <div><label class="f" for="post-to">받는 사람</label><input class="tx" id="post-to" data-post="to" value="${esc(c.post.to)}" placeholder="예: 동생에게, 작가님께"></div>
+          <div><label class="f">엽서 안내</label><p class="small muted" style="margin:0">책을 권하는 까닭이나 함께 나누고 싶은 질문을 150자 안팎으로 써요. 학교 마음우편·가정 독서 대화에 활용합니다.</p></div>
+        </div>
+        <textarea data-post="text" placeholder="이 책을 함께 읽고 싶은 까닭은 …">${esc(c.post.text)}</textarea>
+        <div class="row"><button class="btn sm" data-copy="post">엽서 글 복사</button></div>
       </section>
 
       ${renderAIBlock(c,1)}
@@ -932,6 +987,7 @@ function workText(w, s){
   const L=s.labels;
   return `① ${L.read}
 - 요약: ${w.read.summary||"(없음)"}
+- 학생이 만든 하브루타 질문: ${w.read.myq||"(없음)"}
 - 인상 깊은 문장: ${w.read.quote||"(없음)"}
 - 핵심 질문에 대한 생각: ${w.read.answer||"(없음)"}
 - 삶·사회와 연결: ${w.read.connect||"(없음)"}
@@ -961,9 +1017,10 @@ function evalPrompt(c,n){
 - ${s.labels.essay} 과제: ${q[2]} (권장 ${s.lenTxt})
 - ${s.labels.oral} 질문: ${q[3]} / 꼬리 질문: ${q[4]}
 [읽은 책] ${books}
+[연계 교과(온책잇기)] ${c.subject||"미정"}
 
 [평가 기준] 영역별 4단계: 1 시작(질문과 관련된 내용이 있으나 근거가 거의 없음), 2 발전(관련 근거가 있으나 연결이 약함), 3 도달(이 학교급 기대 수준을 충족: 책 근거와 자기 생각이 논리적으로 연결됨), 4 심화(기대 수준을 넘어 관점 비교·반론 검토·삶과 사회로의 확장이 뚜렷함). 비어 있는 영역은 0.
-- 읽기: 내용 이해의 정확성, 핵심 질문에 대한 답과 책 속 근거, 인용의 적절성, 삶·사회와의 연결
+- 읽기: 내용 이해의 정확성, 스스로 만든 질문의 깊이(사실→상상→적용→종합), 핵심 질문에 대한 답과 책 속 근거, 인용의 적절성, 삶·사회와의 연결
 - 토론: 주장의 명료성, 근거의 타당성(책 근거 포함), 반론 예상과 재반박, 경청 후 생각의 조정
 - 논술: 과제 이해, 글 구조(서론-본론-결론), 근거의 충분성, 분량, 표현과 어법
 - 구술: 질문에 대한 직접적 답, 논리 전개, 꼬리 질문 대응, 성찰
@@ -1005,6 +1062,7 @@ function recPrompt(c){
 [학교급] ${s.name}
 [대주제와 질문] ${t.name} / ${q[0]} / 토론 논제: ${q[1]} / 논술 과제: ${q[2]}
 [읽은 책] ${books}
+[연계 교과(온책잇기)] ${c.subject||"미정"}
 [최종 활동 내용]
 ${workText(c.cur,s)}
 [AI 평가 요약] ${ai.overall||""} ${ai.growth?"/ 성장: "+ai.growth:""}
@@ -1111,6 +1169,12 @@ function renderData(){
     <p>기록은 지금 쓰는 기기(브라우저)에만 저장됩니다. 기기를 바꾸거나 선생님께 제출할 때는 <b>활동 파일(.json)</b>을 내보내세요.</p>
     <div class="row"><button class="btn pri" id="ex-me">${esc(st.name||"학생")} 활동 파일 내보내기</button>
       ${teacher?`<button class="btn" id="ex-all">학급 전체 파일 내보내기</button><button class="btn" id="ex-csv">특기사항 모음 CSV</button>`:""}</div>
+    <h2>12년 독서 이력 연계 <span class="onchaek">독서로</span><span class="onchaek">온책열기</span></h2>
+    <p>도교육청은 학생 독서 기록을 ‘독서로’에 12년 포트폴리오로 쌓습니다. 이 프로그램은 독서로를 대신하지 않고, 독서로에 옮겨 적을 목록과 학생 글 모음을 만들어 줍니다.</p>
+    <div class="row"><button class="btn" id="ex-doseoro">독서로 입력용 목록(CSV)</button>
+      <button class="btn" id="ex-book">나의 글 모음집 만들기(학생 저자)</button></div>
+    <p class="small muted">목록: 읽은 날·학년·도서명·저자·대주제·한 줄 생각. 글 모음집: 활동 카드의 논술·구술 원고·마음엽서를 한 권의 문집(HTML)으로 엮습니다.</p>
+    ${teacher?classTable():""}
     <h2>불러오기</h2>
     <p>${teacher?"학생이 제출한 활동 파일을 여러 개 한꺼번에 고르면 학생 목록에 추가됩니다. 같은 학생은 최신 내용으로 바뀝니다.":"다른 기기에서 내보낸 내 활동 파일을 불러옵니다. 선생님 피드백이 담긴 파일도 그대로 불러올 수 있습니다."}</p>
     <input type="file" id="im-file" accept=".json,application/json" multiple>
@@ -1120,6 +1184,44 @@ function renderData(){
     ${teacher?`<h2>학생 관리</h2><p class="small muted">현재 기기에 ${Object.keys(S.students).length}명의 기록이 있습니다.</p>
       <div class="row"><button class="btn" id="st-del">현재 학생(${esc(st.name||"이름 없음")}) 기록 삭제</button></div>`:""}
   </div>`;
+}
+function classTable(){
+  const rows=Object.values(S.students).map(st=>{ const lv=levelOfGrade(st.grade);
+    const ids=Object.keys(st.read).filter(id=>bookOf(id)||st.custom.find(b=>b.id===id));
+    const inLv=ids.filter(id=>levelOfGrade(readInfo(st,id).g)===lv).length;
+    const done=st.cards.filter(c=>c.record&&c.record.text).length, wait=st.cards.filter(c=>c.ai2&&!(c.teacher&&c.teacher.comment)).length;
+    return `<tr><td>${esc(st.num)}</td><td>${esc(st.name)}</td><td>${GRADE_NAMES[st.grade]}</td><td class="num">${ids.length}</td><td class="num">${inLv} / ${lv.goal}</td><td class="num">${st.cards.length}</td><td class="num">${wait}</td><td class="num">${done}</td><td class="num">${st.log.reduce((a,l)=>a+(+l.min||0),0)}</td></tr>`; }).join("");
+  return `<h2>학급 현황</h2><div class="tblwrap"><table class="cls"><tr><th>학번</th><th>이름</th><th>학년</th><th>누적 권수</th><th>학교급 목표</th><th>활동 카드</th><th>교사 확인 대기</th><th>특기사항 완료</th><th>독서 시간(분)</th></tr>${rows}</table></div>`;
+}
+function doseoroCSV(st){
+  const rows=[["읽은 날","학년","도서명","저자","구분","대주제","한 줄 생각"]];
+  Object.keys(st.read).forEach(id=>{ const b=bookOf(id)||st.custom.find(x=>x.id===id); if(!b) return; const r=readInfo(st,id);
+    const card=st.cards.find(c=>c.books.includes(id)); const one=card? (card.cur.read.answer||card.cur.read.connect||"").split(/[.!?。\n]/)[0] : "";
+    rows.push([r.d, GRADE_NAMES[r.g]||"", b.title, b.author, b.custom?"자유 도서":b.extraSet?"추천(보충)":"전북 추천 100선", themeOf(b.themes[0]).name, one]); });
+  const head=rows.shift(); rows.sort((x,y)=>String(x[0]).localeCompare(String(y[0]))); rows.unshift(head);
+  return "\uFEFF"+rows.map(r=>r.map(csvCell).join(",")).join("\r\n");
+}
+function anthology(st){
+  const parts=st.cards.slice().reverse().map(c=>{ const t=themeOf(c.theme), s=stageOf(c.stage), q=t.q[s.id];
+    const bk=c.books.map(id=>bookOf(id)).filter(Boolean).map(b=>`${b.title}(${b.author})`).join(", ");
+    return `<section><p class="meta">${esc(t.name)} · ${esc(s.name)} · ${esc(c.created)}</p><h2>${esc(q[0])}</h2><p class="meta">읽은 책: ${esc(bk)}</p>
+      ${c.cur.essay.text?`<h3>${esc(s.labels.essay)}</h3><div class="body">${esc(c.cur.essay.text)}</div>`:""}
+      ${c.cur.oral.script?`<h3>${esc(s.labels.oral)}</h3><div class="body">${esc(c.cur.oral.script)}</div>`:""}
+      ${c.post&&c.post.text?`<h3>마음엽서 · ${esc(c.post.to)}</h3><div class="body">${esc(c.post.text)}</div>`:""}</section>`; }).join("");
+  return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(st.name||"학생")}의 독서 문집</title>
+<style>body{font-family:"Noto Serif KR","Nanum Myeongjo",serif;max-width:720px;margin:40px auto;padding:0 20px;line-height:1.85;color:#1b2233;background:#fff}h1{font-size:30px}h2{font-size:21px;margin-top:6px}h3{font-size:15px;color:#555}.meta{color:#666;font-size:13px;margin:0}.body{white-space:pre-wrap}section{border-top:1px solid #ccc;padding:22px 0;page-break-inside:avoid}</style></head>
+<body><h1>${esc(st.name||"학생")}의 독서 문집</h1><p class="meta">${esc(st.school)} ${GRADE_NAMES[st.grade]} · 하브루타 원만이샘 독서 300 프로젝트 · ${today()}</p>${parts||"<p>아직 글이 없습니다.</p>"}</body></html>`;
+}
+function openLog(){
+  const st=me(); const opts=allBooks().filter(b=>st.read[b.id]).slice(-60);
+  openDialog("오늘 읽은 시간 기록 (온책읽기)",
+    `<div class="two"><div><label class="f" for="lg-min">읽은 시간(분)</label><input class="tx" id="lg-min" type="number" min="1" max="600" value="20"></div>
+     <div><label class="f" for="lg-pg">읽은 쪽수(선택)</label><input class="tx" id="lg-pg" type="number" min="0" value=""></div></div>
+     <label class="f" for="lg-bk">읽은 책(선택)</label><select class="tx" id="lg-bk"><option value="">선택 안 함</option>${opts.map(b=>`<option value="${b.id}">${esc(b.title)}</option>`).join("")}</select>
+     <p class="small muted">학교의 아침 독서·정규 독서 시간이나 집에서 읽은 시간을 기록합니다. 같은 날 여러 번 기록해도 됩니다.</p>`,
+    `<button type="button" class="btn pri" id="lg-ok">기록</button>`);
+  $("#lg-ok").onclick=()=>{ const m=+$("#lg-min").value; if(!(m>0)){ toast("시간을 입력하세요"); return; }
+    st.log.push({d:today(), min:m, pages:+$("#lg-pg").value||0, book:$("#lg-bk").value}); $("#dlg").close(); save(); renderShelf(); toast("오늘의 독서를 기록했습니다"); };
 }
 function exportStudent(st){ return JSON.stringify({dokseo300:1, exported:new Date().toISOString(), students:[st]}, null, 1); }
 function importText(text){
@@ -1131,7 +1233,7 @@ function importText(text){
     if(ex){ delete S.students[ex.id]; }
     if(S.mode!=="teacher"){ // 학생 모드: 내 기록으로 교체
       S.students={}; }
-    S.students[st.id]=st; S.cur=st.id; n++; }});
+    S.students[st.id]=normStudent(st); S.cur=st.id; n++; }});
   save(); renderAll(); toast(`${n}명의 기록을 불러왔습니다`); return n;
 }
 function csvCell(v){ return `"${String(v??"").replace(/"/g,'""')}"`; }
@@ -1148,7 +1250,17 @@ function recordsCSV(){
 function renderGuide(){
   $("#view").innerHTML = `<div class="guide">
   <h2>독서 300 프로젝트란</h2>
-  <p>전북특별자치도교육청이 추진하는 독서 정책으로, 초·중·고 12년 동안 성장 단계에 맞추어 300권을 완독하는 장기 독서 프로젝트입니다.<sup><a href="#fn1">[1]</a></sup> 이 프로그램은 교육청의 <b>초등·중학생·고등학생 추천 도서 각 100선</b>(300권)을 8개 대주제로 다시 묶어, 같은 질문을 학교급에 따라 점점 깊게 탐구하도록 설계했습니다.<sup><a href="#fn3">[3]</a></sup></p>
+  <p>전북특별자치도교육청 10대 핵심과제의 하나로, 초·중·고 12년 동안 성장 단계에 맞추어 300권을 완독하는 장기 독서 프로젝트입니다.<sup><a href="#fn1">[1]</a></sup> 이 프로그램은 교육청의 <b>초등·중학생·고등학생 추천 도서 각 100선</b>(300권)을 8개 대주제로 다시 묶어, 같은 질문을 학교급에 따라 점점 깊게 탐구하도록 설계했습니다.<sup><a href="#fn3">[3]</a></sup></p>
+
+  <h2>도교육청 ‘독서 300 프로젝트’와의 연결</h2>
+  <p>도교육청은 12년 동안 <b>초등 150권 · 중학교 100권 · 고등학교 50권</b>을 목표로 하고,<sup><a href="#fn6">[6]</a></sup> 전북형 독서 브랜드 ‘온책’ 아래 5대 전략을 추진합니다. 학생 독서 기록은 ‘독서로’에 12년 포트폴리오로 쌓입니다.<sup><a href="#fn7">[7]</a></sup> 이 프로그램은 그중 <b>교실 수업과 기록</b>을 맡는 실천 도구입니다.</p>
+  <div class="tblwrap"><table><tr><th>5대 전략</th><th>도교육청 내용</th><th>이 프로그램의 기능</th></tr>
+   <tr><td><span class="onchaek">온책읽기</span></td><td>학교별 매일 독서 시간, 독서 기록 습관</td><td>‘오늘 읽은 시간 기록’, 연속 독서일·월 독서 시간, 학교급 목표(150·100·50) 진도와 연간 권장 권수</td></tr>
+   <tr><td><span class="onchaek">온책잇기</span></td><td>교과 연계 독서 수업</td><td>활동 카드의 연계 교과 지정, 초등 성취기준·중학 연계 교과 표시, 특기사항을 해당 교과 세특 문구로 작성</td></tr>
+   <tr><td><span class="onchaek">온책열기</span></td><td>인문학 프로그램, 전북형 독서토론, 학생 저자 지원</td><td>읽기→토론→논술→구술 4단계, 하브루타 질문 만들기, 2회 AI 피드백과 고쳐 쓰기, ‘나의 글 모음집’(학생 문집)</td></tr>
+   <tr><td><span class="onchaek">온책도서관</span></td><td>학교도서관 기능 강화, 학생교육문화관 협력</td><td>대주제·학교급별 도서 목록으로 학교도서관 장서 구성과 ‘온책읽기 학교대출’ 신청 목록 작성에 활용</td></tr>
+   <tr><td><span class="onchaek">온책마을</span></td><td>학부모 독서교육, 지역 연계, 온책이음 마음우편</td><td>‘온책이음 마음엽서’ 쓰기(가족·친구·작가에게), 가정에서 함께 쓰는 자유 도서 기록</td></tr>
+   <tr><td><span class="onchaek">독서로</span></td><td>12년 독서 포트폴리오</td><td>독서로 입력용 목록(CSV)과 활동 파일 내보내기로 학년이 바뀌어도 기록을 이어 감</td></tr></table></div>
 
   <h2>주안점 1. 대주제 × 학교급 심화 구조</h2>
   <div class="tblwrap"><table><tr><th>대주제</th><th>12년 대질문</th><th>초1~2 → 고등 질문의 심화</th></tr>
@@ -1188,6 +1300,8 @@ function renderGuide(){
   <p class="fn" id="fn2">[2] 리로스쿨 대입정보, 「학교생활기록부 기재요령 변경 사항」 <a href="https://riroschool.kr/kceenews/detail/201" target="_blank" rel="noopener">riroschool.kr</a>; 교육부 학교생활기록부 종합지원포털 <a href="https://star.moe.go.kr/web/contents/m21100.do" target="_blank" rel="noopener">기재요령</a></p>
   <p class="fn" id="fn3">[3] 전북특별자치도교육청, 「초등학생·중학생·고등학생 추천 도서 100선」 및 참고자료(포스터·참고표). 선정 경위: 「전북교육청, 초·중·고생 추천도서 100선 선정」, 전북일보 <a href="https://www.jjan.kr/articleAmp/20230713580289" target="_blank" rel="noopener">jjan.kr</a></p>
   <p class="fn" id="fn4">[4] 교육부 고시 제2022-33호 「국어과 교육과정」(2022 개정). 국가교육과정정보센터 <a href="https://ncic.re.kr" target="_blank" rel="noopener">ncic.re.kr</a></p>
+  <p class="fn" id="fn6">[6] 「천호성 전북교육감 예비후보 “초중고 12년 300권 독서 프로젝트”」, 노컷뉴스 <a href="https://www.nocutnews.co.kr/news/6482314" target="_blank" rel="noopener">nocutnews.co.kr</a>; 「천호성 “초·중·고 12년간 독서 300권 프로젝트 추진”」, 전라일보 <a href="http://www.jeollailbo.com/news/articleView.html?idxno=794358" target="_blank" rel="noopener">jeollailbo.com</a></p>
+  <p class="fn" id="fn7">[7] 「전북교육청, ‘독서 300 프로젝트’ 본격 시동… 전북형 독서 브랜드 ‘온책’ 앞세운 5대 전략 가동」, 전북미래교육신문 <a href="https://edujb.com/news/articleView.html?idxno=9581" target="_blank" rel="noopener">edujb.com</a>; 「전북자치도교육청, 초·중·고 12년 독서 이력 관리 ‘독서 300 프로젝트’ 전면 도입」, 전북도민일보 <a href="http://www.domin.co.kr/news/articleView.html?idxno=1572945" target="_blank" rel="noopener">domin.co.kr</a></p>
   <p class="fn" id="fn5">[5] 교육부, 「2025학년도 학교생활기록부 기재요령(중학교)」 <a href="https://exitbasic.com/wp-content/uploads/2025/03/합본-최종-2025학년도-학교생활기록부-기재요령중학교-0225.pdf" target="_blank" rel="noopener">PDF</a></p>
   </div>`;
 }
@@ -1210,7 +1324,7 @@ document.addEventListener("click", e=>{
   if(d.aicopy){ const c=curCard(); copyText(d.aicopy==="rec"?recPrompt(c):evalPrompt(c, d.aicopy==="2"&&c.v1?2:1)); return; }
   if(d.aipaste){ openPaste(d.aipaste==="rec"?"rec":+d.aipaste); return; }
   if(d.rec){ runRec(); return; }
-  if(d.copy){ const c=curCard(); copyText(d.copy==="neis"? c.books.map(id=>bookOf(id)).filter(Boolean).map(b=>`${b.title}(${b.author})`).join(", ") : c.record.text); return; }
+  if(d.copy){ const c=curCard(); copyText(d.copy==="neis"? c.books.map(id=>bookOf(id)).filter(Boolean).map(b=>`${b.title}(${b.author})`).join(", ") : d.copy==="post" ? `${c.post.to}\n\n${c.post.text}` : c.record.text); return; }
   switch(el.id){
     case "mode-st": S.mode="student"; save(); renderAll(); break;
     case "mode-tc": S.mode="teacher"; save(); renderAll(); break;
@@ -1218,6 +1332,12 @@ document.addEventListener("click", e=>{
     case "card-new": { const c=curCard(); newCard(c?c.theme:"A", stageOfGrade(me().grade).id); break; }
     case "card-del": { const st=me(); const c=curCard(); if(el.dataset.armed){ st.cards=st.cards.filter(x=>x!==c); S.curCard=null; save(); renderAll(); } else { el.dataset.armed="1"; el.textContent="한 번 더 누르면 삭제"; } break; }
     case "nc-go": newCard($("#nc-th").value,$("#nc-st").value); break;
+    case "log-add": openLog(); break;
+    case "cb-add": { const ti=$("#cb-title").value.trim(); if(!ti){ toast("도서명을 입력하세요"); break; } const st=me();
+      const b={id:"u-"+Date.now().toString(36), lv:stageOfGrade(st.grade).id, title:ti, author:$("#cb-author").value.trim()||"저자 미상", field:"자유 도서", kw:"", themes:[$("#cb-theme").value], extra:"", custom:true};
+      st.custom.push(b); st.read[b.id]={d:today(),g:st.grade}; save(); renderShelf(); fillBooks(); $("#cb-title").value=""; $("#cb-author").value=""; toast("읽은 책에 추가했습니다"); break; }
+    case "ex-doseoro": { const st=me(); saveFile(`독서300_독서로입력목록_${st.name||"학생"}_${today()}.csv`, doseoroCSV(st), "text/csv"); break; }
+    case "ex-book": { const st=me(); saveFile(`독서300_나의문집_${st.name||"학생"}_${today()}.html`, anthology(st), "text/html"); break; }
     case "ex-me": { const st=me(); saveFile(`독서300_${st.num||""}${st.name||"학생"}_${today()}.json`, exportStudent(st), "application/json"); break; }
     case "ex-all": saveFile(`독서300_학급전체_${today()}.json`, JSON.stringify({dokseo300:1, exported:new Date().toISOString(), students:Object.values(S.students)},null,1), "application/json"); break;
     case "ex-csv": saveFile(`독서300_특기사항_${today()}.csv`, recordsCSV(), "text/csv"); break;
@@ -1227,11 +1347,12 @@ document.addEventListener("click", e=>{
 });
 document.addEventListener("change", e=>{
   const el=e.target;
-  if(el.dataset.read){ const st=me(); if(el.checked) st.read[el.dataset.read]=today(); else delete st.read[el.dataset.read]; save(); renderShelf();
+  if(el.dataset.read){ const st=me(); if(el.checked) st.read[el.dataset.read]={d:today(),g:st.grade}; else delete st.read[el.dataset.read]; save(); renderShelf();
     el.closest(".book")?.classList.toggle("done", el.checked); return; }
   if(el.id==="who-sel"){ if(el.value==="__new"){ editStudent(true); renderWho(); } else { S.cur=el.value; S.curCard=null; save(); renderAll(); } return; }
-  if(el.id==="bk-sel" && el.value){ const c=curCard(); c.books.push(el.value); const st=me(); if(!st.read[el.value]) st.read[el.value]=today(); save(); renderAll(); return; }
+  if(el.id==="bk-sel" && el.value){ const c=curCard(); c.books.push(el.value); const st=me(); if(!st.read[el.value]) st.read[el.value]={d:today(),g:st.grade}; save(); renderAll(); return; }
   if(["f-lv","f-th","f-only"].includes(el.id)){ F[el.id.slice(2)]=el.value; fillBooks(); return; }
+  if(el.id==="subj-sel"){ curCard().subject=el.value; save(); return; }
   if(el.dataset.tl){ const c=curCard(); c.teacher.areas[el.dataset.tl]=+el.value; save(); return; }
   if(el.id==="im-file"){ [...el.files].forEach(f=>{ const r=new FileReader(); r.onload=()=>importText(r.result); r.readAsText(f); }); return; }
   if(el.dataset.f && el.tagName==="SELECT"){ setField(el); }
@@ -1241,6 +1362,7 @@ document.addEventListener("input", e=>{
   if(el.id==="f-q"){ F.q=el.value; fillBooks(); return; }
   if(el.dataset.f){ setField(el); return; }
   if(el.dataset.teacher){ curCard().teacher.comment=el.value; save(); return; }
+  if(el.dataset.post){ curCard().post[el.dataset.post]=el.value; save(); return; }
   if(el.dataset.record){ const c=curCard(); c.record.text=el.value; save();
     const by=nbytes(el.value); const cnt=$("#rec-cnt"); cnt.textContent=`${el.value.length}자 · ${by.toLocaleString()}바이트 / 1,500바이트 (NEIS 기준: 한글 3, 영문·숫자 1, 줄바꿈 2)`; cnt.className="cnt-line num "+(by>1500?"low":"good");
     $("#rec-issues").innerHTML=issueHtml(checkRecord(el.value, me().name)); }
