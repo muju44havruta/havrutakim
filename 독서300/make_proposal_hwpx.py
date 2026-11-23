@@ -1,0 +1,98 @@
+"""양식 hwpx의 서식(문단·글자 모양)을 재사용해 '독서 300 프로젝트 활성화 방안' 제안서를 채운다."""
+import sys, zipfile, re
+from xml.sax.saxutils import escape
+src_dir, out_path = sys.argv[1], sys.argv[2]
+sec = open(f"{src_dir}/Contents/section0.xml", encoding="utf8").read()
+cut = sec.index('<hp:p id="0" paraPrIDRef="23"')          # '□ 제목:' 문단 시작
+head = sec[:cut]
+
+def P(para, runs):
+    body = "".join(f'<hp:run charPrIDRef="{c}"><hp:t>{escape(t)}</hp:t></hp:run>' if t else f'<hp:run charPrIDRef="{c}"/>' for c, t in runs)
+    return f'<hp:p id="0" paraPrIDRef="{para}" styleIDRef="0" pageBreak="0" columnBreak="0" merged="0">{body}</hp:p>'
+blank = lambda: P(23, [("12", "")])
+H = lambda t, first=False: P(29 if first else 31, [("12" if first else "16", "□ " + t)])
+O = lambda t: P(24, [("13", " ❍"), ("20", " " + t)])        # ❍ 굵게(예시 서식)
+D = lambda t: P(24, [("13", "   - " + t)])
+M = lambda t: P(35, [("13", "     ·" + t)])
+N = lambda t: P(30, [("14", "    "), ("15", "※ " + t)])
+
+out = []
+out.append(P(23, [("12", "□ 제목: "), ("13", "독서 300 프로젝트 활성화 방안")]))
+out.append(P(24, [("13", "   - 하브루타 ‘질문하는 12년 독서’로 온책 5대 전략을 교실에서 실천하기")]))
+out.append(blank())
+
+out.append(H("제안이유", True))
+out.append(O("독서 300 프로젝트 추진 현황"))
+out.append(D("초·중·고 12년 300권(초 150권·중 100권·고 50권) 완독을 목표로 하는 전북교육 10대 핵심과제"))
+out.append(M("‘온책’ 5대 전략(온책읽기·온책잇기·온책열기·온책도서관·온책마을)과 ‘독서로’ 12년 독서 포트폴리오로 추진"))
+out.append(M("전북지방우정청 협약으로 온책읽기 학교대출(281교, 약 3만 3천 권 이용)과 온책이음 마음우편 운영"))
+out.append(O("현장 실행의 한계와 문제점"))
+out.append(D("‘권수 채우기’로 흐를 우려"))
+out.append(M("목표가 권수 중심이어서 읽고 질문하고 생각을 넓힌 ‘깊이’를 확인하고 기록할 방법이 부족함"))
+out.append(D("학교급 간 독서 경험의 단절"))
+out.append(M("추천도서 100선이 초·중·고별로 따로 제시되어 같은 주제를 단계적으로 심화하는 연결 고리가 약함"))
+out.append(D("독서토론·논술 지도와 피드백에 따르는 교사 부담"))
+out.append(M("학급 25명 내외의 글을 두 번 이상 읽고 되돌려 주기 어려워 독후 활동이 감상문 수준에 머묾"))
+out.append(D("독서 기록과 수업·학교생활기록부의 분리"))
+out.append(M("2024학년도 대입부터 ‘독서활동상황’이 상급학교에 제공되지 않아, 독서 기반 교육활동을 교과 세특·창체에 남기는 체계가 필요함"))
+out.append(N("‘질문과 토론이 일상화된 학교’를 위해 읽은 권수와 사고의 깊이를 함께 키우고 기록하는 교실 실천 모델이 필요함"))
+
+out.append(H("제안내용"))
+out.append(O("사업 1. ‘12년 대주제 질문 지도’로 추천도서 300권 재구성"))
+out.append(D("추천도서 300권을 8개 대주제로 재분류"))
+out.append(M("나다움과 성장, 관계와 공감, 생명과 생태, 인권과 공정, 역사와 민주시민, 과학기술과 미래, 경제와 노동, 언어·문학·예술"))
+out.append(D("대주제마다 12년 대질문 1개와 학교급 5단계(초1~2, 초3~4, 초5~6, 중, 고) 핵심 질문 제시"))
+out.append(M("예) 인권과 공정: “인물이 다르다는 이유로 겪은 일은?”(초1~2) → “차별은 의도가 없어도 존재하는가?”(고)"))
+out.append(M("초등 150권은 추천 100선과 자유 도서로, 고등 50권은 진로와 맞는 대주제 2~3개를 골라 깊게 읽기"))
+out.append(O("사업 2. 하브루타 4단계 ‘읽기→토론→논술→구술’ 수업 모델"))
+out.append(D("한 권을 4차시로 운영하는 표준 수업 흐름 보급"))
+out.append(M("1차시 읽기와 하브루타 짝 질문 만들기(사실·상상·적용·종합 질문)"))
+out.append(M("2차시 모둠·학급 토론(근거, 예상 반론과 재반박, 듣고 달라진 생각)"))
+out.append(M("3차시 논술 쓰기와 고쳐 쓰기, 4차시 구술(꼬리 질문 대응)과 성찰"))
+out.append(D("학교급별 수준 조정"))
+out.append(M("초 저학년은 이야기 나누기·생각 쓰기·발표하기, 논술 분량은 3~5문장(초1~2)에서 1,200~1,600자(고)까지 단계화"))
+out.append(O("사업 3. AI·교사 협력 6단계 피드백 순환"))
+out.append(D("자기주도 활동 → 1차 AI 피드백 → 고쳐 쓰기 → 2차 AI 피드백 → 교사 피드백 → 특기사항 문구"))
+out.append(M("AI가 읽기·토론·논술·구술 영역별 4단계 수준(시작·발전·도달·심화)과 수정 과제를 제시하고, 1·2차 비교로 성장을 보여 줌"))
+out.append(M("교사는 토론·구술 수업 관찰로 판정을 보정하고 최종 확인함(AI 평가는 참고 자료)"))
+out.append(D("학교생활기록부 기재 지원"))
+out.append(M("독서활동상황용 ‘도서명(저자)’과 교과 세특·창체용 문구를 구분해 생성하고, 1,500바이트와 기재 금지어를 자동 점검"))
+out.append(O("사업 4. 온책 5대 전략 연계 실천 도구(웹 프로그램) 보급"))
+out.append(D("이미 개발된 ‘하브루타 원만이샘 독서 300’ 웹 프로그램을 시범학교에서 활용(설치·회원가입 없이 링크나 파일로 사용)"))
+out.append(M("온책읽기: 매일 독서 시간 기록, 학교급 목표(150·100·50권) 진도와 연간 권장 권수 표시"))
+out.append(M("온책잇기: 활동마다 연계 교과를 지정하고 해당 교과 세특 문구로 연결"))
+out.append(M("온책열기: 토론·논술·구술 활동, 학생 글 모음집(학생 저자 문집) 만들기"))
+out.append(M("온책도서관·온책마을: 대주제별 장서 구성 자료, 온책이음 마음엽서 쓰기"))
+out.append(M("독서로: 독서로 입력용 목록 내보내기로 12년 포트폴리오와 연계"))
+out.append(O("추진 로드맵"))
+out.append(D("1단계 준비(2026.12.~2027.2.): 2027 전북교육계획 반영 협의, 초·중·고 시범학교 선정, 담당 교사 연수"))
+out.append(D("2단계 시범 운영(2027.3.~7.): 학교급별 2~3교, 학급마다 대주제 2개 운영"))
+out.append(D("3단계 점검·개선(2027.8.~12.): 성과 지표 분석, 교사 설문, 기능 개선, 운영 사례집 제작"))
+out.append(D("4단계 확산(2028~): 희망 학교 확대, 교사 연구회 운영, 독서로 연동과 교육청 AI 환경 협의"))
+out.append(N("학생 기록은 학생 기기에만 저장되고 AI 요청에 이름·학교명을 넣지 않음. 기기가 없는 학생을 위해 종이 활동지를 함께 운영함"))
+
+out.append(H("기대효과"))
+out.append(O("‘권수’에서 ‘사고의 깊이’로, 독서 300 프로젝트의 질적 내실화"))
+out.append(D("같은 대주제를 12년 동안 다시 만나며 질문이 깊어지고, 두 번의 피드백으로 고쳐 쓰는 경험이 쌓여 문해력과 논증력이 자람"))
+out.append(O("질문과 토론이 일상화된 교실"))
+out.append(D("하브루타 짝 질문과 토론·구술이 일부 학생의 대회가 아닌 모든 학생의 수업 활동이 되어 ‘AI가 할 수 없는 질문하는 힘’을 기름"))
+out.append(O("교사 업무 경감과 기록의 연속성"))
+out.append(D("피드백과 특기사항 초안을 지원받아 교사는 관찰과 판정에 집중하고, 독서로·학생부 기록이 수업과 한 번에 연결됨"))
+out.append(O("온책 5대 전략의 교실 단위 실행 모델 확보"))
+out.append(D("학교급 목표 진도, 활동 완수율, 피드백 전후 수준 변화 등 시범 성과로 정책 효과를 객관적으로 보여 주고 다른 학교로 확산할 수 있음"))
+out.append(N("참고: 전북미래교육신문·전북도민일보(독서 300 프로젝트 5대 전략, 2026.10.), 노컷뉴스(학교급 목표, 2026.3.), 교육부 학교생활기록부 기재요령, 전북교육청 초·중·고 추천도서 100선"))
+out.append(P(25, [("16", "")]))
+
+new_sec = head + "".join(out) + "</hs:sec>"
+import xml.dom.minidom; xml.dom.minidom.parseString(new_sec.encode("utf8"))  # 형식 검증
+
+prv = re.sub(r"<[^>]+>", "", "\n".join(re.findall(r"<hp:t>(.*?)</hp:t>", "".join(out))))
+with zipfile.ZipFile(f"{src_dir}/../form.hwpx") as zin, zipfile.ZipFile(out_path, "w") as zout:
+    for info in zin.infolist():
+        data = zin.read(info.filename)
+        if info.filename == "Contents/section0.xml": data = new_sec.encode("utf8")
+        elif info.filename == "Preview/PrvText.txt": data = ("<정책 제안서>\n" + prv)[:1024].encode("utf8")
+        elif info.filename == "Contents/content.hpf": data = data.decode("utf8").replace("<opf:title>□ 제안이유</opf:title>", "<opf:title>독서 300 프로젝트 활성화 방안</opf:title>").encode("utf8")
+        comp = zipfile.ZIP_STORED if info.filename == "mimetype" else zipfile.ZIP_DEFLATED
+        zout.writestr(zipfile.ZipInfo(info.filename, info.date_time), data, compress_type=comp)
+print("ok", len(out), "paragraphs")
