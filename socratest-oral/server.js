@@ -21,6 +21,8 @@ const HTTP_PORT = Number(process.env.PORT || 3000);
 const HTTPS_PORT = Number(process.env.HTTPS_PORT || 3443);
 const PUBLIC_DIR = path.resolve('public');
 const MAX_AUDIO = 30 * 1024 * 1024;
+const MAX_VIDEO = 300 * 1024 * 1024; // 메일로 받은 영상(카메라 앱 원본 포함)
+const STT_LIMIT = 25 * 1024 * 1024; // OpenAI 음성 인식 파일 한도
 const STEP_OF_ATTEMPT = { 1: 1, 2: 3, 3: 6 }; // 구술 회차 → 단계 번호
 const ATTEMPT_LABEL = { 1: '1차 구술(1단계)', 2: '수정 구술(3단계)', 3: '실전 최종 구술(6단계)' };
 
@@ -88,7 +90,8 @@ function lanAddresses() {
   return out;
 }
 const audioPath = (rel) => path.join(AUDIO_DIR, rel);
-const EXT = { 'audio/webm': '.webm', 'audio/ogg': '.ogg', 'audio/mp4': '.m4a', 'audio/x-m4a': '.m4a', 'audio/m4a': '.m4a', 'audio/aac': '.aac', 'audio/mpeg': '.mp3', 'audio/mp3': '.mp3', 'audio/wav': '.wav', 'audio/x-wav': '.wav', 'audio/wave': '.wav', 'audio/3gpp': '.3gp', 'video/3gpp': '.3gp', 'audio/amr': '.amr' };
+const EXT = { 'audio/webm': '.webm', 'audio/ogg': '.ogg', 'audio/mp4': '.m4a', 'audio/x-m4a': '.m4a', 'audio/m4a': '.m4a', 'audio/aac': '.aac', 'audio/mpeg': '.mp3', 'audio/mp3': '.mp3', 'audio/wav': '.wav', 'audio/x-wav': '.wav', 'audio/wave': '.wav', 'audio/3gpp': '.3gp', 'video/3gpp': '.3gp', 'audio/amr': '.amr', 'video/mp4': '.mp4', 'video/webm': '.webm', 'video/quicktime': '.mov', 'video/x-matroska': '.mkv' };
+const VIDEO_EXT = { '.mp4': 'video/mp4', '.m4v': 'video/mp4', '.webm': 'video/webm', '.mov': 'video/quicktime', '.mkv': 'video/x-matroska', '.3gp': 'video/3gpp' };
 const MIME = { '.webm': 'audio/webm', '.ogg': 'audio/ogg', '.m4a': 'audio/mp4', '.aac': 'audio/aac', '.mp3': 'audio/mpeg', '.wav': 'audio/wav', '.3gp': 'audio/3gpp', '.amr': 'audio/amr' };
 
 // ───────────────────────── 진행 단계 계산 ─────────────────────────
@@ -138,6 +141,8 @@ async function runJob({ sid, n }) {
     if (config.sttProvider === 'openai' && !['teacher', 'openai'].includes(at.transcriptSource)) {
       at.state = 'transcribing';
       saveDb();
+      if (at.bytes > STT_LIMIT) throw new Error(`파일이 ${Math.round(at.bytes / 1048576)}MB로 커서 자동 전사(25MB 한도)를 할 수 없습니다. 영상을 보며 전사문을 입력한 뒤 [저장 후 AI 재평가]를 누르세요.`);
+      if (['.mov', '.mkv', '.3gp', '.amr'].includes(path.extname(at.file))) throw new Error('이 파일 형식은 자동 전사가 되지 않습니다. 영상을 보며 전사문을 입력한 뒤 [저장 후 AI 재평가]를 누르세요.');
       const t = await transcribeWithOpenAI(audioPath(at.file), at.mime, `${cls.title}. ${cls.task}`);
       at.transcript = t;
       at.transcriptSource = 'openai';
@@ -149,7 +154,7 @@ async function runJob({ sid, n }) {
         at.transcriptSource = 'mock';
       } else {
         at.state = 'needs_transcript';
-        at.error = '음성 인식 결과가 비어 있습니다. 선생님이 녹음을 듣고 전사문을 입력하면 평가가 진행됩니다.';
+        at.error = '글로 바뀐 내용(전사문)이 없습니다. 선생님이 녹음·영상을 보며 전사문을 입력하고 [저장 후 AI 재평가]를 누르면 평가가 진행됩니다.';
         saveDb();
         return;
       }
@@ -346,6 +351,10 @@ function applyClassFields(c, b) {
   if (b.maxSeconds !== undefined) c.maxSeconds = Math.max(30, Math.min(600, Number(b.maxSeconds) || 180));
   if (b.assessmentTakes !== undefined) c.assessmentTakes = Math.max(1, Math.min(3, Number(b.assessmentTakes) || 1));
   if (b.showAiInAssessment !== undefined) c.showAiInAssessment = !!b.showAiInAssessment;
+  if (b.teacherEmail !== undefined) {
+    c.teacherEmail = str(b.teacherEmail, 120);
+    if (c.teacherEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c.teacherEmail)) fail(400, '메일 주소 형식이 올바르지 않습니다.');
+  }
   if (b.phase !== undefined && ['practice', 'assessment', 'closed'].includes(b.phase)) c.phase = b.phase;
   if (c.title.length < 2) fail(400, '수업 제목을 2자 이상 입력하세요.');
   if (c.passage.length < 20) fail(400, '제시문(작품·지문)을 20자 이상 입력하세요.');
@@ -362,8 +371,12 @@ route('POST', '/api/classes', async (req, url) => {
   do code = crypto.randomBytes(3).toString('hex').toUpperCase();
   while (findClass(code));
   const area = AREAS[b.area] ? b.area : 'free';
-  const c = { code, title: '', area, areaLabel: AREAS[area].label, passage: '', task: '', standard: '', rubric: parseRubric(AREAS[area].rubric), phase: 'practice', maxSeconds: 180, assessmentTakes: 1, showAiInAssessment: false, created: Date.now() };
+  const c = { code, title: '', area, areaLabel: AREAS[area].label, passage: '', task: '', standard: '', rubric: parseRubric(AREAS[area].rubric), phase: 'practice', maxSeconds: 180, assessmentTakes: 1, showAiInAssessment: false, teacherEmail: config.teacherEmail || '', created: Date.now() };
   applyClassFields(c, b);
+  if (c.teacherEmail) {
+    config.teacherEmail = c.teacherEmail; // 다음 수업의 기본값으로 기억
+    saveConfig();
+  }
   db.classes.push(c);
   saveDbNow();
   return classSummary(c);
@@ -530,10 +543,47 @@ const STANDALONE = path.resolve('lib/standalone-template.html');
 route('GET', '/api/classes/:code/standalone.html', (req, url, p) => {
   requireTeacher(req, url);
   const c = findClass(p.code) || fail(404, '수업 없음');
-  const data = { code: c.code, title: c.title, areaLabel: c.areaLabel, task: c.task, passage: c.passage, maxSeconds: c.maxSeconds, rubric: c.rubric.map(({ name, points, desc, teacherOnly }) => ({ name, points, desc, teacherOnly })) };
+  if (!c.teacherEmail) fail(400, '먼저 「수업 설정 편집」에서 제출 받을 선생님 메일 주소를 등록하세요.');
+  const data = { code: c.code, title: c.title, areaLabel: c.areaLabel, task: c.task, passage: c.passage, maxSeconds: c.maxSeconds, teacherEmail: c.teacherEmail, rubric: c.rubric.map(({ name, points, desc, teacherOnly }) => ({ name, points, desc, teacherOnly })) };
   const json = JSON.stringify(data).replace(/</g, '\\u003c').replace(/\u2028|\u2029/g, '');
   const html = fs.readFileSync(STANDALONE, 'utf8').replace(/\/\*__CLASS_JSON__\*\/[\s\S]*?\/\*__END__\*\//, () => json);
   return { __raw: html, type: 'text/html; charset=utf-8', filename: `구술녹음_${c.title.replace(/[\\/:*?"<>|]/g, '').slice(0, 30)}_${c.code}.html` };
+});
+// 메일로 받은 영상(또는 녹음) 파일을 그대로 가져옵니다.
+// 파일 이름 형식: oral_수업코드_식별명_s단계(1|3|6)_시각_h화면이탈_rec|file.확장자 (학생용 HTML이 자동으로 붙임)
+const NAME_RE = /^oral_([0-9A-F]{6})_([\w-]+?)_s([136])_(\d{6})(?:_h(\d+))?(?:_(rec|file))?(?:\s*\(\d+\))?\.(\w+)$/i;
+route('POST', '/api/classes/:code/import-media', async (req, url, p) => {
+  requireTeacher(req, url);
+  let c = findClass(p.code) || fail(404, '수업 없음');
+  const name = str(url.searchParams.get('name'), 200);
+  const m = NAME_RE.exec(name);
+  // 파일 이름을 읽을 수 없으면 교사가 입력한 식별명·단계를 씁니다.
+  const alias = (m ? m[2] : str(url.searchParams.get('alias'), 30)).replace(/\s+/g, ' ');
+  const step = Number(m ? m[3] : url.searchParams.get('step'));
+  const n = { 1: 1, 3: 2, 6: 3 }[step];
+  if (alias.length < 2 || !n) fail(422, '파일 이름에서 식별명·단계를 읽을 수 없습니다.');
+  if (m && m[1].toUpperCase() !== c.code) {
+    const other = findClass(m[1]);
+    if (other) c = other;
+    else if (url.searchParams.get('force') !== '1') fail(409, `이 영상은 수업 코드 ${m[1].toUpperCase()}용입니다. 지금 열린 수업(${c.code})에 넣을까요?`);
+  }
+  const ext = path.extname(name).toLowerCase();
+  const mime = VIDEO_EXT[ext] || Object.keys(EXT).find((k) => EXT[k] === ext && k.startsWith('audio/'));
+  if (!mime) fail(415, '영상(mp4·webm·mov) 또는 녹음 파일만 가져올 수 있습니다.');
+  const buf = await readBody(req, MAX_VIDEO);
+  if (buf.length < 5000) fail(400, '파일이 비어 있습니다.');
+  let s = db.students.find((x) => x.classCode === c.code && x.alias === alias);
+  if (s?.attempts['a' + n]) fail(409, `${alias}: ${ATTEMPT_LABEL[n]}은 이미 있습니다. 다시 받으려면 학생 화면에서 '이 단계부터 다시 녹음하게 하기'를 누른 뒤 가져오세요.`);
+  if (!s) {
+    s = { id: crypto.randomUUID(), classCode: c.code, alias, pinSalt: '', pinHash: '', created: Date.now(), attempts: {}, evals: {}, evalHistory: [], archive: [], takes: {}, final: null, objections: [], log: [] };
+    db.students.push(s);
+    log(s, '메일 제출로 등록');
+  }
+  const tmp = path.join(TMP_DIR, crypto.randomUUID() + ext);
+  fs.writeFileSync(tmp, buf);
+  const storeExt = ext === '.m4v' ? '.mp4' : ext;
+  addAttempt(s, c, n, { tmp, ext: storeExt, mime, transcript: '', durationSec: Number(url.searchParams.get('duration')) || 0, hiddenCount: m?.[5] || 0, startedAt: null, source: m?.[6] === 'file' ? 'file' : 'recorder', via: 'mail' });
+  return { ok: true, alias, label: ATTEMPT_LABEL[n], classCode: c.code, classTitle: c.title, otherClass: c.code !== p.code };
 });
 route('POST', '/api/classes/:code/import', async (req, url, p) => {
   requireTeacher(req, url);
@@ -704,7 +754,7 @@ route('POST', '/api/student/submit', async (req, url) => {
 });
 
 // 녹음 한 건을 기록합니다(교사 PC 접속 제출·독립형 HTML 제출 공통).
-function addAttempt(s, cls, n, { tmp, ext, transcript, durationSec, hiddenCount, startedAt, source, via = 'live' }) {
+function addAttempt(s, cls, n, { tmp, ext, mime, transcript, durationSec, hiddenCount, startedAt, source, via = 'live' }) {
   const safeAlias = s.alias.replace(/[^\w가-힣-]/g, '_');
   const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
   const rel = path.join(cls.code, `${safeAlias}_${STEP_OF_ATTEMPT[n]}단계_${stamp}${ext}`);
@@ -716,7 +766,8 @@ function addAttempt(s, cls, n, { tmp, ext, transcript, durationSec, hiddenCount,
     n,
     step: STEP_OF_ATTEMPT[n],
     file: rel,
-    mime: MIME[ext],
+    mime: mime || MIME[ext],
+    kind: String(mime || MIME[ext]).startsWith('video/') ? 'video' : 'audio',
     bytes: fs.statSync(audioPath(rel)).size,
     sha256: sha256File(audioPath(rel)),
     durationSec: duration,
@@ -733,7 +784,7 @@ function addAttempt(s, cls, n, { tmp, ext, transcript, durationSec, hiddenCount,
     state: 'queued',
     error: '',
   };
-  log(s, via === 'standalone' ? '제출 파일 가져오기' : '구술 제출', `${ATTEMPT_LABEL[n]} · ${duration}초${source === 'file' ? ' · 녹음 파일 첨부' : ''} · SHA-256 ${s.attempts['a' + n].sha256.slice(0, 12)}`);
+  log(s, via === 'mail' ? '메일 제출 가져오기' : via === 'standalone' ? '제출 파일 가져오기' : '구술 제출', `${ATTEMPT_LABEL[n]} · ${duration}초${source === 'file' ? ' · 녹음 파일 첨부' : ''} · SHA-256 ${s.attempts['a' + n].sha256.slice(0, 12)}`);
   saveDbNow();
   enqueue(s.id, n);
 }

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1f5f8b">
-<title>구술 녹음 제출</title>
+<title>구술 영상 제출</title>
 <style>
 :root{--brand:#1f5f8b;--ink:#1d2733;--muted:#64717e;--line:#dfe5eb;--bg:#f3f5f7;--green:#2f7d5b;--green-soft:#e7f4ed;--red:#c9372a;--red-soft:#fbece9;--yellow:#fff4d6}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -29,31 +29,33 @@ input:focus{outline:3px solid #9cc8e6}
 .task{font-weight:700;background:#e9f2f8;border-left:5px solid var(--brand);padding:12px 14px;border-radius:8px;white-space:pre-wrap}
 details summary{cursor:pointer;color:var(--brand);font-weight:700;padding:6px 0}
 .passage{white-space:pre-wrap;background:#fbfaf6;border:1px solid #ebe5d6;border-radius:10px;padding:14px 16px;line-height:1.95}
-.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:56px;border:0;border-radius:14px;background:var(--brand);color:#fff;font:inherit;font-weight:800;font-size:1.08rem;margin-top:12px;cursor:pointer;text-decoration:none}
-.btn.sub{background:#fff;color:var(--brand);border:2px solid var(--brand);min-height:48px;font-size:1rem}
-.btn.green{background:var(--green)}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:56px;border:0;border-radius:14px;background:var(--brand);color:#fff;font:inherit;font-weight:800;font-size:1.05rem;margin-top:10px;cursor:pointer;text-decoration:none;text-align:center;padding:8px 12px}
+.btn.sub{background:#fff;color:var(--brand);border:2px solid var(--brand);min-height:50px;font-size:1rem}
+.btn.green{background:var(--green)}.btn.red{background:var(--red)}
 .btn:disabled{opacity:.5}
-.rec-wrap{text-align:center}
-.mic{width:128px;height:128px;border-radius:50%;border:0;background:var(--red);color:#fff;font:inherit;font-weight:800;box-shadow:0 8px 22px rgba(201,55,42,.35);display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer}
-.mic svg{width:40px;height:40px}
-.mic.stop{background:#22303d;animation:pulse 1.4s infinite}
-@keyframes pulse{70%{box-shadow:0 0 0 22px rgba(201,55,42,0)}100%{box-shadow:0 0 0 0 rgba(201,55,42,0)}}
-.timer{font-size:2.2rem;font-weight:800;font-variant-numeric:tabular-nums;margin-top:8px}
-.meter{height:10px;max-width:260px;margin:8px auto;background:#e3e8ed;border-radius:5px;overflow:hidden}.meter i{display:block;height:100%;width:0;background:var(--green)}
-.live{text-align:left;min-height:56px;border:1px dashed var(--line);border-radius:10px;padding:10px;margin-top:10px;font-size:.95rem}
+.cam{position:relative;background:#111;border-radius:14px;overflow:hidden;aspect-ratio:3/4;max-height:62vh;margin:0 auto}
+.cam video{width:100%;height:100%;object-fit:cover;display:block}
+.cam video.mirror{transform:scaleX(-1)}
+.cam .badge{position:absolute;left:10px;top:10px;background:rgba(201,55,42,.92);color:#fff;font-weight:800;border-radius:99px;padding:3px 12px;font-variant-numeric:tabular-nums}
+.cam .guide{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,rgba(0,0,0,.65));color:#fff;font-size:.88rem;padding:24px 12px 10px;text-align:center}
+.meter{height:8px;margin:8px 0 0;background:#e3e8ed;border-radius:4px;overflow:hidden}.meter i{display:block;height:100%;width:0;background:var(--green)}
+.rules{font-size:.92rem;margin:8px 0;padding-left:20px}
 .file{display:block;border:2px dashed #b9c6d2;border-radius:12px;padding:16px;text-align:center;color:var(--brand);font-weight:700;cursor:pointer;margin-top:8px}
 .file input{display:none}
-audio{width:100%;margin:8px 0}
+video.review{width:100%;border-radius:12px;background:#000;max-height:60vh}
 .warn{background:var(--yellow);border-radius:10px;padding:10px 12px;font-size:.92rem;margin:8px 0}
 .err{background:var(--red-soft);color:#7a2215;border-radius:10px;padding:10px 12px;font-size:.92rem;margin:8px 0}
 .ok{background:var(--green-soft);border-radius:10px;padding:12px;font-size:.95rem}
+.mail{display:flex;gap:8px;align-items:center;background:#f6f8fa;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:8px 0;font-weight:700;word-break:break-all}
+.mail button{flex:none;border:1.5px solid var(--brand);background:#fff;color:var(--brand);border-radius:8px;padding:6px 10px;font:inherit;font-size:.85rem;font-weight:700}
 ol.how{margin:6px 0;padding-left:22px;font-size:.93rem}
+.stepbox{border-left:4px solid var(--brand);padding:4px 0 4px 12px;margin:14px 0}
 table{width:100%;border-collapse:collapse;font-size:.92rem}td,th{padding:6px 4px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
 .hidden{display:none!important}
 </style>
 </head>
 <body>
-<div class="top"><b id="title">구술 녹음 제출</b><span id="sub"></span></div>
+<div class="top"><b id="title">구술 영상 제출</b><span id="sub"></span></div>
 <main>
   <div id="envBox"></div>
   <div id="noClass" class="card hidden"><h2>수업 정보가 없어요</h2><p>선생님이 보내 준 <b>링크(또는 QR코드)</b>로 다시 열어 주세요.</p></div>
@@ -66,7 +68,7 @@ table{width:100%;border-collapse:collapse;font-size:.92rem}td,th{padding:6px 4px
   </section>
 
   <section class="card">
-    <h2><span class="num">2</span>몇 단계 녹음인가요?</h2>
+    <h2><span class="num">2</span>몇 단계 녹화인가요?</h2>
     <div class="steps" id="steps">
       <label><input type="radio" name="n" value="1"><span>1단계 · 1차 구술<small>처음 말하는 답변</small></span></label>
       <label><input type="radio" name="n" value="2"><span>3단계 · 수정 구술<small>1차 피드백을 반영해 다시 말하기</small></span></label>
@@ -83,39 +85,41 @@ table{width:100%;border-collapse:collapse;font-size:.92rem}td,th{padding:6px 4px
   </section>
 
   <section class="card">
-    <h2><span class="num">4</span>녹음해요</h2>
+    <h2><span class="num">4</span>영상으로 녹화해요</h2>
+    <ul class="rules">
+      <li><b>얼굴이 화면 가운데</b>에 오게 하고, 처음부터 끝까지 카메라를 보며 말해요.</li>
+      <li>녹화하는 동안 <b>메모·책·다른 화면을 보지 않아요.</b> (준비는 녹화 전에!)</li>
+      <li>조용한 곳에서, 휴대폰을 세워 두고 녹화해요.</li>
+    </ul>
     <div id="rec"></div>
   </section>
 
   <section class="card hidden" id="outCard">
-    <h2><span class="num">5</span>선생님께 제출해요</h2>
+    <h2><span class="num">5</span>선생님 메일로 제출해요</h2>
     <div id="out"></div>
   </section>
   </div>
 </main>
 <script>
 'use strict';
-// 교사 프로그램이 내려받기용 파일을 만들 때 아래 자리에 수업 정보를 넣습니다.
-// 비어 있으면 링크 주소의 #c= 뒤에 담긴 수업 정보를 읽습니다(교사용 HTML이 만든 링크).
+// 교사 프로그램·교사용 HTML이 학생용 파일을 만들 때 아래 자리에 수업 정보를 넣습니다.
+// 비어 있으면 링크 주소의 #c= 뒤에 담긴 수업 정보를 읽습니다.
 const EMBED = /*__CLASS_JSON__*/ null /*__END__*/;
 
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const mmss = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+const mb = (n) => (n / 1048576).toFixed(1) + 'MB';
 const store = (k, v) => { try { if (v === undefined) return localStorage.getItem(k) || ''; localStorage.setItem(k, v); } catch { return ''; } };
-const MIC = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V21h2v-2.1A7 7 0 0 0 19 12z"/></svg>';
 const UA = navigator.userAgent;
 const IS_IOS = /iPhone|iPad|iPod/.test(UA) || (/Macintosh/.test(UA) && navigator.maxTouchPoints > 1);
 const IS_ANDROID = /Android/.test(UA);
-const IS_MOBILE = IS_IOS || IS_ANDROID || /Mobile/.test(UA);
-const IN_APP = /KAKAOTALK|NAVER\(inapp|Instagram|FBAN|FBAV|Line\/|BAND\/|DaumApps|everytimeApp|SamsungBrowser\/[\d.]+ CrossApp/i.test(UA);
+const IN_APP = /KAKAOTALK|NAVER\(inapp|Instagram|FBAN|FBAV|Line\/|BAND\/|DaumApps|everytimeApp/i.test(UA);
 const IS_KAKAO = /KAKAOTALK/i.test(UA);
-// 휴대폰은 녹음과 음성 인식이 마이크를 동시에 쓰면 녹음이 무음이 될 수 있어, 컴퓨터에서만 실시간 글자 변환을 합니다.
-const SR = !IS_MOBILE && (window.SpeechRecognition || window.webkitSpeechRecognition);
-const EXT = { 'audio/webm': 'webm', 'audio/ogg': 'ogg', 'audio/mp4': 'm4a', 'audio/x-m4a': 'm4a', 'audio/m4a': 'm4a', 'audio/aac': 'aac', 'audio/mpeg': 'mp3', 'audio/mp3': 'mp3', 'audio/wav': 'wav', 'audio/x-wav': 'wav', 'audio/wave': 'wav', 'audio/3gpp': '3gp', 'video/3gpp': '3gp', 'audio/amr': 'amr' };
-const BY_EXT = { webm: 'audio/webm', ogg: 'audio/ogg', m4a: 'audio/mp4', mp4: 'audio/mp4', aac: 'audio/aac', mp3: 'audio/mpeg', wav: 'audio/wav', '3gp': 'audio/3gpp', '3ga': 'audio/3gpp', amr: 'audio/amr' };
+const MAIL_LIMIT = 25 * 1048576; // 대부분의 메일 첨부 한도
+const EXT = { 'video/mp4': 'mp4', 'video/webm': 'webm', 'video/quicktime': 'mov', 'video/3gpp': '3gp', 'video/x-matroska': 'mkv' };
+const BY_EXT = { mp4: 'video/mp4', m4v: 'video/mp4', webm: 'video/webm', mov: 'video/quicktime', '3gp': 'video/3gpp', mkv: 'video/x-matroska' };
 
-// ── 수업 정보 읽기 ──
 async function readClass() {
   if (EMBED) return EMBED;
   const m = /[#&]c=([^&]+)/.exec(location.hash);
@@ -133,68 +137,63 @@ async function readClass() {
 
 let CLASS;
 const canRecord = !!(window.isSecureContext && navigator.mediaDevices?.getUserMedia && window.MediaRecorder);
-const R = { blob: null, sec: 0, text: '', hidden: 0, source: '', t0: 0, peak: 0 };
+const R = { blob: null, sec: 0, hidden: 0, source: '', t0: 0, peak: 0 };
 
 function envNotice() {
   let h = '';
   if (IN_APP) {
     const url = location.href;
     const isWeb = /^https?:/.test(url);
-    h += `<div class="card"><div class="err"><b>앱 안의 브라우저에서는 녹음·저장이 잘 안 돼요.</b><br>${IS_IOS ? '오른쪽 아래(또는 위) <b>⋯ / 공유</b> 버튼 → <b>Safari로 열기</b>를 눌러 주세요.' : '오른쪽 위 <b>⋮</b> 버튼 → <b>다른 브라우저로 열기</b>(크롬)를 눌러 주세요.'}</div>
+    h = `<div class="card"><div class="err"><b>앱 안의 브라우저에서는 녹화·저장·메일 보내기가 잘 안 돼요.</b><br>${IS_IOS ? '오른쪽 아래(또는 위) <b>⋯ / 공유</b> → <b>Safari로 열기</b>를 눌러 주세요.' : '오른쪽 위 <b>⋮</b> → <b>다른 브라우저로 열기</b>(크롬)를 눌러 주세요.'}</div>
       ${isWeb && IS_KAKAO ? `<a class="btn" href="kakaotalk://web/openExternal?url=${encodeURIComponent(url)}">기본 브라우저로 열기</a>` : ''}
       ${isWeb && IS_ANDROID && !IS_KAKAO ? `<a class="btn" href="intent://${url.replace(/^https?:\/\//, '')}#Intent;scheme=https;package=com.android.chrome;end">크롬으로 열기</a>` : ''}</div>`;
   } else if (!canRecord) {
-    h += `<div class="card"><div class="warn"><b>이 화면에서는 바로 녹음할 수 없어요.</b> 파일로 열었거나 보안 주소(https)가 아니기 때문이에요. 선생님이 보낸 <b>링크</b>로 열면 바로 녹음할 수 있어요.<br>지금은 아래 4번에서 <b>휴대폰 녹음 앱</b>으로 녹음해 첨부하면 돼요.</div></div>`;
+    h = `<div class="card"><div class="warn"><b>이 화면에서는 바로 녹화할 수 없어요.</b> 파일로 열었거나 보안 주소(https)가 아니기 때문이에요. 선생님이 보낸 <b>링크</b>로 열면 바로 녹화할 수 있어요. 지금은 4번에서 <b>휴대폰 카메라</b>로 찍어 고르면 돼요.</div></div>`;
   }
   $('#envBox').innerHTML = h;
 }
 
-function recorderHelp() {
-  if (IS_IOS) return `<ol class="how"><li><b>음성 메모</b> 앱에서 녹음해요.</li><li>녹음 항목의 <b>⋯ → 공유 → '파일'에 저장</b>을 눌러요.</li><li>아래 <b>[녹음 파일 고르기]</b>에서 그 파일을 골라요.</li></ol>`;
-  return `<ol class="how"><li>아래 <b>[휴대폰 녹음기로 녹음하기]</b>를 누르거나, <b>음성 녹음</b> 앱으로 녹음해요.</li><li>녹음 앱을 썼다면 <b>[녹음 파일 고르기]</b>에서 파일을 골라요(보통 '녹음' 또는 'Recordings' 폴더).</li></ol>`;
-}
-const fileBox = () => `${!IS_IOS ? '<label class="file">🎙 휴대폰 녹음기로 녹음하기<input type="file" class="fin" accept="audio/*" capture></label>' : ''}
-  <label class="file">📁 녹음 파일 고르기<input type="file" class="fin" accept="audio/*,.m4a,.mp3,.wav,.webm,.3gp,.amr,.aac"></label>`;
+const fileBox = () => `<label class="file">📹 휴대폰 카메라로 찍기<input type="file" class="fin" accept="video/*" capture="user"></label>
+  <label class="file">📁 찍어 둔 영상 고르기<input type="file" class="fin" accept="video/*"></label>
+  <p class="muted">카메라 앱으로 찍으면 파일이 커서 메일로 안 보내질 수 있어요. <b>화질을 낮추고(720p 이하)</b> 짧게 찍어 주세요.</p>`;
 
+let stream, mr, chunks, tick, ac, mimeUsed = '';
 function idle(msg) {
+  stopStream();
   $('#rec').innerHTML = `${msg ? `<div class="err">${esc(msg)}</div>` : ''}
     ${canRecord
-      ? `<div class="rec-wrap"><button class="mic" id="micBtn">${MIC}녹음 시작</button>
-         <p class="muted">최대 ${mmss(CLASS.maxSeconds)} · 조용한 곳에서 휴대폰을 입 가까이 두고 또박또박<br>${SR ? '말하는 동안 글자로도 바뀌어요.' : '글자 변환은 선생님 프로그램에서 해요.'}</p></div>
-         <details><summary>녹음 앱으로 녹음했어요 / 여기서 녹음이 안 돼요</summary>${recorderHelp()}${fileBox()}</details>`
-      : `${recorderHelp()}${fileBox()}`}`;
-  if ($('#micBtn')) $('#micBtn').onclick = start;
+      ? `<button class="btn" id="camBtn">📷 카메라 켜기</button>
+         <p class="muted" style="text-align:center">최대 ${mmss(CLASS.maxSeconds)} · 카메라와 마이크 사용을 "허용"해 주세요</p>
+         <details><summary>여기서 녹화가 안 돼요</summary>${fileBox()}</details>`
+      : fileBox()}`;
+  if ($('#camBtn')) $('#camBtn').onclick = openCam;
   document.querySelectorAll('.fin').forEach((i) => (i.onchange = (e) => useFile(e.target.files[0])));
 }
-
-let mr, stream, chunks, tick, sr, interim = '', srDone, ac;
-async function start() {
+function stopStream() {
+  stream?.getTracks().forEach((t) => t.stop());
+  stream = null;
+  ac?.close().catch(() => {});
+  ac = null;
+}
+async function openCam() {
   try {
-    stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 }, frameRate: { ideal: 15, max: 24 } },
+      audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+    });
   } catch (e) {
-    return idle(e?.name === 'NotAllowedError' ? '마이크가 허용되지 않았어요. 주소창 왼쪽(아이폰은 "가가" 또는 설정 ▸ Safari ▸ 마이크)에서 "허용"으로 바꾼 뒤 다시 눌러 주세요.' : '마이크를 켤 수 없어요(' + (e?.name || '오류') + '). 다른 앱이 마이크를 쓰고 있는지 확인하거나 아래 녹음 앱 방법을 쓰세요.');
+    return idle(e?.name === 'NotAllowedError'
+      ? '카메라·마이크가 허용되지 않았어요. 주소창 왼쪽 아이콘(아이폰: 설정 ▸ Safari ▸ 카메라·마이크)에서 "허용"으로 바꾼 뒤 다시 눌러 주세요.'
+      : '카메라를 켤 수 없어요(' + (e?.name || '오류') + '). 다른 앱이 카메라를 쓰고 있는지 확인하거나 아래 "휴대폰 카메라로 찍기"를 쓰세요.');
   }
-  const mime = ['audio/mp4', 'audio/webm;codecs=opus', 'audio/webm'].find((m) => MediaRecorder.isTypeSupported?.(m)) || '';
-  try { mr = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined); }
-  catch { stream.getTracks().forEach((t) => t.stop()); return idle('이 브라우저는 녹음을 지원하지 않아요. 아래 녹음 앱 방법을 쓰세요.'); }
-  chunks = [];
-  mr.ondataavailable = (e) => e.data && e.data.size && chunks.push(e.data);
-  mr.onerror = (e) => idle('녹음 중 오류가 났어요: ' + (e.error?.name || '알 수 없음'));
-  mr.start(1000);
-  R.t0 = Date.now(); R.hidden = 0; R.text = ''; R.peak = 0; interim = '';
-  document.onvisibilitychange = () => document.hidden && R.hidden++;
-  $('#rec').innerHTML = `<div class="rec-wrap"><button class="mic stop" id="stopBtn">■<span>끝내기</span></button><div class="timer" id="tm">0:00</div>
-    <div class="meter"><i id="mt"></i></div><div class="muted" id="left">말하면 초록 막대가 움직여요</div>
-    ${SR ? '<div class="live" id="live"><span class="muted">말하면 여기에 글자가 나타나요…</span></div>' : ''}</div>`;
-  $('#stopBtn').onclick = stop;
+  $('#rec').innerHTML = `<div class="cam"><video id="pv" class="mirror" autoplay muted playsinline></video><div class="badge hidden" id="badge">● 0:00</div>
+      <div class="guide" id="guide">얼굴이 화면 가운데 오게 맞춰요</div></div>
+    <div class="meter"><i id="mt"></i></div><p class="muted" style="text-align:center;margin:4px 0" id="hint">말하면 초록 막대가 움직여요</p>
+    <button class="btn red" id="goBtn">● 녹화 시작</button><button class="btn sub" id="offBtn">카메라 끄기</button>`;
+  $('#pv').srcObject = stream;
+  $('#goBtn').onclick = startRec;
+  $('#offBtn').onclick = () => idle();
   meter();
-  if (SR) {
-    sr = new SR(); sr.lang = 'ko-KR'; sr.continuous = true; sr.interimResults = true;
-    sr.onresult = (e) => { interim = ''; for (let i = e.resultIndex; i < e.results.length; i++) { const r = e.results[i]; if (r.isFinal) R.text += r[0].transcript.trim() + ' '; else interim += r[0].transcript; } const l = $('#live'); if (l) l.innerHTML = esc(R.text) + `<span class="muted">${esc(interim)}</span>`; };
-    sr.onend = () => { if (mr?.state === 'recording') { try { sr.start(); } catch {} } else srDone?.(); };
-    try { sr.start(); } catch {}
-  }
-  tick = setInterval(() => { const s = Math.floor((Date.now() - R.t0) / 1000), left = CLASS.maxSeconds - s; $('#tm').textContent = mmss(s); if (left <= 30) $('#left').textContent = `${left}초 남았어요`; if (left <= 0) stop(); }, 250);
 }
 function meter() {
   try {
@@ -202,85 +201,129 @@ function meter() {
     if (ac.state === 'suspended') ac.resume();
     const an = ac.createAnalyser(); an.fftSize = 512; ac.createMediaStreamSource(stream).connect(an);
     const d = new Uint8Array(512);
-    const f = () => { if (mr?.state !== 'recording') return; an.getByteTimeDomainData(d); let p = 0; for (const v of d) p = Math.max(p, Math.abs(v - 128)); R.peak = Math.max(R.peak, p); const m = $('#mt'); if (m) m.style.width = Math.min(100, p * 1.6) + '%'; requestAnimationFrame(f); };
+    const f = () => { if (!stream) return; an.getByteTimeDomainData(d); let p = 0; for (const v of d) p = Math.max(p, Math.abs(v - 128)); if (mr?.state === 'recording') R.peak = Math.max(R.peak, p); const m = $('#mt'); if (m) m.style.width = Math.min(100, p * 1.6) + '%'; requestAnimationFrame(f); };
     f();
   } catch { R.peak = -1; }
 }
-async function stop() {
+function startRec() {
+  // 메일 첨부 한도를 넘지 않도록 화질을 낮춰 녹화합니다(3분 ≈ 10MB 안팎).
+  const mime = ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4', 'video/webm;codecs=vp8,opus', 'video/webm'].find((m) => MediaRecorder.isTypeSupported?.(m)) || '';
+  try { mr = new MediaRecorder(stream, { ...(mime ? { mimeType: mime } : {}), videoBitsPerSecond: 350000, audioBitsPerSecond: 64000 }); }
+  catch { try { mr = new MediaRecorder(stream); } catch { return idle('이 브라우저는 영상 녹화를 지원하지 않아요. 아래 "휴대폰 카메라로 찍기"를 쓰세요.'); } }
+  mimeUsed = mime;
+  chunks = [];
+  mr.ondataavailable = (e) => e.data && e.data.size && chunks.push(e.data);
+  mr.onerror = (e) => idle('녹화 중 오류가 났어요: ' + (e.error?.name || '알 수 없음'));
+  mr.start(1000);
+  R.t0 = Date.now(); R.hidden = 0; R.peak = 0;
+  document.onvisibilitychange = () => document.hidden && R.hidden++;
+  $('#badge').classList.remove('hidden');
+  $('#guide').textContent = '카메라를 보며 말해요 · 다른 것을 보지 않아요';
+  $('#goBtn').textContent = '■ 녹화 끝내기';
+  $('#goBtn').classList.remove('red');
+  $('#goBtn').onclick = stopRec;
+  $('#offBtn').classList.add('hidden');
+  tick = setInterval(() => {
+    const s = Math.floor((Date.now() - R.t0) / 1000), left = CLASS.maxSeconds - s;
+    $('#badge').textContent = '● ' + mmss(s);
+    if (left <= 30) $('#hint').textContent = `${left}초 남았어요`;
+    if (left <= 0) stopRec();
+  }, 250);
+}
+async function stopRec() {
   if (mr?.state !== 'recording') return;
   clearInterval(tick); document.onvisibilitychange = null;
   R.sec = Math.round((Date.now() - R.t0) / 1000);
   const done = new Promise((r) => (mr.onstop = r)); mr.stop(); await done;
-  if (sr) { await new Promise((r) => { srDone = r; try { sr.stop(); } catch { r(); } setTimeout(r, 1500); }); R.text += interim; sr = null; }
-  stream.getTracks().forEach((t) => t.stop()); ac?.close().catch(() => {});
-  R.blob = new Blob(chunks, { type: (mr.mimeType || mime0()).split(';')[0] });
-  R.text = R.text.trim(); R.source = 'recorder';
-  if (!R.blob.size) return idle('녹음 파일이 비어 있어요. 브라우저를 크롬(안드로이드)이나 사파리(아이폰)로 바꾸거나, 아래 녹음 앱 방법을 쓰세요.');
+  stopStream();
+  const type = (mr.mimeType || mimeUsed || (IS_IOS ? 'video/mp4' : 'video/webm')).split(';')[0];
+  R.blob = new Blob(chunks, { type });
+  R.source = 'rec';
+  if (!R.blob.size) return idle('녹화 파일이 비어 있어요. 크롬(안드로이드)·사파리(아이폰)로 다시 해 보거나 "휴대폰 카메라로 찍기"를 쓰세요.');
   review();
 }
-const mime0 = () => (IS_IOS ? 'audio/mp4' : 'audio/webm');
 function useFile(f) {
   if (!f) return;
   let type = (f.type || '').split(';')[0];
   if (!EXT[type]) type = BY_EXT[(f.name.split('.').pop() || '').toLowerCase()] || '';
-  if (!type) return idle('이 파일 형식은 쓸 수 없어요. m4a·mp3·wav·webm·3gp 파일을 골라 주세요.');
-  if (f.size > 25 * 1024 * 1024) return idle('파일이 너무 커요(25MB 이하). 녹음 앱에서 음질을 "보통"으로 바꿔 보세요.');
-  if (f.size < 2000) return idle('파일이 비어 있는 것 같아요. 다시 녹음해 주세요.');
-  R.blob = new Blob([f], { type }); R.text = ''; R.hidden = 0; R.source = 'file'; R.t0 = f.lastModified || Date.now(); R.sec = 0; R.peak = -1;
-  const a = new Audio(URL.createObjectURL(R.blob));
-  a.onloadedmetadata = () => { if (isFinite(a.duration)) { R.sec = Math.round(a.duration); const t = $('#dur'); if (t) t.textContent = `(${mmss(R.sec)})`; } };
+  if (!type) return idle('영상 파일(mp4·mov·webm)을 골라 주세요.');
+  if (f.size < 5000) return idle('파일이 비어 있는 것 같아요. 다시 찍어 주세요.');
+  R.blob = new Blob([f], { type }); R.hidden = 0; R.source = 'file'; R.t0 = f.lastModified || Date.now(); R.sec = 0; R.peak = -1;
   review();
 }
 function review() {
-  const silent = R.source === 'recorder' && R.peak >= 0 && R.peak < 4;
-  const ext = EXT[R.blob.type] || 'webm';
-  $('#rec').innerHTML = `<h3>녹음 확인 <span id="dur">${R.sec ? `(${mmss(R.sec)})` : ''}</span></h3>
-    ${silent ? '<div class="err"><b>소리가 거의 녹음되지 않았어요.</b> 아래에서 들어 보고, 소리가 없으면 다시 녹음하거나 녹음 앱 방법을 쓰세요.</div>' : ''}
-    <audio controls preload="metadata" src="${URL.createObjectURL(R.blob)}"></audio>
-    <p class="muted">▶ 눌러서 내 목소리가 잘 들리는지 꼭 확인하세요.${['amr', '3gp'].includes(ext) ? ' (이 형식은 여기서 재생이 안 될 수 있지만 제출은 돼요.)' : ''}</p>
-    ${R.source === 'recorder' && SR ? `<div class="live">${R.text ? esc(R.text) : '<span class="muted">글자 변환 결과가 없어요. 괜찮아요, 선생님이 녹음을 들어요.</span>'}</div>` : ''}
-    <button class="btn" id="makeBtn">제출 파일 만들기</button>
-    <button class="btn sub" id="againBtn">다시 녹음</button>`;
+  const silent = R.source === 'rec' && R.peak >= 0 && R.peak < 4;
+  const big = R.blob.size > MAIL_LIMIT;
+  $('#rec').innerHTML = `<h3>녹화 확인 <span id="dur">${R.sec ? `(${mmss(R.sec)})` : ''}</span> · ${mb(R.blob.size)}</h3>
+    ${silent ? '<div class="err"><b>소리가 거의 녹음되지 않았어요.</b> 재생해 보고, 소리가 없으면 다시 녹화하세요.</div>' : ''}
+    ${big ? `<div class="warn">파일이 ${mb(R.blob.size)}로 커서 메일 첨부 한도(25MB)를 넘을 수 있어요. Gmail은 자동으로 드라이브 링크로 보내 주고, 다른 메일은 실패할 수 있어요. 가능하면 이 화면에서 다시 녹화하세요.</div>` : ''}
+    <video class="review" controls playsinline preload="metadata" src="${URL.createObjectURL(R.blob)}"></video>
+    <p class="muted">▶ 눌러서 <b>얼굴이 보이고 목소리가 잘 들리는지</b> 꼭 확인하세요.</p>
+    <button class="btn" id="makeBtn">이 영상으로 제출하기</button>
+    <button class="btn sub" id="againBtn">다시 녹화</button>`;
+  const v = $('#rec video');
+  v.onloadedmetadata = () => { if (!R.sec && isFinite(v.duration)) { R.sec = Math.round(v.duration); $('#dur').textContent = `(${mmss(R.sec)})`; } };
   $('#makeBtn').onclick = make;
   $('#againBtn').onclick = () => { R.blob = null; $('#outCard').classList.add('hidden'); idle(); };
 }
-const toB64 = (blob) => new Promise((ok, no) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(',')[1]); r.onerror = no; r.readAsDataURL(blob); });
-async function make() {
+
+async function copy(text) {
+  try { await navigator.clipboard.writeText(text); return true; } catch {
+    const t = document.createElement('textarea'); t.value = text; document.body.append(t); t.select();
+    let ok = false; try { ok = document.execCommand('copy'); } catch {} t.remove(); return ok;
+  }
+}
+function make() {
   const alias = $('#alias').value.trim();
   const n = Number(document.querySelector('[name=n]:checked')?.value || 0);
   if (alias.length < 2) { $('#alias').scrollIntoView({ behavior: 'smooth', block: 'center' }); $('#alias').focus(); return alert('1번에 식별명을 입력하세요.'); }
-  if (!n) { $('#steps').scrollIntoView({ behavior: 'smooth', block: 'center' }); return alert('2번에서 몇 단계 녹음인지 고르세요.'); }
-  const b = $('#makeBtn'); b.disabled = true; b.textContent = '만드는 중…';
-  try {
-    const data = {
-      format: 'socratest-oral-submission', version: 2,
-      classCode: CLASS.code, class: CLASS, alias, n, transcript: R.text, durationSec: R.sec, source: R.source, hiddenCount: R.hidden,
-      startedAt: R.t0, createdAt: Date.now(), userAgent: UA.slice(0, 200),
-      audio: { mime: R.blob.type, base64: await toB64(R.blob) },
-    };
-    const step = { 1: 1, 2: 3, 3: 6 }[n];
-    const hms = new Date().toTimeString().slice(0, 8).replace(/:/g, '');
-    const safe = alias.replace(/[^\w-]/g, '_');
-    // 파일 이름은 영문·숫자만 씁니다(일부 휴대폰·메신저에서 한글 이름이 깨짐). 학생 정보는 파일 안에 있습니다.
-    const name = `oral_${CLASS.code}_${safe}_s${step}_${hms}.json`;
-    const file = new File([JSON.stringify(data)], name, { type: 'application/json' });
-    const audioName = `voice_${CLASS.code}_${safe}_s${step}_${hms}.${EXT[R.blob.type] || 'webm'}`;
-    const canShare = !!navigator.canShare?.({ files: [file] });
-    $('#outCard').classList.remove('hidden');
-    $('#out').innerHTML = `<div class="ok">✅ 제출 파일이 준비됐어요: <b>${esc(name)}</b></div>
-      ${canShare ? '<button class="btn green" id="shareBtn">공유하기 (클래스룸·메신저로 보내기)</button>' : ''}
-      <a class="btn ${canShare ? 'sub' : 'green'}" href="${URL.createObjectURL(file)}" download="${esc(name)}">제출 파일 저장</a>
-      <a class="btn sub" href="${URL.createObjectURL(R.blob)}" download="${esc(audioName)}">내 녹음만 따로 저장</a>
-      <p class="muted">선생님이 안내한 곳(클래스룸·과제함 등)에 <b>제출 파일(.json)</b>을 올리면 끝이에요. 녹음은 제출 파일 안에 들어 있어요.<br>
-      저장한 파일 위치: 안드로이드 <b>내 파일 ▸ 다운로드</b> / 아이폰 <b>파일 앱 ▸ 다운로드</b></p>
-      ${IN_APP ? '<div class="warn">앱 안의 브라우저에서는 저장이 안 될 수 있어요. 위 안내대로 크롬·사파리로 열어 주세요.</div>' : ''}`;
-    if ($('#shareBtn')) $('#shareBtn').onclick = () => navigator.share({ files: [file], title: name }).catch(() => {});
-    $('#outCard').scrollIntoView({ behavior: 'smooth' });
-  } catch (e) {
-    alert('제출 파일을 만들지 못했어요: ' + e.message);
-  } finally {
-    b.disabled = false; b.textContent = '제출 파일 다시 만들기';
-  }
+  if (!n) { $('#steps').scrollIntoView({ behavior: 'smooth', block: 'center' }); return alert('2번에서 몇 단계 녹화인지 고르세요.'); }
+  const step = { 1: 1, 2: 3, 3: 6 }[n];
+  const stepName = { 1: '1단계 1차 구술', 2: '3단계 수정 구술', 3: '6단계 실전 최종 구술' }[n];
+  const now = new Date();
+  const hms = now.toTimeString().slice(0, 8).replace(/:/g, '');
+  const safe = alias.replace(/[^\w-]/g, '_');
+  const ext = EXT[R.blob.type] || 'mp4';
+  // 파일 이름에 수업 코드·식별명·단계·녹화 방식이 들어 있어, 교사 프로그램이 그대로 읽어 들입니다(영문·숫자만 사용).
+  const name = `oral_${CLASS.code}_${safe}_s${step}_${hms}_h${R.hidden}_${R.source}.${ext}`;
+  const file = new File([R.blob], name, { type: R.blob.type });
+  const email = CLASS.teacherEmail || '';
+  const subject = `[구술평가] ${CLASS.title} / ${alias} / ${stepName}`;
+  const body = [
+    `${CLASS.title} 구술 영상을 제출합니다.`,
+    '',
+    `식별명: ${alias}`,
+    `단계: ${stepName}`,
+    `수업 코드: ${CLASS.code}`,
+    `녹화 길이: ${R.sec ? mmss(R.sec) : '-'} · 파일 크기: ${mb(R.blob.size)}`,
+    `녹화 방식: ${R.source === 'rec' ? '제출 화면에서 녹화' : '휴대폰 카메라 파일 첨부'}${R.source === 'rec' ? ` · 녹화 중 화면 이탈 ${R.hidden}회` : ''}`,
+    `첨부 파일: ${name}`,
+    `제출 시각: ${now.toLocaleString('ko-KR')}`,
+  ].join('\n');
+  const mailto = `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body + '\n\n(※ 영상 파일을 첨부했는지 확인하세요)')}`;
+  const canShare = !!navigator.canShare?.({ files: [file] });
+  const url = URL.createObjectURL(file);
+  $('#outCard').classList.remove('hidden');
+  $('#out').innerHTML = `
+    ${email ? `<p>받는 사람(선생님 메일)</p><div class="mail"><span style="flex:1">${esc(email)}</span><button id="copyMail">주소 복사</button></div>`
+      : '<div class="err">선생님 메일 주소가 등록되지 않았어요. 영상을 저장한 뒤 선생님이 안내한 곳으로 제출하세요.</div>'}
+    ${canShare && email ? `
+      <div class="stepbox"><b>방법 1 · 영상을 붙여서 바로 보내기 (권장)</b>
+        <ol class="how"><li>아래 버튼을 누르면 선생님 주소가 <b>복사</b>되고 공유 창이 열려요.</li><li><b>Gmail</b>(또는 메일 앱)을 고르세요. 영상이 첨부된 채로 열려요.</li><li><b>받는 사람</b> 칸을 길게 눌러 <b>붙여넣기</b> → 보내기!</li></ol>
+        <button class="btn green" id="shareBtn">📧 메일 앱으로 영상 보내기</button></div>` : ''}
+    <div class="stepbox"><b>${canShare && email ? '방법 2 · ' : ''}영상 저장 후 메일에 첨부하기</b>
+      <ol class="how"><li><b>[영상 저장]</b>을 눌러 휴대폰에 저장해요. (안드로이드: 내 파일 ▸ 다운로드 / 아이폰: 파일 앱 ▸ 다운로드)</li>
+      ${email ? '<li><b>[메일 쓰기]</b>를 누르면 받는 사람·제목·내용이 자동으로 채워져요.</li><li>📎 <b>첨부</b>를 눌러 방금 저장한 영상을 고른 뒤 보내요.</li>' : ''}</ol>
+      <a class="btn ${canShare && email ? 'sub' : ''}" href="${url}" download="${esc(name)}">⬇ 영상 저장 (${mb(R.blob.size)})</a>
+      ${email ? `<a class="btn ${canShare ? 'sub' : 'green'}" href="${esc(mailto)}">✉ 메일 쓰기 (주소·제목 자동)</a>` : ''}</div>
+    <p class="muted">메일 제목: ${esc(subject)}<br>파일 이름: ${esc(name)}<br>보낸 메일함에서 <b>첨부 파일이 있는지</b> 꼭 확인하세요.</p>`;
+  if ($('#copyMail')) $('#copyMail').onclick = async () => alert((await copy(email)) ? '선생님 메일 주소를 복사했어요.' : '복사가 안 돼요. 주소를 직접 적어 주세요: ' + email);
+  if ($('#shareBtn')) $('#shareBtn').onclick = async () => {
+    await copy(email);
+    try { await navigator.share({ files: [file], title: subject, text: `받는 사람: ${email}\n\n${body}` }); }
+    catch (e) { if (e?.name !== 'AbortError') alert('공유 창을 열 수 없어요. 방법 2를 써 주세요.'); }
+  };
+  $('#outCard').scrollIntoView({ behavior: 'smooth' });
 }
 
 (async () => {
@@ -288,7 +331,7 @@ async function make() {
   if (!CLASS) { $('#app').classList.add('hidden'); $('#noClass').classList.remove('hidden'); return; }
   CLASS.maxSeconds = Number(CLASS.maxSeconds) || 180;
   CLASS.rubric = Array.isArray(CLASS.rubric) ? CLASS.rubric : [];
-  document.title = '구술 녹음 · ' + CLASS.title;
+  document.title = '구술 영상 · ' + CLASS.title;
   $('#title').textContent = CLASS.title;
   $('#sub').textContent = `${CLASS.areaLabel || ''} · 수업 코드 ${CLASS.code}`;
   $('#task').textContent = CLASS.task;

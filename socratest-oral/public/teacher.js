@@ -159,6 +159,7 @@ function openEditor(c) {
   $('#f-max').value = String(c?.maxSeconds || 180);
   $('#f-takes').value = String(c?.assessmentTakes || 1);
   $('#f-showai').checked = !!c?.showAiInAssessment;
+  $('#f-email').value = c?.teacherEmail || '';
   if (!c) fillArea(false);
   rubricSum();
   passageCount();
@@ -176,6 +177,7 @@ $('#saveClassBtn').onclick = async () => {
     maxSeconds: Number($('#f-max').value),
     assessmentTakes: Number($('#f-takes').value),
     showAiInAssessment: $('#f-showai').checked,
+    teacherEmail: $('#f-email').value.trim(),
   };
   try {
     if (editingCode && classData?.students.some((s) => Object.keys(s.evals).length) && !confirm('이미 AI 평가를 받은 학생이 있습니다. 평가 기준을 바꾸면 이전 평가와 기준이 달라질 수 있습니다. 저장할까요?')) return;
@@ -241,6 +243,7 @@ function switchTab(tab) {
   $$('#classTabs button').forEach((b) => b.classList.toggle('on', b.dataset.tab === tab));
   for (const t of ['students', 'join', 'offline', 'export']) $('#t-' + t).classList.toggle('hidden', t !== tab);
   if (tab === 'join') renderJoin();
+  if (tab === 'offline') $('#offEmail').textContent = classData?.class.teacherEmail || '(아직 등록 안 됨)';
   if (tab === 'export') renderExport();
 }
 $$('#classTabs button').forEach((b) => (b.onclick = () => switchTab(b.dataset.tab)));
@@ -306,7 +309,7 @@ function renderDetail(force) {
       <h3>${label}</h3>
       <p class="kv">${fmtTime(at.submittedAt)} 제출 · ${fmtSec(at.durationSec)} · ${at.take}번째 녹음${at.hiddenCount ? ` · <b>녹음 중 화면 이탈 ${at.hiddenCount}회</b>` : ''} · 전사: ${SOURCE[at.transcriptSource] || at.transcriptSource}${at.via === 'standalone' ? ' · <span class="pill gray">독립형 제출</span>' : ''}${at.source === 'file' ? ' · <span class="pill warn">녹음 파일 첨부(화면 녹음 아님)</span>' : ''}<br>
       SHA-256 <code>${at.sha256.slice(0, 16)}…</code> · ${Math.round(at.bytes / 1024)}KB</p>
-      <audio controls preload="none" src="/api/audio/${s.id}/a${n}?t=${t}"></audio>
+      ${at.kind === 'video' ? `<video controls playsinline preload="metadata" style="width:100%;max-height:420px;background:#000;border-radius:10px" src="/api/audio/${s.id}/a${n}?t=${t}"></video>` : `<audio controls preload="none" src="/api/audio/${s.id}/a${n}?t=${t}"></audio>`}
       <p class="row"><a class="btn small secondary" href="/api/audio/${s.id}/a${n}?t=${t}&download=1">녹음 파일 저장</a></p>
       ${stateMsg ? `<p>${stateMsg}</p>` : ''}
       <label>전사문 <small>녹음을 들으며 인식 오류를 고칠 수 있습니다(수정 이력이 남습니다)</small></label>
@@ -466,6 +469,28 @@ async function renderJoin() {
   draw();
 }
 
+// ── 메일 제출(영상) ──
+const tHeader = () => ({ Authorization: 'Bearer ' + storage('teacherToken') });
+async function importJson(f) {
+  const r = await fetch(`/api/classes/${currentCode}/import`, { method: 'POST', headers: { ...tHeader(), 'Content-Type': 'application/json' }, body: f });
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.error);
+  return j;
+}
+async function importMedia(f, extra) {
+  const r = await fetch(`/api/classes/${currentCode}/import-media?name=${encodeURIComponent(f.name)}${extra}`, { method: 'POST', headers: { ...tHeader(), 'Content-Type': 'application/octet-stream' }, body: f });
+  const j = await r.json();
+  if (r.status === 409 && /넣을까요/.test(j.error) && confirm(j.error)) return importMedia(f, extra + '&force=1');
+  if (r.status === 422) {
+    // 파일 이름이 바뀌어 학생·단계를 읽을 수 없을 때: 교사가 직접 입력
+    const alias = prompt(`${f.name}\n파일 이름으로 학생을 알 수 없습니다. 식별명을 입력하세요(예: 2-3-07).`);
+    const step = alias && prompt('몇 단계 영상인가요? 1, 3, 6 중 하나를 입력하세요.');
+    if (alias && step) return importMedia(f, `${extra}&alias=${encodeURIComponent(alias.trim())}&step=${encodeURIComponent(step.trim())}`);
+  }
+  if (!r.ok) throw new Error(j.error);
+  return j;
+}
+
 // ── 독립형 HTML ──
 $('#standaloneBtn').onclick = () => download(`/api/classes/${currentCode}/standalone.html`, `구술녹음_${currentCode}.html`);
 $('#importIn').onchange = async (e) => {
@@ -478,9 +503,7 @@ $('#importIn').onchange = async (e) => {
     line.innerHTML = `<span class="spinner"></span> ${esc(f.name)}`;
     log.append(line);
     try {
-      const r = await fetch(`/api/classes/${currentCode}/import`, { method: 'POST', headers: { Authorization: 'Bearer ' + storage('teacherToken'), 'Content-Type': 'application/json' }, body: f });
-      const j = await r.json();
-      if (!r.ok) throw new Error(j.error);
+      const j = f.name.toLowerCase().endsWith('.json') ? await importJson(f) : await importMedia(f, '');
       line.innerHTML = `✅ ${esc(j.alias)} · ${esc(j.label)} 가져옴 → AI 평가 대기열에 넣었습니다.${j.otherClass ? ` <b>(다른 수업 「${esc(j.classTitle)}」(${j.classCode})에 넣었습니다. 수업 목록에서 확인하세요.)</b>` : ''}`;
     } catch (err) {
       line.innerHTML = `<span class="danger-box">❌ ${esc(f.name)}: ${esc(err.message)}</span>`;
@@ -497,7 +520,7 @@ async function renderExport() {
 }
 async function download(url, name) {
   const r = await fetch(url, { headers: { Authorization: 'Bearer ' + storage('teacherToken') } });
-  if (!r.ok) return toast('내려받기 실패', 'error');
+  if (!r.ok) return toast((await r.json().catch(() => ({}))).error || '내려받기 실패', 'error');
   const a = document.createElement('a');
   a.href = URL.createObjectURL(await r.blob());
   a.download = name;

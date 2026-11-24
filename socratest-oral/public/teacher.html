@@ -78,6 +78,8 @@
         <select id="f-takes"><option value="1">1회 (다시 녹음 불가)</option><option value="2">2회 (한 번 다시 녹음 가능)</option><option value="3">3회</option></select>
       </div>
     </div>
+    <label for="f-email">제출 받을 선생님 메일 주소 <small>학생용 HTML의 [메일 쓰기]에 받는 사람으로 자동 입력됩니다 · 한 번 입력하면 다음 수업에도 기억됩니다</small></label>
+    <input id="f-email" type="email" autocomplete="email" placeholder="teacher@school.kr">
     <label><input type="checkbox" id="f-showai"> 실전 AI 평가(7단계)를 학생에게 바로 보여 주기 <small>— 끄면 선생님이 최종 피드백을 공개할 때 함께 보입니다(권장).</small></label>
     <p class="row" style="margin-top:18px"><button id="saveClassBtn">저장</button><button class="secondary" id="cancelEditBtn">취소</button></p>
   </section>
@@ -103,7 +105,7 @@
     <div class="tabs" id="classTabs">
       <button data-tab="students" class="on">학생 현황</button>
       <button data-tab="join">학생 접속(QR)</button>
-      <button data-tab="offline">독립형 HTML(오프라인 제출)</button>
+      <button data-tab="offline">메일 제출(학생 폰 영상)</button>
       <button data-tab="export">내보내기·보관</button>
     </div>
 
@@ -141,20 +143,21 @@
     </div>
 
     <div id="t-offline" class="card hidden">
-      <h2>독립형 HTML · 서버 없이 녹음 제출받기</h2>
-      <p>학교 와이파이에서 학생 기기가 교사 PC에 접속되지 않을 때 씁니다. 학생은 휴대폰에서 이 HTML로 녹음하고, 만들어진 <b>제출 파일(.json)</b>을 클래스룸·과제함 등으로 보냅니다. 교사가 그 파일들을 아래에서 가져오면 녹음이 저장되고 AI 평가가 진행됩니다.</p>
+      <h2>메일 제출 · 학생이 자기 폰으로 영상을 녹화해 선생님 메일로 보내기</h2>
+      <p>학생은 휴대폰에서 학생용 HTML(또는 웹 링크)을 열어 <b>얼굴이 보이게 영상으로 녹화</b>하고, <b>[메일 쓰기]</b>로 선생님 메일에 영상을 첨부해 보냅니다. 선생님은 메일에서 영상 파일을 내려받아 아래에서 <b>한꺼번에 가져오면</b> 영상이 보관되고, 글로 변환된 뒤 AI 평가가 진행됩니다.</p>
+      <p class="hint">제출 받을 메일 주소는 「수업 설정 편집」에서 등록합니다. 현재: <b id="offEmail"></b></p>
       <ol>
         <li><button class="small" id="standaloneBtn">이 수업의 학생용 HTML 내려받기</button> <span class="hint">제시문·과제·평가 기준이 들어 있습니다.</span></li>
         <li>학생에게 나눠 주기
           <ul class="hint">
-            <li><b>권장: 인터넷 주소로 올리기</b>. GitHub Pages나 Netlify Drop처럼 https 주소를 주는 곳에 올리면, 학생이 링크를 열어 <b>화면에서 바로 녹음</b>할 수 있습니다(말하는 동안 글자 변환 포함).</li>
-            <li><b>파일로 나눠 주기</b>. 학생이 휴대폰에서 파일을 열면 브라우저에 따라 화면 녹음이 막힐 수 있습니다. 그럴 때는 <b>휴대폰 기본 녹음기</b>로 녹음해 첨부하는 방식으로 자동 전환됩니다.</li>
+            <li><b>권장: 웹 링크로 나눠 주기</b>. GitHub Pages의 교사용 화면에서 만든 링크·QR을 쓰면 학생이 <b>화면에서 바로 녹화</b>합니다(영상 크기를 3분 ≈ 10MB로 줄여 메일 첨부가 쉬움).</li>
+            <li><b>파일로 나눠 주기</b>. 학생이 휴대폰에서 파일을 열면 브라우저에 따라 화면 녹화가 막힐 수 있습니다. 그럴 때는 <b>휴대폰 카메라 앱</b>으로 찍어 첨부하는 방식이 되며, 파일이 커서 메일 전송이 어려울 수 있습니다.</li>
           </ul>
         </li>
-        <li>학생 제출 파일 가져오기: <label class="btn small secondary" style="display:inline-flex">제출 파일 선택(여러 개 가능)<input type="file" id="importIn" accept=".json,application/json" multiple hidden></label></li>
+        <li>메일로 받은 영상 가져오기: <label class="btn small secondary" style="display:inline-flex">영상 파일 선택(여러 개 가능)<input type="file" id="importIn" accept="video/*,audio/*,.mp4,.webm,.mov,.m4a,.json" multiple hidden></label> <span class="hint">파일 이름(oral_코드_식별명_s단계_…)에서 학생과 단계를 자동으로 읽습니다.</span></li>
       </ol>
       <div id="importLog"></div>
-      <p class="warn">독립형 제출에는 실전 녹음 횟수 제한이 적용되지 않습니다. '녹음 파일 첨부'로 낸 녹음은 학생 상세 화면에 표시되니, 실전 평가는 가능하면 교실에서 교사 PC 접속 방식으로 진행하세요. 독립형으로 낸 학생에게는 교사가 [피드백 복사]로 AI 피드백을 전달하거나, 학생이 나중에 같은 식별명으로 교사 PC에 접속해(처음 정하는 PIN으로) 볼 수 있습니다.</p>
+      <p class="warn">메일 제출에는 실전 녹화 횟수 제한이 적용되지 않습니다(학생이 여러 번 찍고 하나를 보낼 수 있음). 화면 녹화가 아니라 카메라 앱으로 찍어 낸 영상, 녹화 중 화면 이탈 횟수는 학생 상세 화면에 표시됩니다. 피드백은 [학생에게 보낼 피드백 복사]로 메일 답장·클래스룸에 붙여 넣어 전달하세요. 학생 얼굴이 담긴 영상은 민감한 개인정보이므로 평가가 끝나면 학교 기준에 따라 삭제하세요.</p>
     </div>
 
     <div id="t-export" class="card hidden">
