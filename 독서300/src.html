@@ -172,6 +172,19 @@ textarea.long{min-height:220px}
 .guide ol,.guide ul{padding-left:20px}
 .guide table{border-collapse:collapse;width:100%;font-size:13.5px;margin:8px 0}
 .guide td,.guide th{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+.guide h3{font-size:16px;margin:16px 0 4px}
+table.plan th.m{text-align:center;width:13%}
+table.plan td.st{text-align:center;font-size:12.5px;font-weight:500}
+.st-plan{background:color-mix(in srgb,var(--tE) 14%,var(--paper))}
+.st-read{background:color-mix(in srgb,var(--tC) 14%,var(--paper))}
+.st-debate{background:color-mix(in srgb,var(--tB) 16%,var(--paper))}
+.st-write{background:color-mix(in srgb,var(--tA) 14%,var(--paper))}
+.st-oral{background:color-mix(in srgb,var(--tH) 14%,var(--paper))}
+.st-none{color:var(--muted)}
+.model-pick{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:8px 0}
+@media (max-width:560px){.model-pick{grid-template-columns:1fr}}
+.model-pick div{border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:13.5px}
+.model-pick b{display:block;margin-bottom:2px}
 .tblwrap{overflow-x:auto}
 .fn{font-size:12.5px;color:var(--muted)}
 sup a{text-decoration:none}
@@ -972,6 +985,50 @@ function renderGuide(){
    <tr><td>2</td><td>모둠·학급 토론</td><td>② 작성(경청 후 달라진 생각 포함)</td></tr>
    <tr><td>3</td><td>논술 쓰기 → 1차 AI 피드백 → 고쳐 쓰기</td><td>③ 작성, 1차 평가, 수정</td></tr>
    <tr><td>4</td><td>구술(짝 면접·학급 발표) → 2차 AI 피드백 → 파일 제출</td><td>④ 작성, 2차 평가, 내보내기</td></tr></table></div>
+
+  <h2 id="models">운영 모형 예시 (교사용)</h2>
+  <p>독서 지도 경험과 학교 여건에 따라 아래 모형 가운데 하나를 골라 1학기(3~7월) 계획을 세웁니다. 모든 모형은 <b>계획 → 독서·독서일지 → 토론 → 논술 → 구술</b>의 같은 순서를 따르고, 운영 단위(주 1회, 월 1주, 캠프)만 다릅니다.</p>
+  <div class="model-pick">
+    <div><b>처음 운영한다면</b>교과 수업 연계 프로젝트형: 매주 한 시간씩 정해진 순서대로 진행해 부담이 적습니다.</div>
+    <div><b>담임·동아리라면</b>창체 활동 연계형: 토론·논술·구술을 한 달씩 나누어 충분히 다룹니다.</div>
+    <div><b>학년·학교 단위라면</b>독서활동 주간형: 한 달에 한 주를 독서 주간으로 묶어 집중 운영합니다.</div>
+    <div><b>집중 경험이 필요하다면</b>캠프형: 학기 말·방학에 1~2일 동안 질문부터 구술까지 한 번에 경험합니다.</div>
+  </div>
+  <p class="small"><span class="st-plan" style="padding:1px 6px;border-radius:4px">계획</span> <span class="st-read" style="padding:1px 6px;border-radius:4px">독서·독서일지</span> <span class="st-debate" style="padding:1px 6px;border-radius:4px">토론</span> <span class="st-write" style="padding:1px 6px;border-radius:4px">논술</span> <span class="st-oral" style="padding:1px 6px;border-radius:4px">구술</span></p>
+
+  <h3>1. 프로젝트 활동 기반 운영(예)</h3>
+  <div class="tblwrap"><table class="plan"><tr><th>유형</th><th>운영 단위</th><th class="m">3월</th><th class="m">4월</th><th class="m">5월</th><th class="m">6월</th><th class="m">7월</th></tr>
+   <tr><td><b>교과 수업 연계형</b></td><td>주 1회 독서 활동</td><td class="st st-plan">독서 활동 계획하기<br>→ 독서·독서일지</td><td class="st st-read">독서하며 독서일지 작성하기</td><td class="st st-debate">토론 활동하기</td><td class="st st-write">논술·구술 활동하기</td><td class="st st-none">(학기 정리)</td></tr>
+   <tr><td><b>창체 활동 연계형</b></td><td>주 1회 독서 활동</td><td class="st st-plan">독서 활동 계획하기</td><td class="st st-read">독서하며 독서일지 작성하기</td><td class="st st-read">독서일지 마무리<br>→ 토론 활동하기</td><td class="st st-write">논술 활동하기</td><td class="st st-oral">구술 활동하기</td></tr>
+  </table></div>
+  <p class="small muted">교과 수업 연계형은 3월 계획 뒤 3~4월에 독서일지를 씁니다. 창체 활동 연계형은 4~5월에 독서일지를 쓰고 5월 중 토론으로 넘어갑니다.</p>
+
+  <h3>2. 독서활동 주간 기반 운영(예)</h3>
+  <div class="tblwrap"><table class="plan"><tr><th>유형</th><th>운영 단위</th><th class="m">3월</th><th class="m">4월</th><th class="m">5월</th><th class="m">6월</th><th class="m">7월</th></tr>
+   <tr><td><b>교과 수업 연계형</b></td><td>월 1주 독서 활동</td><td class="st st-plan">독서 활동 계획하기</td><td class="st st-read">독서하며 독서일지 작성하기</td><td class="st st-read">독서하며 독서일지 작성하기</td><td class="st st-write">논술·구술 활동하기</td><td class="st st-none">(학기 정리)</td></tr>
+   <tr><td><b>창체 활동 연계형</b></td><td>월 1주 주간 운영</td><td class="st st-plan">계획·독서·독서일지 주간</td><td class="st st-read">계획·독서·독서일지 주간</td><td class="st st-read">계획·독서·독서일지 주간</td><td class="st st-debate">토론 주간</td><td class="st st-oral">논술·구술 주간</td></tr>
+  </table></div>
+  <p class="small muted">교과 수업 연계 주간형은 토론 주간을 따로 두지 않으므로, 6월 논술·구술 주간에 짧은 짝 토론(하브루타)을 넣어 ② 토론 기록을 함께 남기면 좋습니다.</p>
+
+  <h3>2. 독서활동 주간 기반 운영 – 캠프형(예)</h3>
+  <p>학기 말이나 방학 중 <b>1일 이상, 무박 또는 1박</b>으로 운영합니다. 캠프 <b>2개월 전에 추천 도서를 배부</b>해 미리 읽고 독서일지를 쓰게 합니다. 무박으로 운영할 때는 1일차와 2일차 일정을 각각 하루씩 나누어 진행합니다.</p>
+  <div class="tblwrap"><table class="plan"><tr><th>시점</th><th>활동</th><th>프로그램에서 하는 일</th></tr>
+   <tr><td><b>캠프 2개월 전</b></td><td class="st st-plan">추천 도서 배부, 사전 독서와 독서일지</td><td>대주제 지도에서 대주제·도서를 정하고 활동 카드 만들기, ① 읽기 작성, 매일 독서 시간 기록</td></tr>
+   <tr><td><b>1일차 오전</b></td><td class="st st-read">독서 활동 나누기(질문·답변 하브루타)</td><td>① 읽기의 ‘하브루타 질문 만들기’로 짝과 묻고 답하기</td></tr>
+   <tr><td><b>1일차 오후</b></td><td class="st st-debate">토론 준비 활동</td><td>② 토론의 입장·근거·예상 반론 정리</td></tr>
+   <tr><td><b>2일차 오전</b></td><td class="st st-debate">토론 활동</td><td>② 토론의 ‘듣고 달라진 생각’ 기록</td></tr>
+   <tr><td><b>2일차 오후</b></td><td class="st st-write">논술·구술 활동</td><td>③ 논술 → 1차 AI 피드백 → 고쳐 쓰기 → ④ 구술 → 2차 AI 피드백</td></tr>
+  </table></div>
+
+  <h3>단계별 프로그램 사용법</h3>
+  <div class="tblwrap"><table><tr><th>운영 단계</th><th>학생이 하는 일</th><th>교사가 하는 일</th></tr>
+   <tr><td class="st-plan">독서 활동 계획하기</td><td>학생 정보(학년) 입력, 대주제 지도에서 질문·도서를 고르고 활동 카드 만들기, 연계 교과 지정</td><td>학급 대주제와 공통 도서 결정, 학교도서관 대출 협의</td></tr>
+   <tr><td class="st-read">독서하며 독서일지 작성하기</td><td>‘오늘 읽은 시간 기록’, 도서 300에서 읽은 책 표시, ① 읽기(요약·인상 깊은 문장·하브루타 질문·생각)</td><td>학급 현황표로 진도 확인, 독서가 느린 학생 개별 지도</td></tr>
+   <tr><td class="st-debate">토론 활동하기</td><td>② 토론(입장·근거·반론·재반박·듣고 달라진 생각)</td><td>토론 진행과 관찰 기록(교사 판정에 반영)</td></tr>
+   <tr><td class="st-write">논술 활동하기</td><td>③ 논술 → 1차 AI 피드백 → 수정·보완</td><td>수정 과제 확인, 필요하면 개별 첨삭</td></tr>
+   <tr><td class="st-oral">구술 활동하기</td><td>④ 구술(답변 원고·꼬리 질문·성찰) → 2차 AI 피드백 → 활동 파일 제출</td><td>구술 관찰, 교사 피드백·판정, 특기사항 문구 확정, 독서로 입력 목록 정리</td></tr>
+  </table></div>
+  <p class="small muted">AI를 쓰기 어려운 환경에서는 ‘AI 요청문 복사’로 교사가 대신 받아 붙여넣거나, 같은 질문을 종이 활동지로 운영할 수 있습니다.</p>
 
   <h2>학생부 기재 유의사항</h2>
   <ul><li>2024학년도 대입(졸업생 포함)부터 ‘독서활동상황’은 상급학교 진학 자료로 제공되지 않습니다. 단순 독후활동 외의 교육활동은 도서명을 포함해 교과 세특·창체 등 다른 영역에 입력할 수 있습니다.<sup><a href="#fn2">[2]</a></sup></li>
